@@ -1,65 +1,98 @@
-import Image from "next/image";
+import Link from 'next/link';
+import Image from 'next/image';
+import { getSortedPostsData } from '@/lib/markdown';
 
-export default function Home() {
+export default async function Home() {
+  const allPostsData = getSortedPostsData().slice(0, 5); // Limit to top 5 for home
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <div className="flex flex-col gap-16 pt-0 pb-12 md:pt-2 md:pb-20 animate-fade-in">
+      {/* Header Section */}
+      <section className="flex flex-col sm:flex-row gap-8 items-start sm:items-center">
+        <Image src="/avatar.svg" alt="Faiaz Azmain Avatar" width={150} height={150} className="shrink-0" priority />
+        <div className="flex-1 flex flex-col gap-4">
+
+          <p className="text-lg md:text-2xl text-[var(--foreground)]/80 leading-relaxed max-w-xl">
+            Hello, I am <Link href="/about" className="font-medium underline underline-offset-4 decoration-[var(--foreground)]/30 hover:decoration-[var(--foreground)] transition-colors">Faiaz</Link>.
           </p>
+          <div className="flex gap-4 mt-2 text-sm font-medium">
+            <a href="mailto:contact@fazmain.com" className="hover:underline underline-offset-4 decoration-[var(--foreground)]/30">Email</a>
+            <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="hover:underline underline-offset-4 decoration-[var(--foreground)]/30">GitHub</a>
+            <a href="https://x.com" target="_blank" rel="noopener noreferrer" className="hover:underline underline-offset-4 decoration-[var(--foreground)]/30">X (Twitter)</a>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </section>
+
+      {/* Blogs Section */}
+      <section className="flex flex-col gap-8 md:gap-10">
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-medium tracking-tight">Posts</h2>
         </div>
-      </main>
+        <div className="flex flex-col gap-6">
+          {allPostsData.length === 0 ? (
+            <p className="text-[var(--foreground)]/60 italic">No posts found.</p>
+          ) : (
+            allPostsData.map(({ slug, date, title, tags }) => (
+              <div key={slug} className="flex flex-col gap-1 w-full group">
+                <Link href={`/blog/${slug}`} className="flex items-baseline gap-2 w-full">
+                  <span className="text-lg font-medium group-hover:underline underline-offset-4 decoration-[var(--foreground)]/30 transition-all">
+                    {title}
+                  </span>
+                  <div className="flex-1 border-b-[2px] border-dotted border-[var(--foreground)]/20 mx-2 relative top-[-6px] min-w-[20px]"></div>
+                  <time dateTime={date} className="text-[var(--foreground)]/70 shrink-0 text-md">
+                    {new Date(date).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric'
+                    })}
+                  </time>
+                </Link>
+                {tags && tags.length > 0 && (
+                  <span className="text-sm italic text-[var(--foreground)]/50 font-serif lowercase">
+                    #{tags[0]}
+                  </span>
+                )}
+              </div>
+            ))
+          )}
+        </div>
+        <div>
+          <Link href="/blog" className="text-sm font-medium hover:underline underline-offset-4 decoration-[var(--foreground)]/30 flex items-center gap-1 w-fit">
+            View all posts <span className="opacity-70">→</span>
+          </Link>
+        </div>
+      </section>
+
+      {/* Experience Section */}
+      <section className="flex flex-col gap-6">
+        <h2 className="text-2xl font-medium tracking-tight">Work</h2>
+        <div className="flex flex-col gap-4 text-base md:text-lg">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-6">
+            <span className="w-30 shrink-0 text-[var(--foreground)]/60">Summer 2025</span>
+            <div className="flex flex-wrap gap-x-2 gap-y-1 sm:gap-4">
+              <span className="text-[var(--foreground)]">Wayne Country Visitors Bureau</span>
+              <span className="hidden sm:inline text-[var(--foreground)]/40">—</span>
+              <span className="text-[var(--foreground)]/60">Software Engineer Intern</span>
+            </div>
+          </div>
+          <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-6">
+            <span className="w-30 shrink-0 text-[var(--foreground)]/60">Summer 2024</span>
+            <div className="flex flex-wrap gap-x-2 gap-y-1 sm:gap-4">
+              <span className="text-[var(--foreground)]">Shiree Private Limited</span>
+              <span className="hidden sm:inline text-[var(--foreground)]/40">—</span>
+              <span className="text-[var(--foreground)]/60">Software Engineer Intern</span>
+            </div>
+          </div>
+          <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-6">
+            <span className="w-30 shrink-0 text-[var(--foreground)]/60">Summer 2023</span>
+            <div className="flex flex-wrap gap-x-2 gap-y-1 sm:gap-4">
+              <span className="text-[var(--foreground)]">Shiree Private Limited</span>
+              <span className="hidden sm:inline text-[var(--foreground)]/40">—</span>
+              <span className="text-[var(--foreground)]/60">Product Manager Intern</span>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
