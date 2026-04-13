@@ -9,16 +9,25 @@ export default async function Home() {
     <div className="flex flex-col gap-16 pt-0 pb-12 md:pt-2 md:pb-20 animate-fade-in">
       {/* Header Section */}
       <section className="flex flex-col sm:flex-row gap-8 items-start sm:items-center">
-        <Image src="/avatar.svg" alt="Faiaz Azmain Avatar" width={150} height={150} className="shrink-0" priority />
-        <div className="flex-1 flex flex-col gap-4">
+        <Image src="/avatar.svg" alt="Faiaz Azmain Avatar" width={200} height={200} className="w-24 h-24 md:w-[200px] md:h-[200px] shrink-0" priority />
+        <div className="flex-1 flex flex-col">
 
           <p className="text-lg md:text-2xl text-[var(--foreground)]/80 leading-relaxed max-w-xl">
             Hello, I am <Link href="/about" className="font-medium underline underline-offset-4 decoration-[var(--foreground)]/30 hover:decoration-[var(--foreground)] transition-colors">Faiaz</Link>.
           </p>
-          <div className="flex gap-4 mt-2 text-sm font-medium">
-            <a href="mailto:contact@fazmain.com" className="hover:underline underline-offset-4 decoration-[var(--foreground)]/30">Email</a>
-            <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="hover:underline underline-offset-4 decoration-[var(--foreground)]/30">GitHub</a>
-            <a href="https://x.com" target="_blank" rel="noopener noreferrer" className="hover:underline underline-offset-4 decoration-[var(--foreground)]/30">X (Twitter)</a>
+          <p className="text-lg md:text-2xl text-[var(--foreground)]/80 leading-relaxed max-w-xl">
+            I research AI interpretability and alignment.
+          </p>
+
+          <p className="text-lg md:text-2xl text-[var(--foreground)]/80 leading-relaxed max-w-xl">
+            I also love to build things.
+          </p>
+          <div className="flex gap-4 mt-6 text-sm font-medium text-[#d6650f]">
+            <a href="https://mail.google.com/mail/?view=cm&fs=1&to=fazmain25@gmail.com" target="_blank" rel="noopener noreferrer" className="hover:underline underline-offset-4 decoration-[#ac4c2e]/40">Email</a>
+            <a href="https://github.com/fazmain" target="_blank" rel="noopener noreferrer" className="hover:underline underline-offset-4 decoration-[#ac4c2e]/40">GitHub</a>
+            <a href="https://x.com/faiazAz" target="_blank" rel="noopener noreferrer" className="hover:underline underline-offset-4 decoration-[#ac4c2e]/40">X (Twitter)</a>
+            <a href="https://scholar.google.com/citations?user=tARzRWgAAAAJ" target="_blank" rel="noopener noreferrer" className="hover:underline underline-offset-4 decoration-[#ac4c2e]/40">Google Scholar</a>
+
           </div>
         </div>
       </section>
@@ -26,7 +35,7 @@ export default async function Home() {
       {/* Blogs Section */}
       <section className="flex flex-col gap-8 md:gap-10">
         <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-medium tracking-tight">Posts</h2>
+          <h2 className="text-2xl font-medium tracking-tight text-[#d6650f]">Posts</h2>
         </div>
         <div className="flex flex-col gap-6">
           {allPostsData.length === 0 ? (
@@ -48,9 +57,13 @@ export default async function Home() {
                   </time>
                 </Link>
                 {tags && tags.length > 0 && (
-                  <span className="text-sm italic text-[var(--foreground)]/50 font-serif lowercase">
-                    #{tags[0]}
-                  </span>
+                  <div className="flex flex-wrap gap-x-2 gap-y-1">
+                    {tags.map((tag) => (
+                      <span key={tag} className="text-sm italic text-[var(--foreground)]/50 font-serif lowercase">
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
                 )}
               </div>
             ))
@@ -65,7 +78,7 @@ export default async function Home() {
 
       {/* Experience Section */}
       <section className="flex flex-col gap-6">
-        <h2 className="text-2xl font-medium tracking-tight">Work</h2>
+        <h2 className="text-2xl font-medium tracking-tight text-[#ac4c2e]">Work</h2>
         <div className="flex flex-col gap-4 text-base md:text-lg">
           <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-6">
             <span className="w-30 shrink-0 text-[var(--foreground)]/60">Summer 2025</span>

@@ -37,9 +37,13 @@ export default async function BlogIndex() {
                   </time>
                 </Link>
                 {tags && tags.length > 0 && (
-                   <span className="text-sm italic text-[var(--foreground)]/50 font-serif lowercase">
-                     #{tags[0]}
-                   </span>
+                  <div className="flex flex-wrap gap-x-2 gap-y-1">
+                    {tags.map((tag) => (
+                      <span key={tag} className="text-sm italic text-[var(--foreground)]/50 font-serif lowercase">
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
                 )}
               </div>
             ))
