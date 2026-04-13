@@ -22,7 +22,7 @@ export default async function Home() {
           <p className="text-lg md:text-2xl text-[var(--foreground)]/80 leading-relaxed max-w-xl">
             I also love to build things.
           </p>
-          <div className="flex gap-4 mt-6 text-sm font-medium text-[#d6650f]">
+          <div className="flex gap-4 mt-6 text-sm font-medium text-[#ac4c2e]">
             <a href="https://mail.google.com/mail/?view=cm&fs=1&to=fazmain25@gmail.com" target="_blank" rel="noopener noreferrer" className="hover:underline underline-offset-4 decoration-[#ac4c2e]/40">Email</a>
             <a href="https://github.com/fazmain" target="_blank" rel="noopener noreferrer" className="hover:underline underline-offset-4 decoration-[#ac4c2e]/40">GitHub</a>
             <a href="https://x.com/faiazAz" target="_blank" rel="noopener noreferrer" className="hover:underline underline-offset-4 decoration-[#ac4c2e]/40">X (Twitter)</a>
@@ -35,7 +35,7 @@ export default async function Home() {
       {/* Blogs Section */}
       <section className="flex flex-col gap-8 md:gap-10">
         <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-medium tracking-tight text-[#d6650f]">Posts</h2>
+          <h2 className="text-2xl font-medium tracking-tight text-[#ac4c2e]">Posts</h2>
         </div>
         <div className="flex flex-col gap-6">
           {allPostsData.length === 0 ? (

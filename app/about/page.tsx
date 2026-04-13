@@ -15,31 +15,19 @@ export default function About() {
 
 
         <p>
-          I am a software engineer and researcher with a deep focus on Mechanistic Interpretability.
-          My goal is to reverse-engineer Large Language Models to understand the learned circuits and features that drive their immense capabilities.
-          Through this work, I aim to address the pressing challenges of AI safety, alignment, and reliability.
+          I am a computer science student graduating May 2026. I am from Dhaka, Bangladesh and currently live in a small rural Ohio town. I am currently researching AI safety, particularly interpretability.
+          Before getting into AI, I was interested in creating things people love and use. And I still am.
         </p>
 
-        <h2>Professional Journey</h2>
         <p>
-          Recently, I have been working as a Software Engineer Intern at Shiree Private Limited, where I focus on full-stack development.
-          My work involves building scalable and resilient applications, such as integrating React Service Workers for offline capabilities in low-bandwidth regions.
-        </p>
-        <p>
-          Prior to that, at Wayne Country Visitors Bureau, I built an offline-first map as a progressive web app, aimed at enhancing tourist experiences.
-          I also developed AI-powered itinerary generation tailored to the specific needs of users, giving me practical insight into deploying ML models to consumer-facing applications.
+          In my free time, I like to play the guitar and sing. Occationally, I play badminton in my school.
         </p>
 
-        <h2>Philosophy</h2>
-        <p>
-          I believe that technology reaches its full potential when it's built transparently and thoughtfully.
-          Whether I'm writing a technical deep dive or shipping production code, I prioritize simplicity, robustness, and interpretability in both code and artificial neural networks.
-        </p>
 
-        <h2>Get in Touch</h2>
+        <h4>Get in Touch</h4>
         <p>
           I'm always open to discussing research, collaboration opportunities, or just having a chat about the future of AI.
-          Feel free to reach out via <a href="mailto:contact@fazmain.com">email</a> or connect with me on <a href="https://x.com" target="_blank" rel="noopener noreferrer">Twitter</a>.
+          Feel free to reach out via <a href="mailto:fazmain25@gmail.com">fazmain25@gmail.com</a> or connect with me on <a href="https://x.com/faiazAz" target="_blank" rel="noopener noreferrer">Twitter</a>.
         </p>
       </section>
     </div>
