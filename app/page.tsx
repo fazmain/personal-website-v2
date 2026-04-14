@@ -3,7 +3,9 @@ import Image from 'next/image';
 import { getSortedPostsData } from '@/lib/markdown';
 
 export default async function Home() {
-  const allPostsData = getSortedPostsData().slice(0, 5); // Limit to top 5 for home
+  const allPostsData = getSortedPostsData();
+  const essayPosts = allPostsData.filter(post => post.tags?.some(tag => tag.toLowerCase() === "thoughts")).slice(0, 3);
+  const technicalPosts = allPostsData.filter(post => !post.tags?.some(tag => tag.toLowerCase() === "thoughts")).slice(0, 3);
 
   return (
     <div className="flex flex-col gap-16 pt-0 pb-12 md:pt-2 md:pb-20 animate-fade-in">
@@ -20,6 +22,7 @@ export default async function Home() {
           </p>
 
           <p className="text-lg md:text-2xl text-[var(--foreground)]/80 leading-relaxed max-w-xl">
+            {/* I also love to build <Link href="/projects" className="underline underline-offset-4 decoration-[#ac4c2e]/40 hover:decoration-[#ac4c2e] transition-colors">things</Link>. */}
             I also love to build things.
           </p>
           <div className="flex gap-4 mt-6 text-sm font-medium text-[#ac4c2e]">
@@ -34,74 +37,171 @@ export default async function Home() {
 
       {/* Blogs Section */}
       <section className="flex flex-col gap-8 md:gap-10">
-        <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-medium tracking-tight text-[#ac4c2e]">Posts</h2>
-        </div>
+
+        {/* Technical Posts */}
         <div className="flex flex-col gap-6">
-          {allPostsData.length === 0 ? (
-            <p className="text-[var(--foreground)]/60 italic">No posts found.</p>
-          ) : (
-            allPostsData.map(({ slug, date, title, tags }) => (
-              <div key={slug} className="flex flex-col gap-1 w-full group">
-                <Link href={`/blog/${slug}`} className="flex items-baseline gap-2 w-full">
-                  <span className="text-lg font-medium group-hover:underline underline-offset-4 decoration-[var(--foreground)]/30 transition-all">
-                    {title}
-                  </span>
-                  <div className="flex-1 border-b-[2px] border-dotted border-[var(--foreground)]/20 mx-2 relative top-[-6px] min-w-[20px]"></div>
-                  <time dateTime={date} className="text-[var(--foreground)]/70 shrink-0 text-md">
-                    {new Date(date).toLocaleDateString('en-US', {
-                      year: 'numeric',
-                      month: 'short',
-                      day: 'numeric'
-                    })}
-                  </time>
-                </Link>
-                {tags && tags.length > 0 && (
-                  <div className="flex flex-wrap gap-x-2 gap-y-1">
-                    {tags.map((tag) => (
-                      <span key={tag} className="text-sm italic text-[var(--foreground)]/50 font-serif lowercase">
-                        #{tag}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))
-          )}
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-medium tracking-tight text-[#ac4c2e]">Research &amp; Technical Notes</h2>
+          </div>
+          <div className="flex flex-col gap-6">
+            {technicalPosts.length === 0 ? (
+              <p className="text-[var(--foreground)]/60 italic">No technical posts found.</p>
+            ) : (
+              technicalPosts.map(({ slug, date, title, tags }) => (
+                <div key={slug} className="flex flex-col gap-1 w-full group">
+                  <Link href={`/blog/${slug}`} className="flex items-baseline gap-2 w-full">
+                    <span className="text-lg font-medium group-hover:underline underline-offset-4 decoration-[var(--foreground)]/30 transition-all">
+                      {title}
+                    </span>
+                    <div className="flex-1 border-b-[2px] border-dotted border-[var(--foreground)]/20 mx-2 relative top-[-6px] min-w-[20px]"></div>
+                    <time dateTime={date} className="text-[var(--foreground)]/70 shrink-0 text-md">
+                      {new Date(date).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                      })}
+                    </time>
+                  </Link>
+                  {tags && tags.length > 0 && (
+                    <div className="flex flex-wrap gap-x-2 gap-y-1">
+                      {tags.map((tag) => (
+                        <span key={tag} className="text-sm italic text-[var(--foreground)]/50 font-serif lowercase">
+                          #{tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))
+            )}
+          </div>
         </div>
+
+        {/* Essay Posts */}
+        <div className="flex flex-col gap-6">
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-medium tracking-tight text-[#ac4c2e]">Essays &amp; Thoughts</h2>
+          </div>
+          <div className="flex flex-col gap-6">
+            {essayPosts.length === 0 ? (
+              <p className="text-[var(--foreground)]/60 italic">No essays found.</p>
+            ) : (
+              essayPosts.map(({ slug, date, title, tags }) => (
+                <div key={slug} className="flex flex-col gap-1 w-full group">
+                  <Link href={`/blog/${slug}`} className="flex items-baseline gap-2 w-full">
+                    <span className="text-lg font-medium group-hover:underline underline-offset-4 decoration-[var(--foreground)]/30 transition-all">
+                      {title}
+                    </span>
+                    <div className="flex-1 border-b-[2px] border-dotted border-[var(--foreground)]/20 mx-2 relative top-[-6px] min-w-[20px]"></div>
+                    <time dateTime={date} className="text-[var(--foreground)]/70 shrink-0 text-md">
+                      {new Date(date).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                      })}
+                    </time>
+                  </Link>
+                  {tags && tags.length > 0 && (
+                    <div className="flex flex-wrap gap-x-2 gap-y-1">
+                      {tags.map((tag) => (
+                        <span key={tag} className="text-sm italic text-[var(--foreground)]/50 font-serif lowercase">
+                          #{tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
         <div>
-          <Link href="/blog" className="text-sm font-medium hover:underline underline-offset-4 decoration-[var(--foreground)]/30 flex items-center gap-1 w-fit">
+          <Link href="/blog" className="text-sm font-medium hover:underline underline-offset-4 decoration-[var(--foreground)]/30 flex items-center gap-1 w-fit mt-2">
             View all posts <span className="opacity-70">→</span>
           </Link>
+        </div>
+      </section>
+
+      {/* Research Section */}
+      <section className="flex flex-col gap-8 md:gap-10">
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-medium tracking-tight text-[#ac4c2e]">Research</h2>
+        </div>
+        <div className="flex flex-col gap-6">
+          <a href="https://arxiv.org/pdf/2512.12443" target="_blank" rel="noopener noreferrer" className="flex flex-col gap-3 group border border-[var(--foreground)]/10 rounded-xl p-5 hover:bg-[var(--foreground)]/[0.02] transition-colors">
+            <h3 className="text-lg font-medium group-hover:underline underline-offset-4 decoration-[#ac4c2e]/40 transition-colors">
+              AI Transparency Atlas: Framework, Scoring, and Real-Time Model Card Evaluation Pipeline <span className="opacity-0 group-hover:opacity-100 transition-opacity text-[#ac4c2e]/70">↗</span>
+            </h3>
+            <p className="text-[var(--foreground)]/70 text-base leading-relaxed">
+              A comprehensive framework and scoring mechanism designed to dynamically evaluate and validate the reliability of AI Model Cards in real-time.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 sm:items-center mt-1 text-sm text-[var(--foreground)]/50">
+              <span>Faiaz Azmain, Hanyu Wang, Akhmadillo Mamirov</span>
+              <span className="hidden sm:inline border-l border-[var(--foreground)]/20 h-3"></span>
+              <span className="hover:text-[var(--foreground)] transition-colors">View Article</span>
+            </div>
+          </a>
+
+          <a href="https://arxiv.org/pdf/2505.14692" target="_blank" rel="noopener noreferrer" className="flex flex-col gap-3 group border border-[var(--foreground)]/10 rounded-xl p-5 hover:bg-[var(--foreground)]/[0.02] transition-colors">
+            <h3 className="text-lg font-medium group-hover:underline underline-offset-4 decoration-[#ac4c2e]/40 transition-colors">
+              Sentiment Analysis in Software Engineering: Evaluating Generative Pre-trained Transformers <span className="opacity-0 group-hover:opacity-100 transition-opacity text-[#ac4c2e]/70">↗</span>
+            </h3>
+            <p className="text-[var(--foreground)]/70 text-base leading-relaxed">
+              An evaluation of modern large language models, specifically GPT architectures, on their ability to accurately analyze and extract sentiment from complex software engineering text corpuses.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 sm:items-center mt-1 text-sm text-[var(--foreground)]/50">
+              <span>Faiaz Azmain, KM Khalid Saifullah, Habiba Hye</span>
+              <span className="hidden sm:inline border-l border-[var(--foreground)]/20 h-3"></span>
+              <span className="hover:text-[var(--foreground)] transition-colors">ArXiv Link</span>
+            </div>
+          </a>
         </div>
       </section>
 
       {/* Experience Section */}
       <section className="flex flex-col gap-6">
         <h2 className="text-2xl font-medium tracking-tight text-[#ac4c2e]">Work</h2>
-        <div className="flex flex-col gap-4 text-base md:text-lg">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-6">
-            <span className="w-30 shrink-0 text-[var(--foreground)]/60">Summer 2025</span>
-            <div className="flex flex-wrap gap-x-2 gap-y-1 sm:gap-4">
-              <span className="text-[var(--foreground)]">Wayne Country Visitors Bureau</span>
-              <span className="hidden sm:inline text-[var(--foreground)]/40">—</span>
-              <span className="text-[var(--foreground)]/60">Software Engineer Intern</span>
+        <div className="flex flex-col gap-8 text-base md:text-lg">
+          <div className="flex flex-col sm:flex-row gap-1 sm:gap-6 items-start">
+            <span className="w-30 shrink-0 text-[var(--foreground)]/60 mt-0.5">Summer 2025</span>
+            <div className="flex flex-col gap-1">
+              <div className="flex flex-wrap gap-x-2 gap-y-1 sm:gap-4 items-center">
+                <span className="text-[var(--foreground)] font-medium">Wayne County Visitors Bureau</span>
+                <span className="hidden sm:inline text-[var(--foreground)]/40">—</span>
+                <span className="text-[var(--foreground)]/60">Software Engineer Intern</span>
+              </div>
+              <p className="text-sm text-[var(--foreground)]/70 leading-relaxed max-w-xl">
+                Built an offline-first map for tourist engagement and itinerary planning.
+              </p>
             </div>
           </div>
-          <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-6">
-            <span className="w-30 shrink-0 text-[var(--foreground)]/60">Summer 2024</span>
-            <div className="flex flex-wrap gap-x-2 gap-y-1 sm:gap-4">
-              <span className="text-[var(--foreground)]">Shiree Private Limited</span>
-              <span className="hidden sm:inline text-[var(--foreground)]/40">—</span>
-              <span className="text-[var(--foreground)]/60">Software Engineer Intern</span>
+
+          <div className="flex flex-col sm:flex-row gap-1 sm:gap-6 items-start">
+            <span className="w-30 shrink-0 text-[var(--foreground)]/60 mt-0.5">Summer 2024</span>
+            <div className="flex flex-col gap-1">
+              <div className="flex flex-wrap gap-x-2 gap-y-1 sm:gap-4 items-center">
+                <span className="text-[var(--foreground)] font-medium">Shiree Private Limited</span>
+                <span className="hidden sm:inline text-[var(--foreground)]/40">—</span>
+                <span className="text-[var(--foreground)]/60">Software Engineer Intern</span>
+              </div>
+              <p className="text-sm text-[var(--foreground)]/70 leading-relaxed max-w-xl">
+                Implemented scalable service-worker architectures to ensure seamless offline capabilities in low-bandwidth regions.
+              </p>
             </div>
           </div>
-          <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-6">
-            <span className="w-30 shrink-0 text-[var(--foreground)]/60">Summer 2023</span>
-            <div className="flex flex-wrap gap-x-2 gap-y-1 sm:gap-4">
-              <span className="text-[var(--foreground)]">Shiree Private Limited</span>
-              <span className="hidden sm:inline text-[var(--foreground)]/40">—</span>
-              <span className="text-[var(--foreground)]/60">Product Manager Intern</span>
+
+          <div className="flex flex-col sm:flex-row gap-1 sm:gap-6 items-start">
+            <span className="w-30 shrink-0 text-[var(--foreground)]/60 mt-0.5">Summer 2023</span>
+            <div className="flex flex-col gap-1">
+              <div className="flex flex-wrap gap-x-2 gap-y-1 sm:gap-4 items-center">
+                <span className="text-[var(--foreground)] font-medium">Shiree Private Limited</span>
+                <span className="hidden sm:inline text-[var(--foreground)]/40">—</span>
+                <span className="text-[var(--foreground)]/60">Product Manager Intern</span>
+              </div>
+              <p className="text-sm text-[var(--foreground)]/70 leading-relaxed max-w-xl">
+                Collaborated with cross-functional teams to develop user dashboard.
+              </p>
             </div>
           </div>
         </div>
