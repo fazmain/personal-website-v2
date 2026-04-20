@@ -1,7 +1,8 @@
 ---
 title: "Wooster Diaries #2"
 date: "2023-11-5"
-tags: ["Thoughts"]
+category: "Thoughts"
+showInHome: false
 description: "Thoughts on my ongoing life at Wooster."
 ---
 Me and my Bangladeshi friend Tasin (who is as lazy as me) have this deciding mechanism of whether to go to class or not. We stand outside the building, pick a pretty, dry maple leaf, and toss it. “Light side we go, dark side we don’t” “Nature decided today we should not go to class” But when we really want to (have to) go to class, we surely come up with excuses to ignore the leaf’s decision.

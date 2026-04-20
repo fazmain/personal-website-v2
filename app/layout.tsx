@@ -29,11 +29,12 @@ export default function RootLayout({
           {children}
         </main>
         <footer className="w-full max-w-2xl flex items-center justify-center py-8 border-t border-[var(--foreground)]/10 text-[var(--foreground)]/50 text-sm font-medium mt-auto">
-           <div className="flex items-center gap-2">
-              <span>© {new Date().getFullYear()} Faiaz Azmain.</span>
-              <span className="italic font-serif">Crafted with</span>
-              <span className="text-[#a1b8ce]">☕️</span>
-           </div>
+          <div className="flex items-center gap-2">
+            <span>© {new Date().getFullYear()} Faiaz Azmain.</span>
+            <span className="italic font-serif">Crafted with</span>
+            <span className="text-[#a1b8ce]">☕️</span>
+            <span className="italic font-serif">and Antigravity</span>
+          </div>
         </footer>
       </body>
     </html>

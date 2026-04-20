@@ -1,7 +1,8 @@
 ---
 title: "We Are Compressing Thoughts We Don't Fully Understand."
 date: "2026-4-2"
-tags: ["Opinion", "AI Safety"]
+category: "Opinion"
+showInHome: true
 description: "Thoughts on compressing thoughts we don't fully understand."
 ---
 

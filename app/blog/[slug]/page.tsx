@@ -23,8 +23,8 @@ export default async function BlogPost(
   }
 
   return (
-    <article className="flex flex-col gap-12 py-12 md:py-20 animate-fade-in">
-      <div className="flex flex-col gap-4">
+    <article className="flex flex-col gap-8 py-8 md:py-12 animate-fade-in">
+      <div className="flex flex-col gap-3">
         <Link href="/" className="text-sm font-medium text-[var(--foreground)]/60 hover:text-[var(--foreground)] transition-colors inline-flex items-center gap-2 mb-4 w-fit">
           <span>←</span> Back to home
         </Link>

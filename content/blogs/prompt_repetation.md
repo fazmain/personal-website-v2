@@ -1,7 +1,8 @@
 ---
 title: "Just saying it twice makes LLMs better."
 date: "2026-3-25"
-tags: ["LLMs", "Research Review"]
+category: "Research"
+showInHome: true
 description: "Just saying it twice makes LLMs better."
 ---
 

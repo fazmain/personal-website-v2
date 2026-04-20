@@ -10,7 +10,8 @@ export interface BlogPostData {
   slug: string;
   title: string;
   date: string;
-  tags?: string[];
+  category?: string;
+  showInHome?: boolean;
   contentHtml?: string;
   description?: string;
 }
@@ -31,7 +32,7 @@ export function getSortedPostsData(): BlogPostData[] {
 
     return {
       slug,
-      ...(matterResult.data as { date: string; title: string; tags?: string[]; description?: string }),
+      ...(matterResult.data as { date: string; title: string; category?: string; showInHome?: boolean; description?: string }),
     };
   });
 
@@ -58,6 +59,6 @@ export async function getPostData(slug: string): Promise<BlogPostData> {
   return {
     slug,
     contentHtml,
-    ...(matterResult.data as { date: string; title: string; tags?: string[]; description?: string }),
+    ...(matterResult.data as { date: string; title: string; category?: string; showInHome?: boolean; description?: string }),
   };
 }

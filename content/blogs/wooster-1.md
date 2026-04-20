@@ -1,7 +1,8 @@
 ---
 title: "Wooster Diaries #1"
 date: "2023-5-11"
-tags: ["Thoughts"]
+category: "Thoughts"
+showInHome: false
 description: "Thoughts on ending freshmen year."
 ---
 We climbed through hiking trails, walked in three-inch snow without slipping, went downtown for boba tea, went uptown to Walmart trips; woke up at sunset, and slept at sunrise. We sat in a corner wondering in sadness but having been to some boring parties as well.

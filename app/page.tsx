@@ -4,13 +4,14 @@ import { getSortedPostsData } from '@/lib/markdown';
 
 export default async function Home() {
   const allPostsData = getSortedPostsData();
-  const essayPosts = allPostsData.filter(post => post.tags?.some(tag => tag.toLowerCase() === "thoughts")).slice(0, 3);
-  const technicalPosts = allPostsData.filter(post => !post.tags?.some(tag => tag.toLowerCase() === "thoughts")).slice(0, 3);
+  const homePosts = allPostsData.filter(post => post.showInHome !== false);
+  const essayPosts = homePosts.filter(post => post.category?.toLowerCase() === "thoughts" || post.category?.toLowerCase() === "opinion").slice(0, 3);
+  const technicalPosts = homePosts.filter(post => post.category?.toLowerCase() === "research").slice(0, 3);
 
   return (
-    <div className="flex flex-col gap-16 pt-0 pb-12 md:pt-2 md:pb-20 animate-fade-in">
+    <div className="flex flex-col gap-12 pt-0 pb-8 md:pt-2 md:pb-12 animate-fade-in">
       {/* Header Section */}
-      <section className="flex flex-col sm:flex-row gap-8 items-start sm:items-center">
+      <section className="flex flex-col sm:flex-row gap-6 items-start sm:items-center">
         <Image src="/avatar.svg" alt="Faiaz Azmain Avatar" width={200} height={200} className="w-24 h-24 md:w-[200px] md:h-[200px] shrink-0" priority />
         <div className="flex-1 flex flex-col">
 
@@ -36,18 +37,18 @@ export default async function Home() {
       </section>
 
       {/* Blogs Section */}
-      <section className="flex flex-col gap-8 md:gap-10">
+      <section className="flex flex-col gap-6 md:gap-8">
 
         {/* Technical Posts */}
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-5">
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-medium tracking-tight text-[#ac4c2e]">Research &amp; Technical Notes</h2>
           </div>
-          <div className="flex flex-col gap-6">
+          <div className="flex flex-col gap-5">
             {technicalPosts.length === 0 ? (
               <p className="text-[var(--foreground)]/60 italic">No technical posts found.</p>
             ) : (
-              technicalPosts.map(({ slug, date, title, tags }) => (
+              technicalPosts.map(({ slug, date, title, description }) => (
                 <div key={slug} className="flex flex-col gap-1 w-full group">
                   <Link href={`/blog/${slug}`} className="flex items-baseline gap-2 w-full">
                     <span className="text-lg font-medium group-hover:underline underline-offset-4 decoration-[var(--foreground)]/30 transition-all">
@@ -62,14 +63,10 @@ export default async function Home() {
                       })}
                     </time>
                   </Link>
-                  {tags && tags.length > 0 && (
-                    <div className="flex flex-wrap gap-x-2 gap-y-1">
-                      {tags.map((tag) => (
-                        <span key={tag} className="text-sm italic text-[var(--foreground)]/50 font-serif lowercase">
-                          #{tag}
-                        </span>
-                      ))}
-                    </div>
+                  {description && (
+                    <p className="text-sm text-[var(--foreground)]/70 leading-relaxed mt-1">
+                      {description}
+                    </p>
                   )}
                 </div>
               ))
@@ -78,7 +75,7 @@ export default async function Home() {
         </div>
 
         {/* Essay Posts */}
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-5">
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-medium tracking-tight text-[#ac4c2e]">Essays &amp; Thoughts</h2>
           </div>
@@ -86,7 +83,7 @@ export default async function Home() {
             {essayPosts.length === 0 ? (
               <p className="text-[var(--foreground)]/60 italic">No essays found.</p>
             ) : (
-              essayPosts.map(({ slug, date, title, tags }) => (
+              essayPosts.map(({ slug, date, title, description }) => (
                 <div key={slug} className="flex flex-col gap-1 w-full group">
                   <Link href={`/blog/${slug}`} className="flex items-baseline gap-2 w-full">
                     <span className="text-lg font-medium group-hover:underline underline-offset-4 decoration-[var(--foreground)]/30 transition-all">
@@ -101,14 +98,10 @@ export default async function Home() {
                       })}
                     </time>
                   </Link>
-                  {tags && tags.length > 0 && (
-                    <div className="flex flex-wrap gap-x-2 gap-y-1">
-                      {tags.map((tag) => (
-                        <span key={tag} className="text-sm italic text-[var(--foreground)]/50 font-serif lowercase">
-                          #{tag}
-                        </span>
-                      ))}
-                    </div>
+                  {description && (
+                    <p className="text-sm text-[var(--foreground)]/70 leading-relaxed mt-1">
+                      {description}
+                    </p>
                   )}
                 </div>
               ))
@@ -124,11 +117,11 @@ export default async function Home() {
       </section>
 
       {/* Research Section */}
-      <section className="flex flex-col gap-8 md:gap-10">
+      <section className="flex flex-col gap-6 md:gap-8">
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-medium tracking-tight text-[#ac4c2e]">Research</h2>
         </div>
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-5">
           <a href="https://arxiv.org/pdf/2512.12443" target="_blank" rel="noopener noreferrer" className="flex flex-col gap-3 group border border-[var(--foreground)]/10 rounded-xl p-5 hover:bg-[var(--foreground)]/[0.02] transition-colors">
             <h3 className="text-lg font-medium group-hover:underline underline-offset-4 decoration-[#ac4c2e]/40 transition-colors">
               AI Transparency Atlas: Framework, Scoring, and Real-Time Model Card Evaluation Pipeline <span className="opacity-0 group-hover:opacity-100 transition-opacity text-[#ac4c2e]/70">↗</span>
@@ -160,9 +153,9 @@ export default async function Home() {
       </section>
 
       {/* Experience Section */}
-      <section className="flex flex-col gap-6">
+      <section className="flex flex-col gap-5">
         <h2 className="text-2xl font-medium tracking-tight text-[#ac4c2e]">Work</h2>
-        <div className="flex flex-col gap-8 text-base md:text-lg">
+        <div className="flex flex-col gap-6 text-base md:text-lg">
           <div className="flex flex-col sm:flex-row gap-1 sm:gap-6 items-start">
             <span className="w-30 shrink-0 text-[var(--foreground)]/60 mt-0.5">Summer 2025</span>
             <div className="flex flex-col gap-1">

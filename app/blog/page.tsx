@@ -5,7 +5,7 @@ export default async function BlogIndex() {
   const allPostsData = getSortedPostsData();
 
   return (
-    <div className="flex flex-col gap-12 py-12 md:py-20 animate-fade-in">
+    <div className="flex flex-col gap-8 py-8 md:py-12 animate-fade-in">
       <div className="flex flex-col gap-4">
         <Link href="/" className="text-sm font-medium text-[var(--foreground)]/60 hover:text-[var(--foreground)] transition-colors inline-flex items-center gap-2 mb-4 w-fit">
           <span>←</span> Back to home
@@ -16,12 +16,12 @@ export default async function BlogIndex() {
         </p>
       </div>
 
-      <section className="flex flex-col gap-6">
-        <div className="flex flex-col gap-5">
+      <section className="flex flex-col gap-5">
+        <div className="flex flex-col gap-4">
           {allPostsData.length === 0 ? (
             <p className="text-[var(--foreground)]/60 italic">No posts found.</p>
           ) : (
-            allPostsData.map(({ slug, date, title, tags }) => (
+            allPostsData.map(({ slug, date, title, description }) => (
               <div key={slug} className="flex flex-col gap-1 w-full group">
                 <Link href={`/blog/${slug}`} className="flex items-baseline gap-2 w-full">
                   <span className="text-lg font-medium group-hover:underline underline-offset-4 decoration-[var(--foreground)]/30 transition-all">
@@ -36,14 +36,10 @@ export default async function BlogIndex() {
                     })}
                   </time>
                 </Link>
-                {tags && tags.length > 0 && (
-                  <div className="flex flex-wrap gap-x-2 gap-y-1">
-                    {tags.map((tag) => (
-                      <span key={tag} className="text-sm italic text-[var(--foreground)]/50 font-serif lowercase">
-                        #{tag}
-                      </span>
-                    ))}
-                  </div>
+                {description && (
+                  <p className="text-sm text-[var(--foreground)]/70 leading-relaxed mt-1">
+                    {description}
+                  </p>
                 )}
               </div>
             ))

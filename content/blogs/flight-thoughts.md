@@ -1,7 +1,8 @@
 ---
 title: "Leaving my motherland again!"
 date: "2024-9-4"
-tags: ["Thoughts"]
+category: "Thoughts"
+showInHome: false
 description: "Thoughts on leaving my motherland."
 ---
 
