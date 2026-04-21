@@ -3,7 +3,7 @@ title: "Leaving my motherland again!"
 date: "2024-9-4"
 category: "Thoughts"
 showInHome: false
-description: "Thoughts on leaving my motherland."
+description: "Flight thoughts leaving Bangladesh during a revolution."
 ---
 
 Everytime when I board a flight from Bangladesh, I have this weird feeling. The final approach and the plane rushing to take off, slight pressure in my chest and the loud noise. And then when the tires go off the ground, the weightless feeling, and the thought of losing the touch with my motherland. I go into a contemplative state thinking that I am not connected to my soil anymore, and if i die now, i can never be here again.

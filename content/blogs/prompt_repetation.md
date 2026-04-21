@@ -3,7 +3,7 @@ title: "Just saying it twice makes LLMs better."
 date: "2026-3-25"
 category: "Research"
 showInHome: true
-description: "Just saying it twice makes LLMs better."
+description: "Blog on Google's prompt repetition paper."
 ---
 
 There is a certain kind of research paper that makes you feel slightly embarrassed for not having thought of it yourself. *Prompt Repetition Improves Non-Reasoning LLMs* by Leviathan, Kalman, and Matias at Google Research is one of those papers. The idea fits in a single sentence: send your prompt to the model twice, back to back, and it will answer better. No extra output tokens. No slower responses. Just better answers.

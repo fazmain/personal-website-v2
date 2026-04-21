@@ -12,11 +12,11 @@ export default async function Home() {
     <div className="flex flex-col gap-12 pt-0 pb-8 md:pt-2 md:pb-12 animate-fade-in">
       {/* Header Section */}
       <section className="flex flex-col sm:flex-row gap-6 items-start sm:items-center">
-        <Image src="/avatar.svg" alt="Faiaz Azmain Avatar" width={200} height={200} className="w-24 h-24 md:w-[200px] md:h-[200px] shrink-0" priority />
+        <Image src="/avatar.svg" alt="Faiaz Azmain Avatar" width={170} height={170} className="w-24 h-24 md:w-[170px] md:h-[170px] shrink-0" priority />
         <div className="flex-1 flex flex-col">
 
           <p className="text-lg md:text-2xl text-[var(--foreground)]/80 leading-relaxed max-w-xl">
-            Hello, I am <Link href="/about" className="font-medium underline underline-offset-4 decoration-[var(--foreground)]/30 hover:decoration-[var(--foreground)] transition-colors">Faiaz</Link>.
+            Hello, this is <Link href="/about" className="font-medium underline underline-offset-4 decoration-[var(--foreground)]/30 hover:decoration-[var(--foreground)] transition-colors">Faiaz</Link>.
           </p>
           <p className="text-lg md:text-2xl text-[var(--foreground)]/80 leading-relaxed max-w-xl">
             I research AI interpretability and alignment.
@@ -26,7 +26,7 @@ export default async function Home() {
             {/* I also love to build <Link href="/projects" className="underline underline-offset-4 decoration-[#ac4c2e]/40 hover:decoration-[#ac4c2e] transition-colors">things</Link>. */}
             I also love to build things.
           </p>
-          <div className="flex gap-4 mt-6 text-sm font-medium text-[#ac4c2e]">
+          <div className="flex gap-4 mt-6 text-md font-medium text-[#ac4c2e]">
             <a href="https://mail.google.com/mail/?view=cm&fs=1&to=fazmain25@gmail.com" target="_blank" rel="noopener noreferrer" className="hover:underline underline-offset-4 decoration-[#ac4c2e]/40">Email</a>
             <a href="https://github.com/fazmain" target="_blank" rel="noopener noreferrer" className="hover:underline underline-offset-4 decoration-[#ac4c2e]/40">GitHub</a>
             <a href="https://x.com/faiazAz" target="_blank" rel="noopener noreferrer" className="hover:underline underline-offset-4 decoration-[#ac4c2e]/40">X (Twitter)</a>

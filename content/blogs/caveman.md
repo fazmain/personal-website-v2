@@ -3,7 +3,7 @@ title: "We Are Compressing Thoughts We Don't Fully Understand."
 date: "2026-4-2"
 category: "Opinion"
 showInHome: true
-description: "Thoughts on compressing thoughts we don't fully understand."
+description: "My take on CoT compresson and why we should be careful."
 ---
 
 I spend most of my time thinking about what is happening inside language models. Not what they say, but what is actually going on underneath. And lately, some things I read made me think more about a specific thing and I wanted to try to write it down clearly.
