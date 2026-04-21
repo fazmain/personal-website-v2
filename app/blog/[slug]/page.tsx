@@ -37,12 +37,10 @@ export default async function BlogPost(
               day: 'numeric'
             })}
           </time>
-          {postData.tags && postData.tags.length > 0 && (
+          {postData.category && (
             <div className="flex gap-2">
               <span className="opacity-50">•</span>
-              {postData.tags.map(tag => (
-                <span key={tag} className="lowercase">#{tag}</span>
-              ))}
+              <span className="lowercase hover:underline underline-offset-4 decoration-[var(--foreground)]/30">{postData.category}</span>
             </div>
           )}
         </div>
