@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import Image from 'next/image';
 
 const books = [
@@ -25,9 +24,6 @@ export default function Library() {
   return (
     <div className="flex flex-col gap-8 py-8 md:py-12 animate-fade-in">
       <div className="flex flex-col gap-3">
-        <Link href="/" className="text-sm font-medium text-[var(--foreground)]/60 hover:text-[var(--foreground)] transition-colors inline-flex items-center gap-2 mb-4 w-fit">
-          <span>←</span> Back to home
-        </Link>
         <h1 className="text-3xl md:text-5xl font-medium tracking-tight">Library</h1>
         <p className="text-lg text-[var(--foreground)]/80">
           An ongoing archive of texts that shape my thinking.

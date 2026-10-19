@@ -36,13 +36,8 @@ export function getSortedPostsData(): BlogPostData[] {
     };
   });
 
-  return allPostsData.sort((a, b) => {
-    if (a.date < b.date) {
-      return 1;
-    } else {
-      return -1;
-    }
-  });
+  // Dates aren't zero-padded ("2023-5-11"), so compare as dates rather than strings.
+  return allPostsData.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 }
 
 export async function getPostData(slug: string): Promise<BlogPostData> {

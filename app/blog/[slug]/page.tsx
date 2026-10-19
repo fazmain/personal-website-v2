@@ -25,8 +25,8 @@ export default async function BlogPost(
   return (
     <article className="flex flex-col gap-8 py-8 md:py-12 animate-fade-in">
       <div className="flex flex-col gap-3">
-        <Link href="/" className="text-sm font-medium text-[var(--foreground)]/60 hover:text-[var(--foreground)] transition-colors inline-flex items-center gap-2 mb-4 w-fit">
-          <span>←</span> Back to home
+        <Link href="/blog" className="text-sm font-medium text-[var(--foreground)]/60 hover:text-[var(--foreground)] transition-colors inline-flex items-center gap-2 mb-4 w-fit">
+          <span>←</span> All essays
         </Link>
         <h1 className="text-3xl md:text-5xl font-medium tracking-tight leading-tight">{postData.title}</h1>
         <div className="flex items-center gap-3 text-sm text-[var(--foreground)]/60">

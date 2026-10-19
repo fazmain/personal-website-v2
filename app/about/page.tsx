@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import Image from 'next/image';
 import PhotoGrid, { Photo } from '@/components/PhotoGrid';
 import fs from 'fs';
@@ -29,9 +28,6 @@ export default function About() {
   return (
     <div className="flex flex-col gap-12 py-12 md:py-20 animate-fade-in">
       <div className="flex flex-col gap-4">
-        <Link href="/" className="text-sm font-medium text-[var(--foreground)]/60 hover:text-[var(--foreground)] transition-colors inline-flex items-center gap-2 mb-4 w-fit">
-          <span>←</span> Back to home
-        </Link>
         <h1 className="text-3xl md:text-5xl font-medium tracking-tight">About Me</h1>
       </div>
 
