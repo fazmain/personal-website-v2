@@ -20,7 +20,7 @@ export default async function BlogIndex() {
           ) : (
             allPostsData.map(({ slug, date, title, description }) => (
               <div key={slug} className="flex flex-col gap-1 w-full group">
-                <Link href={`/blog/${slug}`} className="flex items-baseline gap-2 w-full">
+                <Link href={`/essays/${slug}`} className="flex items-baseline gap-2 w-full">
                   <span className="text-lg font-medium group-hover:underline underline-offset-4 decoration-[var(--foreground)]/30 transition-all">
                     {title}
                   </span>
