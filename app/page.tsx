@@ -1,8 +1,11 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { getSortedPostsData } from '@/lib/markdown';
+import { getNotes } from '@/lib/notes';
+import NotesTimeline from '@/components/NotesTimeline';
 
 export default async function Home() {
+  const starredNotes = getNotes().filter(note => note.starred);
   const allPostsData = getSortedPostsData();
   const homePosts = allPostsData.filter(post => post.showInHome !== false);
   const essayPosts = homePosts.filter(post => post.category?.toLowerCase() === "thoughts" || post.category?.toLowerCase() === "opinion").slice(0, 3);
@@ -15,18 +18,18 @@ export default async function Home() {
         <Image src="/avatar.svg" alt="Faiaz Azmain Avatar" width={170} height={170} className="w-24 h-24 md:w-[170px] md:h-[170px] shrink-0" priority />
         <div className="flex-1 flex flex-col">
 
-          <p className="text-lg md:text-2xl text-[var(--foreground)]/80 leading-relaxed max-w-xl">
+          <p className="text-base md:text-2xl text-[var(--foreground)]/80 leading-relaxed max-w-xl">
             Hello, this is <Link href="/about" className="font-medium underline underline-offset-4 decoration-[var(--foreground)]/30 hover:decoration-[var(--foreground)] transition-colors">Faiaz</Link>.
           </p>
-          <p className="text-lg md:text-2xl text-[var(--foreground)]/80 leading-relaxed max-w-xl">
+          <p className="text-base md:text-2xl text-[var(--foreground)]/80 leading-relaxed max-w-xl">
             I research AI interpretability and alignment.
           </p>
 
-          <p className="text-lg md:text-2xl text-[var(--foreground)]/80 leading-relaxed max-w-xl">
+          <p className="text-base md:text-2xl text-[var(--foreground)]/80 leading-relaxed max-w-xl">
             {/* I also love to build <Link href="/projects" className="underline underline-offset-4 decoration-[#ac4c2e]/40 hover:decoration-[#ac4c2e] transition-colors">things</Link>. */}
             I also love to build things.
           </p>
-          <div className="flex gap-4 mt-6 text-md font-medium text-[#ac4c2e]">
+          <div className="flex flex-wrap gap-x-4 gap-y-2 mt-6 text-sm md:text-base font-medium text-[#ac4c2e]">
             <a href="https://mail.google.com/mail/?view=cm&fs=1&to=fazmain25@gmail.com" target="_blank" rel="noopener noreferrer" className="hover:underline underline-offset-4 decoration-[#ac4c2e]/40">Email</a>
             <a href="https://github.com/fazmain" target="_blank" rel="noopener noreferrer" className="hover:underline underline-offset-4 decoration-[#ac4c2e]/40">GitHub</a>
             <a href="https://x.com/faiazAz" target="_blank" rel="noopener noreferrer" className="hover:underline underline-offset-4 decoration-[#ac4c2e]/40">X (Twitter)</a>
@@ -42,7 +45,7 @@ export default async function Home() {
         {/* Technical Posts */}
         <div className="flex flex-col gap-5">
           <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-medium tracking-tight text-[#ac4c2e]">Research &amp; Technical Notes</h2>
+            <h2 className="text-xl md:text-2xl font-medium tracking-tight text-[#ac4c2e]">Research &amp; Technical Notes</h2>
           </div>
           <div className="flex flex-col gap-5">
             {technicalPosts.length === 0 ? (
@@ -50,12 +53,12 @@ export default async function Home() {
             ) : (
               technicalPosts.map(({ slug, date, title, description }) => (
                 <div key={slug} className="flex flex-col gap-1 w-full group">
-                  <Link href={`/blog/${slug}`} className="flex items-baseline gap-2 w-full">
-                    <span className="text-lg font-medium group-hover:underline underline-offset-4 decoration-[var(--foreground)]/30 transition-all">
+                  <Link href={`/blog/${slug}`} className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:gap-2 w-full">
+                    <span className="text-base md:text-lg font-medium group-hover:underline underline-offset-4 decoration-[var(--foreground)]/30 transition-all">
                       {title}
                     </span>
-                    <div className="flex-1 border-b-[2px] border-dotted border-[var(--foreground)]/20 mx-2 relative top-[-6px] min-w-[20px]"></div>
-                    <time dateTime={date} className="text-[var(--foreground)]/70 shrink-0 text-md">
+                    <div className="hidden sm:block flex-1 border-b-[2px] border-dotted border-[var(--foreground)]/20 mx-2 relative top-[-6px] min-w-[20px]"></div>
+                    <time dateTime={date} className="text-[var(--foreground)]/70 shrink-0 text-sm md:text-base">
                       {new Date(date).toLocaleDateString('en-US', {
                         year: 'numeric',
                         month: 'short',
@@ -77,7 +80,7 @@ export default async function Home() {
         {/* Essay Posts */}
         <div className="flex flex-col gap-5">
           <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-medium tracking-tight text-[#ac4c2e]">Essays &amp; Thoughts</h2>
+            <h2 className="text-xl md:text-2xl font-medium tracking-tight text-[#ac4c2e]">Essays &amp; Thoughts</h2>
           </div>
           <div className="flex flex-col gap-6">
             {essayPosts.length === 0 ? (
@@ -85,12 +88,12 @@ export default async function Home() {
             ) : (
               essayPosts.map(({ slug, date, title, description }) => (
                 <div key={slug} className="flex flex-col gap-1 w-full group">
-                  <Link href={`/blog/${slug}`} className="flex items-baseline gap-2 w-full">
-                    <span className="text-lg font-medium group-hover:underline underline-offset-4 decoration-[var(--foreground)]/30 transition-all">
+                  <Link href={`/blog/${slug}`} className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:gap-2 w-full">
+                    <span className="text-base md:text-lg font-medium group-hover:underline underline-offset-4 decoration-[var(--foreground)]/30 transition-all">
                       {title}
                     </span>
-                    <div className="flex-1 border-b-[2px] border-dotted border-[var(--foreground)]/20 mx-2 relative top-[-6px] min-w-[20px]"></div>
-                    <time dateTime={date} className="text-[var(--foreground)]/70 shrink-0 text-md">
+                    <div className="hidden sm:block flex-1 border-b-[2px] border-dotted border-[var(--foreground)]/20 mx-2 relative top-[-6px] min-w-[20px]"></div>
+                    <time dateTime={date} className="text-[var(--foreground)]/70 shrink-0 text-sm md:text-base">
                       {new Date(date).toLocaleDateString('en-US', {
                         year: 'numeric',
                         month: 'short',
@@ -116,14 +119,22 @@ export default async function Home() {
         </div>
       </section>
 
+      <section className="flex flex-col gap-6" aria-labelledby="notes-heading">
+        <h2 id="notes-heading" className="text-xl md:text-2xl font-medium tracking-tight text-[#ac4c2e]">Notes</h2>
+        {starredNotes.length > 0 && <NotesTimeline notes={starredNotes} />}
+        <Link href="/notes" className="w-fit text-sm font-medium hover:underline underline-offset-4 decoration-[var(--foreground)]/30">
+          All notes <span aria-hidden="true">→</span>
+        </Link>
+      </section>
+
       {/* Research Section */}
       <section className="flex flex-col gap-6 md:gap-8">
         <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-medium tracking-tight text-[#ac4c2e]">Research</h2>
+          <h2 className="text-xl md:text-2xl font-medium tracking-tight text-[#ac4c2e]">Research</h2>
         </div>
         <div className="flex flex-col gap-5">
           <a href="https://arxiv.org/pdf/2512.12443" target="_blank" rel="noopener noreferrer" className="flex flex-col gap-3 group border border-[var(--foreground)]/10 rounded-xl p-5 hover:bg-[var(--foreground)]/[0.02] transition-colors">
-            <h3 className="text-lg font-medium group-hover:underline underline-offset-4 decoration-[#ac4c2e]/40 transition-colors">
+            <h3 className="text-base md:text-lg font-medium group-hover:underline underline-offset-4 decoration-[#ac4c2e]/40 transition-colors">
               AI Transparency Atlas: Framework, Scoring, and Real-Time Model Card Evaluation Pipeline <span className="opacity-0 group-hover:opacity-100 transition-opacity text-[#ac4c2e]/70">↗</span>
             </h3>
             <p className="text-[var(--foreground)]/70 text-base leading-relaxed">
@@ -137,7 +148,7 @@ export default async function Home() {
           </a>
 
           <a href="https://arxiv.org/pdf/2505.14692" target="_blank" rel="noopener noreferrer" className="flex flex-col gap-3 group border border-[var(--foreground)]/10 rounded-xl p-5 hover:bg-[var(--foreground)]/[0.02] transition-colors">
-            <h3 className="text-lg font-medium group-hover:underline underline-offset-4 decoration-[#ac4c2e]/40 transition-colors">
+            <h3 className="text-base md:text-lg font-medium group-hover:underline underline-offset-4 decoration-[#ac4c2e]/40 transition-colors">
               Sentiment Analysis in Software Engineering: Evaluating Generative Pre-trained Transformers <span className="opacity-0 group-hover:opacity-100 transition-opacity text-[#ac4c2e]/70">↗</span>
             </h3>
             <p className="text-[var(--foreground)]/70 text-base leading-relaxed">
@@ -154,7 +165,7 @@ export default async function Home() {
 
       {/* Experience Section */}
       <section className="flex flex-col gap-5">
-        <h2 className="text-2xl font-medium tracking-tight text-[#ac4c2e]">Work</h2>
+        <h2 className="text-xl md:text-2xl font-medium tracking-tight text-[#ac4c2e]">Work</h2>
         <div className="flex flex-col gap-6 text-base md:text-lg">
           <div className="flex flex-col sm:flex-row gap-1 sm:gap-6 items-start">
             <span className="w-30 shrink-0 text-[var(--foreground)]/60 mt-0.5">Summer 2025</span>
