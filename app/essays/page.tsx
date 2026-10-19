@@ -7,8 +7,8 @@ export default async function BlogIndex() {
   return (
     <div className="flex flex-col gap-8 py-8 md:py-12 animate-fade-in">
       <div className="flex flex-col gap-4">
-        <h1 className="text-3xl md:text-5xl font-medium tracking-tight">Essays</h1>
-        <p className="text-lg text-[var(--foreground)]/80">
+        <h1 className="text-[clamp(1.625rem,0.5rem+4vw,3rem)] font-medium tracking-tight">Essays</h1>
+        <p className="text-base md:text-lg text-[var(--foreground)]/80">
           Research notes, opinions, and reflections.
         </p>
       </div>
@@ -20,12 +20,12 @@ export default async function BlogIndex() {
           ) : (
             allPostsData.map(({ slug, date, title, description }) => (
               <div key={slug} className="flex flex-col gap-1 w-full group">
-                <Link href={`/essays/${slug}`} className="flex items-baseline gap-2 w-full">
-                  <span className="text-lg font-medium group-hover:underline underline-offset-4 decoration-[var(--foreground)]/30 transition-all">
+                <Link href={`/essays/${slug}`} className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:gap-2 w-full">
+                  <span className="text-base md:text-lg font-medium group-hover:underline underline-offset-4 decoration-[var(--foreground)]/30 transition-all">
                     {title}
                   </span>
-                  <div className="flex-1 border-b-[2px] border-dotted border-[var(--foreground)]/20 mx-2 relative top-[-6px] min-w-[20px]"></div>
-                  <time dateTime={date} className="text-[var(--foreground)]/70 shrink-0 text-md">
+                  <div className="hidden sm:block flex-1 border-b-[2px] border-dotted border-[var(--foreground)]/20 mx-2 relative top-[-6px] min-w-[20px]"></div>
+                  <time dateTime={date} className="text-[var(--foreground)]/70 shrink-0 text-sm md:text-base">
                     {new Date(date).toLocaleDateString('en-US', {
                       year: 'numeric',
                       month: 'short',

@@ -34,3 +34,32 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Writing notes
+
+Edit `content/notes.json`. It is an array of notes:
+
+```json
+[
+  {
+    "date": "2026-09-09",
+    "header": "Optional heading",
+    "body": "Your short note.\n\nA second paragraph, if you want one.",
+    "starred": true
+  },
+  {
+    "date": "2026-09-08",
+    "body": "Another thought, without a heading.",
+    "starred": false
+  }
+]
+```
+
+- `date`: valid `YYYY-MM-DD` date.
+- `header`: optional; omit it for a simple text note.
+- `body`: plain text. Use `\n` for a line break. No Markdown or HTML rendering.
+- `starred`: `true` shows the note on the homepage; `false` shows it only on `/notes`.
+- `/notes` contains the full timeline, including starred notes, newest first. Same-day notes keep their order in the JSON file.
+- Save to preview locally; rebuild and deploy to update the live site. No backend or management UI.
+
+The file starts empty so no example writing is published as your own. Invalid fields produce a build error identifying the note to fix.

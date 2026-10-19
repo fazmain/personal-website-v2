@@ -24,8 +24,8 @@ export default function Library() {
   return (
     <div className="flex flex-col gap-8 py-8 md:py-12 animate-fade-in">
       <div className="flex flex-col gap-3">
-        <h1 className="text-3xl md:text-5xl font-medium tracking-tight">Library</h1>
-        <p className="text-lg text-[var(--foreground)]/80">
+        <h1 className="text-[clamp(1.625rem,0.5rem+4vw,3rem)] font-medium tracking-tight">Library</h1>
+        <p className="text-base md:text-lg text-[var(--foreground)]/80">
           An ongoing archive of texts that shape my thinking.
         </p>
       </div>

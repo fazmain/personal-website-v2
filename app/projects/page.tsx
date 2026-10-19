@@ -1,4 +1,3 @@
-import Link from 'next/link';
 
 export const metadata = {
   title: "Projects",
@@ -56,11 +55,8 @@ export default function ProjectsPage() {
       
       {/* Header */}
       <div className="flex flex-col gap-4 border-b border-[var(--foreground)]/10 pb-8">
-        <Link href="/" className="text-sm font-medium hover:underline underline-offset-4 decoration-[#ac4c2e]/40 flex items-center gap-1 w-fit mb-4 text-[#ac4c2e]">
-          <span className="opacity-70">←</span> Back home
-        </Link>
-        <h1 className="text-3xl md:text-5xl font-medium tracking-tight">Things I&#39;ve built</h1>
-        <p className="text-lg text-[var(--foreground)]/70 max-w-2xl">
+        <h1 className="text-[clamp(1.625rem,0.5rem+4vw,3rem)] font-medium tracking-tight">Things I&#39;ve built</h1>
+        <p className="text-base md:text-lg text-[var(--foreground)]/70 max-w-2xl">
           A selection of projects ranging from web development to mechanistic interpretability research. 
         </p>
       </div>
@@ -88,7 +84,7 @@ export default function ProjectsPage() {
             {/* Description Block */}
             <div className="flex flex-col gap-3">
               <div className="flex items-center justify-between">
-                <a href={project.link} target="_blank" rel="noopener noreferrer" className="text-2xl md:text-3xl font-medium tracking-tight hover:underline underline-offset-4 decoration-[#ac4c2e]/40 transition-colors w-fit group-hover:text-[#ac4c2e]">
+                <a href={project.link} target="_blank" rel="noopener noreferrer" className="text-xl md:text-3xl font-medium tracking-tight hover:underline underline-offset-4 decoration-[#ac4c2e]/40 transition-colors w-fit group-hover:text-[#ac4c2e]">
                   {project.title} <span className="opacity-0 group-hover:opacity-100 transition-opacity text-[#ac4c2e]/70">↗</span>
                 </a>
               </div>

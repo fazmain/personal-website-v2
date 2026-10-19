@@ -18,7 +18,7 @@ export default function ResearchCard({ entry }: { entry: ResearchEntry }) {
   const href = entryHref(entry);
   const external = !href.startsWith('/');
   const title = (
-    <span className="text-lg leading-snug text-[#ac4c2e] group-hover:underline underline-offset-4 decoration-[#ac4c2e]/40">
+    <span className="text-base md:text-lg leading-snug text-[#ac4c2e] group-hover:underline underline-offset-4 decoration-[#ac4c2e]/40">
       {entry.title}
     </span>
   );

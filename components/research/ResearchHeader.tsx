@@ -21,7 +21,7 @@ export default function ResearchHeader({ slug }: { slug: string }) {
         <span>←</span> All research
       </Link>
       <span className="text-sm italic text-[#ac4c2e]">{kindLabel[entry.kind]}</span>
-      <h1 className="text-3xl md:text-4xl font-medium tracking-tight leading-tight">{entry.title}</h1>
+      <h1 className="text-[clamp(1.625rem,0.5rem+3.5vw,2.25rem)] font-medium tracking-tight leading-tight">{entry.title}</h1>
       <p className="text-base text-[var(--foreground)]/70">
         <Authors authors={entry.authors} />
       </p>

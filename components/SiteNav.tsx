@@ -8,6 +8,7 @@ const links = [
   { href: '/research', label: 'Research' },
   { href: '/publications', label: 'Publications' },
   { href: '/essays', label: 'Essays' },
+  { href: '/notes', label: 'Notes' },
   { href: '/projects', label: 'Projects' },
   { href: '/library', label: 'Library' },
   { href: '/about', label: 'About' },
