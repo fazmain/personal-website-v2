@@ -1,0 +1,112 @@
+import KnowsHarm from './components/KnowsHarm'
+import GateToggle from './components/GateToggle'
+
+A robot policy built on a safety-tuned chat model still knows which commands are harmful, but it never refuses one. I could read the harm from inside the model and could not make the arm stop. One small adapter fixed that. It writes a verdict before every action and, during training only, learns to represent each command the way its parent model does. On fresh episodes it refuses <Fact id="ptv_nt_min" /> to <Fact id="ptv_nt_max" /> of commands from harm categories it never saw in training, over-refuses <Fact id="ptv_bt_min" /> to <Fact id="ptv_bt_max" /> of harmless look-alikes, and keeps the robot's task success. The parent is not needed at run time.
+
+Here is how I got there, in the order it happened. The whole thing took <Fact id="gpu_sessions" /> short GPU sessions and about <Fact id="gpu_usd" /> of compute.
+
+## Does the refusal direction survive fine-tuning into a robot?
+
+The question I started with was narrow. Chat models refuse through one direction in their internal activations: push along it and the model refuses, remove it and the model complies (Arditi et al.). NORA is a vision-language-action policy, a VLA, built by fine-tuning Qwen2.5-VL-3B-Instruct to emit motor tokens instead of words. Does that direction survive the fine-tuning?
+
+I fit the refusal direction on the parent with <Fact id="chat_n" /> harmful and <Fact id="chat_n" /> harmless chat prompts, then read it inside NORA on held-out prompts. It was still there. I measure this with AUROC, the chance that a randomly picked harmful prompt scores higher than a randomly picked harmless one: 1.0 is perfect separation, 0.5 is a coin flip. At layer <Fact id="chat_layer" /> the direction scored <Fact id="chat_auroc" />. By the final layer, where the motor tokens are produced, it had dropped to <Fact id="chat_final_lg" />, which is an inverted read-out. The knowledge survives in the middle of the network and is gone where the actions come out.
+
+That was one afternoon. The next question was whether the robot did anything with it.
+
+## Does the robot ever refuse?
+
+I set up the LIBERO simulator and ran NORA on its ten trained tabletop tasks, on unfamiliar harmless commands, on harmful commands and on chat-style prompts: <Fact id="baseline_n" /> episodes with video. Nothing refused. The arm travelled at least <Fact id="baseline_min_m" /> in every episode. Given a harmful command, NORA does the nearest trained task. A harmful command and an unfamiliar harmless one look identical on camera.
+
+So the knowledge was present and the behaviour was absent. I then checked how well the harm knowledge itself had survived on robot commands, not chat prompts. I wrote <Fact id="drobot_harm" /> harmful and <Fact id="drobot_benign" /> benign robot commands, each paired with a frame of its scene, fit a harm direction on the parent and read it in both models over <Fact id="drobot_splits" /> splits.
+
+<Interactive fallback="figures/knows-harm.png" alt="AUROC by layer for the parent's refusal and harm directions read inside the parent and inside the robot policy; the robot refused 0 of 230 episodes" caption="The robot knows and does not act. Switch between chat prompts and robot commands, and between the two token positions. The parent reads harm best at the end of the prompt; the robot keeps it at the instruction words and loses it where the parent would start to refuse." height={520}>
+  <KnowsHarm />
+</Interactive>
+
+At the last instruction token the robot nearly matched the parent: <Fact id="harm_nora_tinst" /> against <Fact id="harm_parent_tinst" />. At the last prompt token, where the parent starts its refusal, the parent reached <Fact id="harm_parent_tpost" /> and the robot <Fact id="harm_nora_tpost" />. So the robot keeps the harm signal at the words of the command and loses it at the point where the parent would decide to refuse. The information was still there, though. A probe trained on the robot's own activations at that position read a held-out harm category at AUROC <Fact id="probe_auroc" /> once the benign commands it was scored on were kept out of its training (my first number, with them included, was <Fact id="probe_insample" />).
+
+## Can I connect the knowledge to the arm from inside?
+
+If the condition is there, maybe a push would turn it into behaviour. I tried three things.
+
+**Steering.** Adding the parent's refusal direction, or a hold vector built from the robot's own slow policy calls, did not make the arm stop. At low strength the robot finished its task. At higher strength it emitted tokens the action decoder could not read. Logging every token showed why this matters: the decoder turns unreadable tokens into zero motion without complaint. A broken robot and a refusing robot produce the same video. From here on a refusal had to pass four tests: the tokens decode into actions, the hand stays within <Fact id="refuse_cm" /> of where it started, the gripper never closes, and the simulator never marks the task done.
+
+**Patching.** Copying the activations of task B into a rollout of task A at the instruction words swapped the task in <Fact id="patch_early_k" /> of <Fact id="patch_early_n" /> episodes at early layers. That told me where the robot reads the command. Patching in the activations of a harmful command at that site, from the robot or from the parent, dropped task A success from <Fact id="patch_success_base" /> to <Fact id="patch_success" />. Patching in an unfamiliar harmless command did exactly the same. The action head treats harm as unfamiliar wording.
+
+**Ablation.** Removing the refusal or harm direction at all <Fact id="n_layers" /> layers changed nothing, because there was no refusal to remove.
+
+After the robot finishes a task, it keeps moving: <Fact id="post_success_still" /> of <Fact id="post_success_n" /> post-success policy calls commanded near-zero motion. The demonstrations never contain a stop, so there is no stop state to steer toward. The only thing that worked was a scripted hold keyed on the surviving read-out, which held the arm in <Fact id="forced_harm" /> of harmful episodes and <Fact id="forced_benign" /> of benign ones. The condition could switch a behaviour, as long as the behaviour came from outside the policy.
+
+## Can refusal examples teach the behaviour?
+
+If the policy has no stop, train one. I trained a LoRA, a small set of extra weights on top of the frozen policy (rank <Fact id="lora_rank" />), on three kinds of rows: the robot's own successful rollouts, benign paraphrases, and <Fact id="free_n_harm" /> harmful commands paired with a hold chunk (five steps of zero motion, gripper open, in valid action tokens). No parent signal went into it, so I call it the free LoRA. As a control I trained the same recipe with the hold paired to harmless paraphrases instead of harmful commands.
+
+The first version held on <Fact id="free_v1_nt" /> of commands from harm categories it had not seen. The control held on <Fact id="free_v1ctrl_nt" />. Both had learned that new wording means stop. One point from this stage shaped the rest of the project: refusing a command the robot cannot do proves little. I added <Fact id="free_novel70" /> unfamiliar harmless commands labelled with the base policy's own actions, and I built twins. A harmful twin turns a trained task into a harmful command with the same motion. A benign twin adds a harmless clause to the same task. Base NORA carries out the harmful outcome in <Fact id="base_twin_harm" /> of harmful-twin episodes, so refusing one means withholding an action the arm can perform.
+
+The retrained free LoRA kept task success at <Fact id="free_lib" /> against <Fact id="base_lib_sel" /> for the base policy. It refused <Fact id="free_nt" /> of never-trained-category episodes, below the <Fact id="free_bar" /> I had written down as the bar, and the control refused <Fact id="ctrl_nt" />. Adding <Fact id="free338_n" /> harmful commands in total, filtered by the parent, raised never-trained refusal to <Fact id="free338_nt" /> and harmful-twin refusal to <Fact id="free338_th" />, with benign twins unchanged.
+
+I had also pre-registered a reuse test: if the new refusal used the inherited harm direction, ablating that direction should cut refusal by at least <Fact id="abl_bar" />. Refusal went from <Fact id="abl_none" /> to <Fact id="abl_parent" />. Training had built its own weak condition next to the inherited one, bound to the categories it saw.
+
+## Could the parent decide at run time?
+
+The quickest way to get a general condition is to ask the parent. I kept the unmodified parent resident, asked it to grade each command from 0 to 10, and trained a second LoRA to hold after a stop tag. This two-model parent gate refused <Fact id="gate_nt" /> of never-trained categories and <Fact id="gate_ht" /> of harmful twins, no benign twin, and kept task success at <Fact id="gate_lib" />. It costs one parent call of <Fact id="gate_lat" /> per command and <Fact id="gate_mem" /> of memory for the second model.
+
+It worked, and I did not want it. A gate is a wrapper around the policy, and the question was whether the robot could carry the decision itself. Cheaper single-model gates fell short: a probe on the robot's own activations caught too little and over-refused benign twins, and putting a slice of the parent's weights back into NORA broke the arm.
+
+## Can one adapter carry both the behaviour and the condition?
+
+Four ideas went into one round of training on a single audited data set of <Fact id="train_rows" /> rows (<Fact id="gen_cmds" /> generated commands, each on a start frame and a mid-episode frame, plus replay rows of the robot's own actions). Two reviewers checked it for leaks before training, and I rebuilt it until an automatic audit passed.
+
+Three of the ideas mattered.
+
+**A verdict token.** Instead of mapping a harmful command straight to a hold, the policy writes `[STOP]` or `[GO]` as text before its action tokens, on every policy call. The switch is exact, and because the verdict is decided again on every chunk, the robot can stop mid-task. On its own it did not generalize: trained on the labels I gave each command when I built it, the verdict caught <Fact id="verdict_construction_nt" /> of never-trained categories. With the parent's own text-only yes/no judgement as the label, <Fact id="verdict_parent_nt" />.
+
+**Representation matching.** During training, an extra loss pulls the robot's representation of each command at the instruction words toward the parent's representation of the same command, stored once from <Fact id="match_layers_n" /> layers of the frozen parent. The matching term fell from <Fact id="align_loss_first" /> to <Fact id="align_loss_last" /> over training. I matched at the instruction words because that is where the diagnosis found the robot still carrying the parent's harm direction.
+
+**A calibrated offset.** The matched verdict ranked harmful commands above benign ones, but left alone it said `[GO]` too often. A fixed bonus added to the `[STOP]` score sets how cautious it is. A <Fact id="calib_old_pct" /> rule over-refused <Fact id="calib_old_fa_min" /> to <Fact id="calib_old_fa_max" /> of hard benign pools at the first call, so I moved to a <Fact id="calib_pct" /> rule on <Fact id="calib_cmds" /> benign calibration commands that appear nowhere in training, and fixed it before any verdict install ran in the simulator.
+
+Matching made the difference. With parent labels and no matching, the calibrated verdict caught <Fact id="unmatched_b95_nt" /> of never-trained categories at the first call. With matching, <Fact id="matched_b95_nt" />. The combination I call the parent-taught verdict passed every pre-registered rule on the selection episodes, refusing <Fact id="sel_nt_s0" /> of never-trained harm with task success <Fact id="sel_lib_s0" />, and a second seed refused <Fact id="sel_nt_s2" /> at <Fact id="sel_lib_s2" />. That matched the two-model gate with nothing resident beyond NORA and <Fact id="tokens_per_call" /> extra tokens per call.
+
+## Does it hold on episodes no model has seen?
+
+An outside review asked the right question: those episodes had been used to pick the recipe. So I declared a reporting set, fresh initial states no model had touched, and ran every arm I had on it, <Fact id="seeds" /> seeds of the main recipe, its ablations and base NORA, on the same episodes.
+
+<Interactive fallback="figures/gate-toggle.png" alt="Bar chart comparing base NORA and the parent-taught verdict on refusal of never-trained harm, over-refusal of benign twins, and LIBERO task success on the reporting set" caption="Flip the switch to compare base NORA with the installed verdict on the same fresh episodes. Pick a seed to see the spread." height={420}>
+  <GateToggle />
+</Interactive>
+
+Across the three seeds the verdict refused <Fact id="nt_s0" />, <Fact id="nt_s1" /> and <Fact id="nt_s2" /> of never-trained-category episodes, <Fact id="ptv_ht_min" /> to <Fact id="ptv_ht_max" /> of harmful twins, and <Fact id="bt_s0" />, <Fact id="bt_s1" /> and <Fact id="bt_s2" /> of benign twins. It stopped after <Fact id="abort_min" /> or <Fact id="abort_max" /> of <Fact id="abort_n" /> harmful commands swapped in mid-task. Task success was <Fact id="lib_s0" />, <Fact id="lib_s1" /> and <Fact id="lib_s2" /> against <Fact id="lib_base" /> for base NORA on the same <Fact id="lib_n" /> episodes, so no seed fell below the base policy, although each value carries an interval of about <Fact id="lib_halfwidth" />. Base NORA refused nothing and brought about the harmful outcome in <Fact id="base_nt_harm" /> of <Fact id="base_nt_n" /> never-trained episodes and <Fact id="base_ht_harm" /> of <Fact id="base_ht_n" /> harmful-twin episodes.
+
+Two single-seed ablations say where the parent's contribution lives. Without the offset, seed 2 refused <Fact id="argmax_nt" /> of never-trained episodes. Trained with my construction labels instead of the parent's, but still matched, the verdict refused <Fact id="construction_nt" /> with <Fact id="construction_bt" /> on benign twins and task success equal to base. So once matching is on, the parent's labels are unnecessary. And the adapter trained on top of the merged parent weights refused <Fact id="merged_nt" /> but had task success <Fact id="merged_lib" />. The ablations place the parent's transferable knowledge in how it represents the command. Its labels and its weights are not needed.
+
+## Does it work in rooms the robot never saw?
+
+LIBERO-Safety ships <Fact id="ls_scenes" /> semantic-safety scenes, five each of explicit harm, common-sense violations and contextual traps. <Fact id="ls_outside" /> of the rooms are new to this policy. I wrote one benign twin per scene and ran base NORA and two seeds of the verdict, <Fact id="ls_eps_per_instr" /> episodes per instruction. Of the instruction texts, <Fact id="ls_train4" /> appear paraphrased in the adapter's training rows, so I report the clean ten separately.
+
+<Video src="media/vase-harm.mp4" poster="figures/vase-harm-poster.png" caption={<>Same scene, same starting state, same explicitly harmful instruction (not shown). Left: base NORA moves the arm <Fact id="clip_base_disp" /> and fumbles. Right: the installed verdict says [STOP] on <Fact id="clip_ptv_stop_calls" /> policy calls and the arm stays within <Fact id="clip_ptv_disp" /> of its start.</>} loop />
+
+<Video src="media/vase-twin.mp4" poster="figures/vase-twin-poster.png" caption={<>The benign twin of the same scene, a harmless instruction about the same objects. The verdict says [GO] on the first call and the arm moves <Fact id="clip_twin_disp" /> to act.</>} loop />
+
+At the first call the verdict said `[STOP]` on every explicit-harm episode (<Fact id="ls_s1_explicit" /> for both seeds) and on <Fact id="ls_twin_stop" /> of the <Fact id="ls_twins" /> benign-twin episodes per seed. It caught <Fact id="ls_s1_context" /> and <Fact id="ls_s2_context" /> of contextual traps and <Fact id="ls_s1_common" /> and <Fact id="ls_s2_common" /> of common-sense violations; on the clean ten, <Fact id="ls_s1_clean" /> and <Fact id="ls_s2_clean" />. The misses are the instructions whose words carry no harm cue: an egg in a microwave, a frypan on an egg, scissors on a notebook. Two caveats. The physical harm label fired in at most <Fact id="ls_harm_max" /> of harmful episodes for every arm including base, because the policy cannot carry out these harms in rooms it never saw. And in two rooms the verdict wavered to `[STOP]` on a benign twin later in the episode, once the arm had moved; a harness that latched the first stop would refuse those two safe commands.
+
+<Callout kind="result">
+Action fine-tuning keeps a readable copy of the parent's harm knowledge and gives it nothing to drive. Refusal examples teach a stop but bind it to the trained categories. Matching the robot's representation of each command to the parent's, during training only, installs a refusal that reaches harm categories the adapter never saw, at no detectable task-success cost at this sample size.
+</Callout>
+
+## What this does and doesn't show
+
+The claim is command-level refusal. Every harmful command I wrote, except <Fact id="twins_scene" /> twin, states its harm in words, and the verdict learned from text-only labels and from targets averaged over the instruction words. Harm that only the scene reveals mostly passes it. The paper's parent-gated reference shows that asking the parent at run time reaches the same refusal rates; the contribution is doing it with one model and no judge.
+
+## Limitations
+
+- One backbone, one policy family, in simulation, on <Fact id="libero_tasks" /> LIBERO-Goal tasks.
+- Alarming benign wording trips it: at the calibrated offset every passing install holds on <Fact id="lex_min" /> to <Fact id="lex_max" /> of benign commands with words like "kill" or "smash" at the first call. A blind benign set written by an independent agent draws <Fact id="blind_min" /> to <Fact id="blind_max" /> holds against a target of <Fact id="blind_target" />.
+- Small sets: <Fact id="nt_prompts" /> never-trained prompts and <Fact id="twins_n" /> twin prompts of each kind; <Fact id="lib_n" /> episodes behind each task-success value; three seeds of the main recipe and one of each ablation.
+- No run matched to a non-parent teacher, so I cannot separate the parent's harm knowledge from a generic matching regulariser. The matching ablation rests on first-call holds, since the unmatched arm never ran in the simulator.
+- Holding while carrying an object was trained but never exercised; swaps happen before any grasp. No jailbreak or adversarial commands were tested.
+
+## Links
+
+- Paper: SPAIS workshop at CoRL (arXiv preprint coming)
+- Code and data: [github.com/fazmain/parent-taught-refusal](https://github.com/fazmain/parent-taught-refusal)
+- Adapter weights: [huggingface.co/fazmain/parent-taught-refusal](https://huggingface.co/fazmain/parent-taught-refusal)

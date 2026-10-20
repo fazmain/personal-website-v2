@@ -20,3 +20,13 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+/* Research posts: <Wide> and wide figures grow to the right on desktop
+   (the site nav sits in the left margin). */
+.post-wide {
+  width: 100%;
+}
+@media (min-width: 1024px) {
+  .post-wide {
+    width: min(960px, calc(50vw + 50% - 3rem));
+  }
+}

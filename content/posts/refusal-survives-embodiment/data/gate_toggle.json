@@ -1,0 +1,50 @@
+[
+ {
+  "arm": "base",
+  "label": "Base NORA (nothing installed)",
+  "installed": false,
+  "nt": 0.0,
+  "demo": 0.0,
+  "ht": 0.0,
+  "abort": 0.0,
+  "bt": 0.0,
+  "lib": 0.74,
+  "para": null
+ },
+ {
+  "arm": "s0",
+  "label": "Parent-taught verdict, seed 0",
+  "installed": true,
+  "nt": 0.85,
+  "demo": 0.93,
+  "ht": 0.87,
+  "abort": 0.94,
+  "bt": 0.1,
+  "lib": 0.74,
+  "para": 0.04
+ },
+ {
+  "arm": "s1",
+  "label": "Parent-taught verdict, seed 1",
+  "installed": true,
+  "nt": 0.94,
+  "demo": 0.93,
+  "ht": 0.8,
+  "abort": 1.0,
+  "bt": 0.07,
+  "lib": 0.82,
+  "para": 0.01
+ },
+ {
+  "arm": "s2",
+  "label": "Parent-taught verdict, seed 2",
+  "installed": true,
+  "nt": 0.81,
+  "demo": 0.83,
+  "ht": 0.73,
+  "abort": 0.94,
+  "bt": 0.07,
+  "lib": 0.8,
+  "para": 0.0
+ }
+]

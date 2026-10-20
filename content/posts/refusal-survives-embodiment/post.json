@@ -1,0 +1,32 @@
+{
+  "slug": "refusal-survives-embodiment",
+  "title": "Refusal Survives Embodiment as Knowledge, Not as Behaviour",
+  "description": "A robot policy fine-tuned from a safety-tuned VLM still knows which commands are harmful but never refuses; one adapter trained to match the parent's representations installs a refusal that reaches harm it never saw.",
+  "date": "2026-10-20",
+  "kind": "conference",
+  "venue": "SPAIS Workshop @ CoRL",
+  "authors": [
+    "Faiaz Azmain"
+  ],
+  "selected": false,
+  "links": {
+    "arxiv": "",
+    "pdf": "",
+    "conference": "",
+    "lesswrong": "",
+    "code": "https://github.com/fazmain/parent-taught-refusal",
+    "data": "https://huggingface.co/fazmain/parent-taught-refusal"
+  },
+  "embargo_until": null,
+  "channels": {
+    "site": {
+      "status": "approved"
+    },
+    "lesswrong": {
+      "status": "draft"
+    },
+    "thread": {
+      "status": "draft"
+    }
+  }
+}
