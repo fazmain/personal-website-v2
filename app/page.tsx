@@ -32,7 +32,7 @@ export default function Home() {
             Hello, this is <Link href="/about" className={`font-medium ${inlineLink}`}>Faiaz</Link>.
           </p>
           <p className="text-base md:text-2xl text-[var(--foreground)]/80 leading-relaxed max-w-xl">
-            I <Link href="/research" className={inlineLink}>research</Link> AI Safety, teach tech, and <Link href="/projects" className={inlineLink}>build</Link> things, from software to interactive art.
+            I <Link href="/research" className={inlineLink}>research</Link> AI safety, <Link href="/projects" className={inlineLink}>build</Link> fun (and useful) things, and make interactive art.
           </p>
           <div className="flex flex-wrap gap-x-4 gap-y-2 mt-6 text-sm md:text-base font-medium text-[#ac4c2e]">
             <a href="https://mail.google.com/mail/?view=cm&fs=1&to=fazmain25@gmail.com" target="_blank" rel="noopener noreferrer" className="hover:underline underline-offset-4 decoration-[#ac4c2e]/40">Email</a>
