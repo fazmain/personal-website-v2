@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Faiaz Azmain",
-  description: "AI safety researcher, teacher, and builder.",
+  description: "AI safety researcher and creative technologist.",
 };
 
 export default function RootLayout({
