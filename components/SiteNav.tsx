@@ -6,11 +6,11 @@ import { usePathname } from 'next/navigation';
 const links = [
   { href: '/', label: 'Home' },
   { href: '/research', label: 'Research' },
-  { href: '/publications', label: 'Publications' },
+  // { href: '/publications', label: 'Publications' },
   { href: '/essays', label: 'Essays' },
-  { href: '/notes', label: 'Notes' },
+  // { href: '/notes', label: 'Notes' },
   { href: '/projects', label: 'Projects' },
-  { href: '/library', label: 'Library' },
+  // { href: '/library', label: 'Library' },
   { href: '/about', label: 'About' },
 ];
 

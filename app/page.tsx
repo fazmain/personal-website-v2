@@ -2,17 +2,18 @@ import Link from 'next/link';
 import Image from 'next/image';
 import ResearchCard from '@/components/research/ResearchCard';
 import { research } from '@/lib/research';
-import { getNotes } from '@/lib/notes';
-import NotesTimeline from '@/components/NotesTimeline';
+// Notes are hidden for now. Uncomment these, `starredNotes`, and the Notes section below to bring them back.
+// import { getNotes } from '@/lib/notes';
+// import NotesTimeline from '@/components/NotesTimeline';
 
 // One line about what I'm up to right now. Update freely.
-const currently = 'probing what chain-of-thought actually encodes, teaching, and sketching cities.';
+const currently = 'probing what chain-of-thought actually encodes, and teaching.';
 
 const inlineLink = 'underline underline-offset-4 decoration-[var(--foreground)]/25 hover:decoration-[#ac4c2e] transition-colors';
 
 export default function Home() {
   const selected = research.filter(e => e.selected);
-  const starredNotes = getNotes().filter(note => note.starred);
+  // const starredNotes = getNotes().filter(note => note.starred);
 
   return (
     <div className="flex flex-col gap-14 pt-0 pb-8 md:pt-2 md:pb-12 animate-fade-in">
@@ -24,7 +25,7 @@ export default function Home() {
             Hello, this is <Link href="/about" className={`font-medium ${inlineLink}`}>Faiaz</Link>.
           </p>
           <p className="text-base md:text-2xl text-[var(--foreground)]/80 leading-relaxed max-w-xl">
-            I <Link href="/research" className={inlineLink}>research AI Safety</Link>, teach tech, <Link href="/projects" className={inlineLink}>build things</Link>, and make art with tech.
+            I <Link href="/research" className={inlineLink}>research AI Safety</Link>, teach tech, and <Link href="/projects" className={inlineLink}>build things</Link>.
           </p>
           <div className="flex flex-wrap gap-x-4 gap-y-2 mt-6 text-sm md:text-base font-medium text-[#ac4c2e]">
             <a href="https://mail.google.com/mail/?view=cm&fs=1&to=fazmain25@gmail.com" target="_blank" rel="noopener noreferrer" className="hover:underline underline-offset-4 decoration-[#ac4c2e]/40">Email</a>
@@ -49,7 +50,7 @@ export default function Home() {
         </Link>
       </section>
 
-      {/* Notes */}
+      {/* Notes (hidden for now)
       <section className="flex flex-col gap-6" aria-labelledby="notes-heading">
         <h2 id="notes-heading" className="text-xl md:text-2xl font-medium tracking-tight text-[#ac4c2e]">Notes</h2>
         {starredNotes.length > 0 && <NotesTimeline notes={starredNotes} />}
@@ -57,6 +58,7 @@ export default function Home() {
           All notes <span aria-hidden="true">→</span>
         </Link>
       </section>
+      */}
     </div>
   );
 }
