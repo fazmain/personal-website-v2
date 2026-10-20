@@ -53,11 +53,11 @@ export function Select<T extends string>({ label, options, value, onChange }: {
 }) {
   const id = useId();
   return (
-    <span className={`inline-flex items-center gap-2 ${labelText}`}>
-      <label htmlFor={id}>{label}</label>
+    <span className={`inline-flex max-w-full flex-wrap items-center gap-x-2 gap-y-1 ${labelText}`}>
+      <label htmlFor={id} className="whitespace-nowrap">{label}</label>
       <select
         id={id} value={value} onChange={e => onChange(e.target.value as T)}
-        className="rounded-md border border-[var(--foreground)]/15 bg-[var(--background)] px-2 py-1 text-[var(--foreground)]"
+        className="min-w-0 max-w-full rounded-md border border-[var(--foreground)]/15 bg-[var(--background)] px-2 py-1 text-[var(--foreground)]"
       >
         {options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
       </select>
