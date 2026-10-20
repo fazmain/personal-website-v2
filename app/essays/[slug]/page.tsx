@@ -3,7 +3,7 @@ import { getPostData, getSortedPostsData } from '@/lib/markdown';
 import { notFound } from 'next/navigation';
 
 export async function generateStaticParams() {
-  const posts = getSortedPostsData();
+  const posts = getSortedPostsData({ includeHidden: true });
   return posts.map((post) => ({
     slug: post.slug,
   }));

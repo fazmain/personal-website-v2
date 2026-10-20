@@ -7,7 +7,7 @@ import { research } from '@/lib/research';
 // import NotesTimeline from '@/components/NotesTimeline';
 
 // One line about what I'm up to right now. Update freely.
-const currently = 'probing what chain-of-thought actually encodes, and teaching.';
+const currently = 'exploring robot model safety and making interactive sculptures.';
 
 const inlineLink = 'underline underline-offset-4 decoration-[var(--foreground)]/25 hover:decoration-[#ac4c2e] transition-colors';
 

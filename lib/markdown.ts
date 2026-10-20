@@ -12,11 +12,13 @@ export interface BlogPostData {
   date: string;
   category?: string;
   showInHome?: boolean;
+  /** Hidden posts are left out of lists but still reachable by direct link. */
+  hidden?: boolean;
   contentHtml?: string;
   description?: string;
 }
 
-export function getSortedPostsData(): BlogPostData[] {
+export function getSortedPostsData({ includeHidden = false } = {}): BlogPostData[] {
   if (!fs.existsSync(postsDirectory)) {
     return [];
   }
@@ -32,12 +34,14 @@ export function getSortedPostsData(): BlogPostData[] {
 
     return {
       slug,
-      ...(matterResult.data as { date: string; title: string; category?: string; showInHome?: boolean; description?: string }),
+      ...(matterResult.data as { date: string; title: string; category?: string; showInHome?: boolean; hidden?: boolean; description?: string }),
     };
   });
 
   // Dates aren't zero-padded ("2023-5-11"), so compare as dates rather than strings.
-  return allPostsData.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  return allPostsData
+    .filter(post => includeHidden || !post.hidden)
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 }
 
 export async function getPostData(slug: string): Promise<BlogPostData> {
@@ -54,6 +58,6 @@ export async function getPostData(slug: string): Promise<BlogPostData> {
   return {
     slug,
     contentHtml,
-    ...(matterResult.data as { date: string; title: string; category?: string; showInHome?: boolean; description?: string }),
+    ...(matterResult.data as { date: string; title: string; category?: string; showInHome?: boolean; hidden?: boolean; description?: string }),
   };
 }

@@ -35,19 +35,19 @@ export default function About() {
 
 
         <p>
-          I am a computer science student graduating May 2026. I am from Dhaka, Bangladesh and currently live in a small rural Ohio town. I am currently researching AI safety, particularly interpretability.
+          I graduated with a degree in computer science in May 2026, and I am currently working independently on AI safety research, particularly interpretability. I am from Dhaka, Bangladesh, and now live in Boulder, Colorado.
           Before getting into AI, I was interested in creating things people love and use. And I still am.
         </p>
 
         <p>
-          In my free time, I like to play the guitar and sing. Occationally, I play badminton in my school.
+          In my free time, I like to play the guitar and sing. Occasionally, I play badminton.
         </p>
 
 
         <h4>Get in Touch</h4>
         <p>
           I'm always open to discussing research, collaboration opportunities, or just having a chat about the future of AI.
-          Feel free to reach out via <a href="mailto:fazmain25@gmail.com">fazmain25@gmail.com</a> or connect with me on <a href="https://x.com/faiazAz" target="_blank" rel="noopener noreferrer">Twitter</a>.
+          Feel free to reach out via <a href="mailto:fazmain25@gmail.com">fazmain25@gmail.com</a> or connect with me on <a href="https://x.com/faiazAz" target="_blank" rel="noopener noreferrer">X (Twitter)</a>.
         </p>
 
       </section>
