@@ -7,8 +7,14 @@ import Image from 'next/image';
 // import { getNotes } from '@/lib/notes';
 // import NotesTimeline from '@/components/NotesTimeline';
 
-// One line about what I'm up to right now. Update freely.
-const currently = 'exploring robot model safety and making interactive sculptures.';
+// What I'm working on right now. Change `updated` (YYYY-MM) whenever you edit the text.
+const now = {
+  updated: '2026-10',
+  text: "I'm researching the safety of robot foundation models, looking at how their failure modes are similar to and different from those of LLMs. I'm also looking for funding and opportunities to continue this research at a larger scale. Alongside that, I'm making an interactive sculpture that visualizes residual stream activations!",
+};
+
+const nowUpdated = new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric', timeZone: 'UTC' })
+  .format(new Date(`${now.updated}-01T00:00:00Z`));
 
 const inlineLink = 'underline underline-offset-4 decoration-[var(--foreground)]/25 hover:decoration-[#ac4c2e] transition-colors';
 
@@ -26,7 +32,7 @@ export default function Home() {
             Hello, this is <Link href="/about" className={`font-medium ${inlineLink}`}>Faiaz</Link>.
           </p>
           <p className="text-base md:text-2xl text-[var(--foreground)]/80 leading-relaxed max-w-xl">
-            I <Link href="/research" className={inlineLink}>research AI Safety</Link>, teach tech, and <Link href="/projects" className={inlineLink}>build things</Link>.
+            I <Link href="/research" className={inlineLink}>research AI Safety</Link>, teach tech, and <Link href="/projects" className={inlineLink}>build things</Link>, from software to interactive art.
           </p>
           <div className="flex flex-wrap gap-x-4 gap-y-2 mt-6 text-sm md:text-base font-medium text-[#ac4c2e]">
             <a href="https://mail.google.com/mail/?view=cm&fs=1&to=fazmain25@gmail.com" target="_blank" rel="noopener noreferrer" className="hover:underline underline-offset-4 decoration-[#ac4c2e]/40">Email</a>
@@ -37,10 +43,14 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Currently */}
-      <p className="text-base text-[var(--foreground)]/70 border-l-2 border-[#ac4c2e]/40 pl-4 -mt-4">
-        <span className="italic text-[#ac4c2e]">Currently</span> — {currently}
-      </p>
+      {/* Now */}
+      <section className="flex flex-col gap-3" aria-labelledby="now-heading">
+        <h2 id="now-heading" className="text-xl md:text-2xl font-medium tracking-tight text-[#ac4c2e]">Now</h2>
+        <p className="text-base md:text-lg text-[var(--foreground)]/80 leading-relaxed">{now.text}</p>
+        <p className="text-sm text-[var(--foreground)]/50">
+          Updated <time dateTime={now.updated}>{nowUpdated}</time>
+        </p>
+      </section>
 
       {/* Selected research (hidden for now)
       <section className="flex flex-col gap-4">
