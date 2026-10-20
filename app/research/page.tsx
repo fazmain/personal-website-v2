@@ -20,19 +20,20 @@ export default function ResearchPage() {
         </p>
       </div>
 
-      <section className="flex flex-col gap-4">
-        <h2 className="text-xl md:text-2xl font-medium tracking-tight text-[#ac4c2e]">Papers</h2>
-        {paperList.map(e => <ResearchCard key={e.slug} entry={e} />)}
-      </section>
+      {/* Sections only appear once they have entries. */}
+      {paperList.length > 0 && (
+        <section className="flex flex-col gap-4">
+          <h2 className="text-xl md:text-2xl font-medium tracking-tight text-[#ac4c2e]">Papers</h2>
+          {paperList.map(e => <ResearchCard key={e.slug} entry={e} />)}
+        </section>
+      )}
 
-      <section className="flex flex-col gap-4">
-        <h2 className="text-xl md:text-2xl font-medium tracking-tight text-[#ac4c2e]">Research blog posts</h2>
-        {posts.length === 0 ? (
-          <p className="text-[var(--foreground)]/60 italic">First write-ups coming soon.</p>
-        ) : (
-          posts.map(e => <ResearchCard key={e.slug} entry={e} />)
-        )}
-      </section>
+      {posts.length > 0 && (
+        <section className="flex flex-col gap-4">
+          <h2 className="text-xl md:text-2xl font-medium tracking-tight text-[#ac4c2e]">Research blog posts</h2>
+          {posts.map(e => <ResearchCard key={e.slug} entry={e} />)}
+        </section>
+      )}
     </div>
   );
 }

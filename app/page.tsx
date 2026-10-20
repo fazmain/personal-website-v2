@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import ResearchCard from '@/components/research/ResearchCard';
-import { research } from '@/lib/research';
+// Selected research is hidden for now. Uncomment these, `selected`, and the section below to bring it back.
+// import ResearchCard from '@/components/research/ResearchCard';
+// import { research } from '@/lib/research';
 // Notes are hidden for now. Uncomment these, `starredNotes`, and the Notes section below to bring them back.
 // import { getNotes } from '@/lib/notes';
 // import NotesTimeline from '@/components/NotesTimeline';
@@ -12,7 +13,7 @@ const currently = 'exploring robot model safety and making interactive sculpture
 const inlineLink = 'underline underline-offset-4 decoration-[var(--foreground)]/25 hover:decoration-[#ac4c2e] transition-colors';
 
 export default function Home() {
-  const selected = research.filter(e => e.selected);
+  // const selected = research.filter(e => e.selected);
   // const starredNotes = getNotes().filter(note => note.starred);
 
   return (
@@ -41,7 +42,7 @@ export default function Home() {
         <span className="italic text-[#ac4c2e]">Currently</span> — {currently}
       </p>
 
-      {/* Selected research */}
+      {/* Selected research (hidden for now)
       <section className="flex flex-col gap-4">
         <h2 className="text-xl md:text-2xl font-medium tracking-tight text-[#ac4c2e]">Selected research</h2>
         {selected.map(e => <ResearchCard key={e.slug} entry={e} />)}
@@ -49,6 +50,7 @@ export default function Home() {
           All research <span className="opacity-70">→</span>
         </Link>
       </section>
+      */}
 
       {/* Notes (hidden for now)
       <section className="flex flex-col gap-6" aria-labelledby="notes-heading">
