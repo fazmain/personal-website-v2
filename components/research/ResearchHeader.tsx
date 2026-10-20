@@ -8,6 +8,7 @@ const linkLabels = {
   pdf: 'PDF',
   lesswrong: 'LessWrong',
   code: 'Code',
+  data: 'Data',
 } as const;
 
 /** Top of every research entry page: title, authors, venue, and paper links. */
