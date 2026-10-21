@@ -340,7 +340,7 @@ export function playIntro(o: IntroOptions) {
         ctx!.beginPath();
         edgePath();
         ctx!.shadowColor = 'rgba(196,120,56,0.7)';
-        ctx!.shadowBlur = 30 * dpr;
+        ctx!.shadowBlur = 12 * dpr;
         ctx!.lineWidth = 5;
         ctx!.strokeStyle = 'rgba(196,120,56,0.4)';
         ctx!.stroke();
@@ -356,7 +356,7 @@ export function playIntro(o: IntroOptions) {
       ctx!.globalCompositeOperation = 'lighter';
       // One genuinely blurred glow (no stacked bands), then a fine bright core.
       ctx!.shadowColor = 'rgba(255,140,64,1)';
-      ctx!.shadowBlur = 26 * dpr;
+      ctx!.shadowBlur = 10 * dpr;
       ctx!.lineWidth = 4;
       ctx!.strokeStyle = 'rgba(255,186,120,0.6)';
       ctx!.stroke();
