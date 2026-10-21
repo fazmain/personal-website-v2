@@ -30,3 +30,30 @@ body {
     width: min(960px, calc(50vw + 50% - 3rem));
   }
 }
+
+/* The art world (/art): same site, lights off. Set on <html> by components/art/ArtWorld.tsx. */
+html[data-world="art"] {
+  --background: #07070b;
+  --foreground: #ece6da;
+  color-scheme: dark;
+}
+html[data-world="art"] body {
+  transition: background-color 0.4s ease;
+}
+@keyframes art-arrive {
+  from { opacity: 0; transform: translateY(18px); filter: blur(10px); }
+  to { opacity: 1; transform: none; filter: none; }
+}
+.art-arrive {
+  animation: art-arrive 1.1s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+@keyframes art-cursor {
+  50% { opacity: 0; }
+}
+.art-cursor {
+  animation: art-cursor 1s steps(1) infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .art-arrive { animation: none; }
+  .art-cursor { animation: none; }
+}

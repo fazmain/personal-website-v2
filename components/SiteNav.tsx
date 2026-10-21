@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { warmPortrait } from '@/components/art/portal/portrait';
 
 const links = [
   { href: '/', label: 'Home' },
@@ -10,9 +11,14 @@ const links = [
   { href: '/essays', label: 'Essays' },
   // { href: '/notes', label: 'Notes' },
   { href: '/projects', label: 'Projects' },
+  { href: '/art', label: 'Art' },
   // { href: '/library', label: 'Library' },
   { href: '/about', label: 'About' },
 ];
+
+// The art portal draws the portrait; start loading it before the click lands.
+const warmProps = (href: string) =>
+  href === '/art' ? { onPointerEnter: warmPortrait, onFocus: warmPortrait } : {};
 
 export default function SiteNav() {
   const pathname = usePathname();
@@ -30,6 +36,7 @@ export default function SiteNav() {
               <Link
                 href={href}
                 aria-current={isActive(href) ? 'page' : undefined}
+                {...warmProps(href)}
                 className={
                   isActive(href)
                     ? 'text-[#ac4c2e] underline underline-offset-4 decoration-[#ac4c2e]/40'
@@ -51,6 +58,7 @@ export default function SiteNav() {
               <Link
                 href={href}
                 aria-current={isActive(href) ? 'page' : undefined}
+                {...warmProps(href)}
                 className={`group relative transition-colors ${
                   isActive(href) ? 'text-[#ac4c2e]' : 'text-[var(--foreground)]/50 hover:text-[var(--foreground)]'
                 }`}
