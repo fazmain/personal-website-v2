@@ -9,7 +9,6 @@ import { playOutro } from './portal/outro';
 type Leaving = { x: number; y: number; href: string };
 
 const SEEN_KEY = 'art-portal-seen';
-const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 const isArtPath = (path: string) => path === '/art' || path.startsWith('/art/');
 
 /**
@@ -70,20 +69,12 @@ export default function ArtWorld({ children }: { children: React.ReactNode }) {
       };
     }
 
-    const css = getComputedStyle(html);
-    const serif = `${css.getPropertyValue('--font-eb-garamond').trim() || 'Georgia'}, serif`;
-    const mono = `${css.getPropertyValue('--font-geist-mono').trim() || 'ui-monospace'}, monospace`;
-    Promise.all([
-      loadPortrait(PORTRAIT_SRC, portraitPointCount()),
-      Promise.race([document.fonts?.ready, wait(800)]),
-    ]).then(([portrait]) => {
+    loadPortrait(PORTRAIT_SRC, portraitPointCount()).then(portrait => {
       if (cancelled) return;
       controller.current = playIntro({
         canvas,
         portrait,
         speed: seenBefore.current ? 1.7 : 1,
-        serif,
-        mono,
         onReveal: () => setRevealed(true),
         onDone: end,
       });

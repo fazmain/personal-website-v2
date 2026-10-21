@@ -4,7 +4,7 @@
 import { fbm } from './noise';
 import { PAPER } from './intro';
 
-const DURATION = 0.85;
+const DURATION = 1.05;
 const TAU = Math.PI * 2;
 
 export function playOutro(canvas: HTMLCanvasElement, x: number, y: number, onCovered: () => void) {
@@ -38,8 +38,8 @@ export function playOutro(canvas: HTMLCanvasElement, x: number, y: number, onCov
     ctx!.beginPath();
     for (let j = 0; j <= NV; j++) {
       const a = (j / NV) * TAU;
-      const n = fbm(Math.cos(a) * 1.5 + 5, Math.sin(a) * 1.5 + 9, t * 1.2);
-      const r = Math.max(0, r0 * (1 + 0.22 * (1 - p) * (n - 0.5) * 2));
+      const n = fbm(Math.cos(a) * 1.3 + 5, Math.sin(a) * 1.3 + 9, t * 0.5);
+      const r = Math.max(0, r0 * (1 + 0.12 * (1 - p) * (n - 0.5) * 2));
       const px = x + Math.cos(a) * r, py = y + Math.sin(a) * r;
       if (j === 0) ctx!.moveTo(px, py);
       else ctx!.lineTo(px, py);
@@ -48,12 +48,13 @@ export function playOutro(canvas: HTMLCanvasElement, x: number, y: number, onCov
     ctx!.fillStyle = PAPER;
     ctx!.fill();
     if (p < 1) {
-      ctx!.strokeStyle = 'rgba(28,35,49,0.18)';
-      ctx!.lineWidth = 14;
-      ctx!.stroke();
-      ctx!.strokeStyle = 'rgba(28,35,49,0.6)';
-      ctx!.lineWidth = 2;
-      ctx!.stroke();
+      // A faint, feathered ink edge.
+      const fringe: [number, number][] = [[30, 0.03], [14, 0.05], [5, 0.08], [1.2, 0.22]];
+      for (const [w, a] of fringe) {
+        ctx!.strokeStyle = `rgba(28,35,49,${a})`;
+        ctx!.lineWidth = w;
+        ctx!.stroke();
+      }
       raf = requestAnimationFrame(frame);
     } else if (!done) {
       done = true;
