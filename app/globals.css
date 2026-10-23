@@ -47,13 +47,6 @@ html[data-world="art"] body {
 .art-arrive {
   animation: art-arrive 1.6s cubic-bezier(0.25, 0.6, 0.25, 1) both;
 }
-@keyframes art-cursor {
-  50% { opacity: 0; }
-}
-.art-cursor {
-  animation: art-cursor 1s steps(1) infinite;
-}
 @media (prefers-reduced-motion: reduce) {
   .art-arrive { animation: none; }
-  .art-cursor { animation: none; }
 }

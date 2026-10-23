@@ -1,0 +1,33 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<link rel="icon" href="data:,">
+<title>All Eyes On You</title>
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #050404; }
+  canvas { position: fixed; inset: 0; width: 100vw; height: 100vh; display: block; }
+  #debug { pointer-events: none; }
+  body.nocursor, body.nocursor canvas { cursor: none; }
+  #note { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); max-width: 32em; color: #b9aea0;
+    font: 15px/1.5 Georgia, serif; text-align: center; }
+</style>
+<canvas id="eyes"></canvas>
+<canvas id="debug" hidden></canvas>
+<p id="note" hidden></p>
+<script type="module" src="js/main.js"></script>
+<style>
+  #hint { position: fixed; left: 0; right: 0; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); margin: 0; padding-inline: 16px;
+    text-align: center; color: #9d9184; font: italic 15px/1.4 Georgia, 'Times New Roman', serif; letter-spacing: 0.02em;
+    pointer-events: none; transition: opacity 2.5s ease; text-shadow: 0 0 12px #000; }
+  #hint.gone { opacity: 0; }
+  @media (prefers-reduced-motion: reduce) { #hint { transition: none; } }
+</style>
+<p id="hint">Move your cursor in front of them. In the gallery, a camera does this.</p>
+<script>
+  (function () {
+    var h = document.getElementById('hint'), t;
+    function hide() { h.classList.add('gone'); }
+    addEventListener('pointermove', function () { clearTimeout(t); t = setTimeout(hide, 4000); }, { once: true });
+    setTimeout(hide, 14000);
+  })();
+</script>
+
+</body></html>

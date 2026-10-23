@@ -1,0 +1,669 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<meta charset="utf-8">
+<title>Residual Stream Studies</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..700;1,6..96,400..700&family=JetBrains+Mono:wght@400;500&family=Libre+Franklin:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --wall:#e5e4df; --wall-2:#d9d7d0; --ink:#1d1c21; --muted:#5b5862; --rule:#c4c1b9;
+  --accent:#2f3fb8; --warn:#a2382c; --frame-edge:#1a1920;
+  --shadow:0 1px 0 rgba(0,0,0,.05), 0 22px 44px -22px rgba(22,18,34,.55);
+  --serif:"Bodoni Moda","Didot",Georgia,serif; --sans:"Libre Franklin",system-ui,-apple-system,"Segoe UI",sans-serif; --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){ --wall:#141317; --wall-2:#1b1a1f; --ink:#ebe7e0; --muted:#9c98a4; --rule:#2e2c34; --accent:#a3adff; --warn:#f08c7c; --frame-edge:#2c2a33; --shadow:0 22px 44px -22px rgba(0,0,0,.9); color-scheme:dark; }
+}
+:root[data-theme="dark"]{ --wall:#141317; --wall-2:#1b1a1f; --ink:#ebe7e0; --muted:#9c98a4; --rule:#2e2c34; --accent:#a3adff; --warn:#f08c7c; --frame-edge:#2c2a33; --shadow:0 22px 44px -22px rgba(0,0,0,.9); color-scheme:dark; }
+
+body{background:var(--wall);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.6;padding-inline:clamp(16px,4vw,56px);padding-block:clamp(32px,6vw,72px) 88px;}
+.wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:clamp(64px,9vw,120px);}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0;}
+h1{font-family:var(--serif);font-weight:500;font-size:clamp(44px,8vw,96px);line-height:.95;letter-spacing:-.02em;margin:14px 0 0;text-wrap:balance;}
+h1 em{font-style:italic;font-weight:400;}
+.intro{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:clamp(28px,5vw,72px);align-items:end;}
+.lede{max-width:60ch;font-size:17px;margin:22px 0 0;}
+.key{display:grid;grid-template-columns:auto 132px auto;grid-template-rows:auto 132px auto;gap:6px 10px;align-items:center;justify-items:center;font-family:var(--mono);font-size:11px;color:var(--muted);}
+.key canvas{grid-column:2;grid-row:2;display:block;}
+.key .t{grid-column:2;grid-row:1}.key .b{grid-column:2;grid-row:3}.key .l{grid-column:1;grid-row:2}.key .r{grid-column:3;grid-row:2}
+.key-note{max-width:34ch;font-size:13px;color:var(--muted);margin:14px 0 0;}
+.key-box{display:flex;flex-direction:column;align-items:center;}
+
+.work{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:clamp(24px,4vw,48px);align-items:start;}
+.frame{background:#0c0b10;border:1px solid var(--frame-edge);box-shadow:var(--shadow);line-height:0;}
+.frame.paper{background:#eee8dc;border-color:#cfc7b6;}
+.frame canvas{display:block;width:100%;}
+.piece{display:flex;flex-direction:column;gap:14px;min-width:0;}
+.controls{display:flex;flex-wrap:wrap;align-items:center;gap:10px 22px;font-size:13px;}
+.seg{display:inline-flex;border:1px solid var(--rule);}
+.seg button{font:500 12px var(--mono);letter-spacing:.02em;background:transparent;color:var(--muted);border:0;padding:7px 12px;cursor:pointer;}
+.seg button+button{border-left:1px solid var(--rule);}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--wall);}
+.btn{font:500 12px var(--mono);background:transparent;color:var(--ink);border:1px solid var(--ink);padding:7px 14px;cursor:pointer;}
+.btn:hover{background:var(--ink);color:var(--wall);}
+button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+.range{display:flex;align-items:center;gap:10px;color:var(--muted);font-family:var(--mono);font-size:12px;}
+.range input{width:200px;max-width:44vw;accent-color:var(--accent);}
+.range output{color:var(--ink);min-width:5ch;font-variant-numeric:tabular-nums;}
+.readout{font-family:var(--mono);font-size:12px;color:var(--muted);margin:0;min-height:1.6em;font-variant-numeric:tabular-nums;}
+
+.label{border-top:1px solid var(--ink);padding-top:14px;display:flex;flex-direction:column;gap:10px;}
+.cat{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);display:flex;justify-content:space-between;gap:12px;}
+.label h2{font-family:var(--serif);font-style:italic;font-weight:500;font-size:28px;line-height:1.1;margin:0;text-wrap:balance;}
+.medium{font-size:13px;color:var(--muted);margin:0;}
+.label p.desc{margin:0;font-size:14.5px;}
+.lensline{font-family:var(--mono);font-size:11.5px;color:var(--muted);margin:0;border-top:1px solid var(--rule);padding-top:10px;}
+.lensline b{color:var(--ink);font-weight:500;}
+
+.work.wide{grid-template-columns:1fr;}
+.work.wide .label{display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:10px 48px;}
+.work.wide .label .col{display:flex;flex-direction:column;gap:10px;}
+.strip{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px;}
+.cell{margin:0;display:flex;flex-direction:column;gap:10px;}
+.cell canvas{display:block;width:100%;border:1px solid var(--frame-edge);box-shadow:var(--shadow);}
+.cell figcaption{display:flex;flex-direction:column;gap:4px;}
+.cell .a{font-family:var(--mono);font-size:12px;font-variant-numeric:tabular-nums;}
+.cell .flag{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--warn);}
+.cell p{margin:0;font-family:var(--serif);font-style:italic;font-size:14px;line-height:1.35;}
+.cell.past p{color:var(--warn);}
+
+form.inst{display:flex;flex-wrap:wrap;gap:10px;align-items:center;}
+form.inst input[type=text]{flex:1 1 260px;min-width:0;font:15px var(--serif);font-style:italic;background:transparent;color:var(--ink);border:0;border-bottom:1px solid var(--ink);padding:6px 2px;}
+
+footer{border-top:1px solid var(--ink);padding-top:18px;display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:12px 48px;}
+footer h2{font-family:var(--serif);font-style:italic;font-weight:500;font-size:22px;margin:0;}
+footer p{margin:0 0 10px;max-width:68ch;font-size:14px;color:var(--muted);}
+footer code{font-family:var(--mono);font-size:12.5px;color:var(--ink);}
+
+@media (max-width:900px){
+  .work,.work.wide .label,footer{grid-template-columns:1fr;}
+  .intro{grid-template-columns:1fr;align-items:start;}
+  .label{order:-1;}
+  .strip{grid-template-columns:repeat(auto-fill,minmax(130px,1fr));}
+}
+</style>
+
+<div class="wrap">
+  <header class="intro">
+    <div>
+      <p class="eyebrow">Seven studies · simulated activations · 2304 dims × 26 layers</p>
+      <h1>Residual Stream <em>Studies</em></h1>
+      <p class="lede">These are studies of a language model's residual stream, the running sum that every layer reads from and writes to. The vectors are simulated but built to behave like real ones: layers add to them, their norm grows with depth, one dimension carries a massive activation, and concepts live in directions. Each piece names its lens, because the numbers only mean something once you decide how to look at them.</p>
+    </div>
+    <div class="key-box">
+      <div class="key" role="img" aria-label="Color key: hue shows direction between grief, joy, truthful and deceptive; saturation shows strength">
+        <span class="t">truthful</span><span class="l">grief</span><canvas id="cv-key"></canvas><span class="r">joy</span><span class="b">deceptive</span>
+      </div>
+      <p class="key-note">The shared lens. Hue is where a vector points in the plane of two concept directions. Saturation is how strongly it points there. Grey means no meaning has been written yet.</p>
+    </div>
+  </header>
+
+  <section class="work" id="static">
+    <div class="piece"><div class="frame"><canvas id="cv-static" aria-label="Two 48 by 48 grids of raw activations that look like identical static, with color strips below that differ clearly"></canvas></div></div>
+    <div class="label">
+      <div class="cat"><span>Cat. 1</span><span>The trap</span></div>
+      <h2>Static, Twice</h2>
+      <p class="medium">Final-layer residual of the token “I”, 2304 numbers folded into 48 × 48</p>
+      <p class="desc">Two sentences with opposite feelings, drawn one coordinate per pixel. They look like the same television static. The meaning is spread across all 2304 numbers as a direction, and a single massive dimension (circled) outshines everything else. The strip below reads the same two vectors along one valence direction, and they separate at once.</p>
+      <p class="lensline"><b>Lens</b> none above, valence direction below</p>
+    </div>
+  </section>
+
+  <section class="work" id="glazes">
+    <div class="piece">
+      <div class="frame paper"><canvas id="cv-glaze" aria-label="Watercolor glazes layered along a path, one per model layer"></canvas></div>
+      <div class="controls">
+        <div class="seg" id="gl-p" role="group" aria-label="Prompt"><button data-v="grief" aria-pressed="true">grief</button><button data-v="joy" aria-pressed="false">joy</button><button data-v="deceit" aria-pressed="false">deceit</button></div>
+        <button class="btn" id="gl-go" type="button">Paint again</button>
+      </div>
+      <p class="readout" id="ro-glaze" aria-live="polite"></p>
+    </div>
+    <div class="label">
+      <div class="cat"><span>Cat. 2</span><span>How a thought is built</span></div>
+      <h2>Glazes</h2>
+      <p class="medium">26 layer writes to the last token, laid down as translucent washes on paper</p>
+      <p class="desc">The residual stream is a sum. Each layer adds its write to what is already there, the way a painter builds color with thin glazes. Each wash here is one layer's write. It sits where the running total lands, its size is how much that layer wrote, and its tint is what it wrote about. The early washes are small and grey. Color arrives in the middle layers, where the model works out what the sentence means.</p>
+      <p class="lensline"><b>Lens</b> position: gallery PCA · tint: valence–honesty of each write</p>
+    </div>
+  </section>
+
+  <section class="work" id="loom">
+    <div class="piece">
+      <div class="frame"><canvas id="cv-loom" aria-label="A woven grid: token columns and layer rows colored by meaning"></canvas></div>
+      <div class="controls">
+        <div class="seg" id="lm-p" role="group" aria-label="Prompt"><button data-v="grief" aria-pressed="true">grief</button><button data-v="joy" aria-pressed="false">joy</button><button data-v="deceit" aria-pressed="false">deceit</button></div>
+        <label class="range" for="lm-a">steer <input id="lm-a" type="range" min="-12" max="12" step="0.5" value="0"><output id="lm-a-v">0.0</output></label>
+      </div>
+      <p class="readout" id="ro-loom" aria-live="polite"></p>
+    </div>
+    <div class="label">
+      <div class="cat"><span>Cat. 3</span><span>How a thought is built</span></div>
+      <h2>Loom</h2>
+      <p class="medium">Tokens as warp, layers as weft, one cell per token per layer</p>
+      <p class="desc">Each weft row is a layer and each warp column is a token. A cell's color is that token's residual at that layer. Read down a column to watch a word gather meaning with depth. Read along the bottom rows to see the mood spread from the words that carry it to words like “and” and “I”, which carry none of their own. The slider adds a steering vector at layer 8, so only the rows below it change.</p>
+      <p class="lensline"><b>Lens</b> valence–honesty, per cell</p>
+    </div>
+  </section>
+
+  <section class="work" id="rivers">
+    <div class="piece">
+      <div class="frame"><canvas id="cv-rivers" aria-label="Braided luminous strokes flowing from a shared source and splitting into three streams"></canvas></div>
+      <div class="controls">
+        <label class="range" for="rv-a">wind <input id="rv-a" type="range" min="-12" max="12" step="0.5" value="0"><output id="rv-a-v">0.0</output></label>
+        <button class="btn" id="rv-go" type="button">Flow again</button>
+      </div>
+      <p class="readout" id="ro-rivers" aria-live="polite"></p>
+    </div>
+    <div class="label">
+      <div class="cat"><span>Cat. 4</span><span>Geometry of meaning</span></div>
+      <h2>Three Rivers</h2>
+      <p class="medium">Every token's path from layer 0 to layer 26, three prompts, two principal components</p>
+      <p class="desc">The three sentences share words, so their rivers rise from the same spring and split where the meanings split. Color appears midstream because concept directions get written in the middle layers. Near the mouth the rivers turn once more, as the model starts preparing its next word. Steering acts like wind: one vector bends every river the same way.</p>
+      <p class="lensline"><b>Lens</b> PCA (fit once, unsteered) · color: valence–honesty</p>
+    </div>
+  </section>
+
+  <section class="work" id="clouds">
+    <div class="piece">
+      <div class="frame"><canvas id="cv-clouds" aria-label="Two glowing point clouds joined by faint parallel threads and a white arrow between their centers"></canvas></div>
+      <div class="controls">
+        <label class="range" for="cl-a">add α × v <input id="cl-a" type="range" min="0" max="12" step="0.25" value="0"><output id="cl-a-v">0.0</output></label>
+      </div>
+      <p class="readout" id="ro-clouds" aria-live="polite"></p>
+    </div>
+    <div class="label">
+      <div class="cat"><span>Cat. 5</span><span>Control</span></div>
+      <h2>Two Clouds and an Arrow</h2>
+      <p class="medium">140 contrastive pairs at layer 8, plus one new prompt being steered</p>
+      <p class="desc">This is contrastive activation addition, drawn literally. Each faint thread joins two prompts that differ only in sentiment. The threads run nearly parallel, and their average is the arrow: mean(joy) minus mean(grief). The white point is a new prompt about a funeral. Drag the slider to add the arrow to it. Past the joy cloud it leaves the region where real activations live.</p>
+      <p class="lensline"><b>Lens</b> x: the steering vector · y: top PC orthogonal to it</p>
+    </div>
+  </section>
+
+  <section class="work wide" id="cliff">
+    <div class="label">
+      <div class="col">
+        <div class="cat"><span>Cat. 6</span><span>Control</span></div>
+        <h2>The Coherence Cliff</h2>
+        <p class="medium">One prompt, seven steering strengths, final-layer residual of the last token</p>
+      </div>
+      <div class="col">
+        <p class="desc">Prompt: “I walked home after the funeral and”, steered toward joy at layer 8. The color follows the valence the steering adds. The shape comes from the rest of the vector, the part steering is not supposed to touch, and it holds steady while the tint warms. Then the added vector overwhelms the residual, the form fractures, and at that point the text breaks down into repetition. The continuations are written for illustration, not sampled.</p>
+        <p class="lensline"><b>Lens</b> color: valence–honesty · form: fingerprint of the off-steering residual · fracture: how far that residual has moved</p>
+      </div>
+    </div>
+    <div class="strip" id="cliff-strip"></div>
+  </section>
+
+  <section class="work" id="rings">
+    <div class="piece">
+      <div class="frame"><canvas id="cv-rings" aria-label="Concentric wobbling rings, one per token, growing outward"></canvas></div>
+      <form class="inst" id="rg-form">
+        <label class="eyebrow" for="rg-text">Prompt</label>
+        <input id="rg-text" type="text" value="Tell me something true about the ocean" autocomplete="off">
+        <button class="btn" id="rg-go" type="submit">Read</button>
+      </form>
+      <div class="controls">
+        <label class="range" for="rg-knob">steer <input id="rg-knob" type="range" min="-12" max="12" step="0.5" value="0"><output id="rg-knob-v">0.0</output></label>
+      </div>
+      <p class="readout" id="ro-rings" aria-live="polite"></p>
+    </div>
+    <div class="label">
+      <div class="cat"><span>Cat. 7</span><span>Control · live</span></div>
+      <h2>Growth Rings</h2>
+      <p class="medium">One ring per token, drawn as the model reads your prompt and then replies</p>
+      <p class="desc">A mock-up of the live instrument. Each token adds a ring outward, the way a tree adds a year. A ring's wobble is a fingerprint of that token's final residual, and its color is the shared lens. Turn the knob while it reads: rings drawn after the turn are steered, and the reply's tone is set by where the knob sits when your prompt ends. Push past ±9 and the rings start to tear. The replies are canned stand-ins for generation.</p>
+      <p class="lensline"><b>Lens</b> form: 24 fixed random projections · color: valence–honesty</p>
+    </div>
+  </section>
+
+  <footer>
+    <h2>About the simulation</h2>
+    <div>
+      <p>No real network produced these vectors. Each token starts as an identity vector, and each of 26 layers adds a write made of six concept components (fixed orthonormal directions), a shared depth drift, noise, and, in the late layers, a next-token direction. Write size grows with depth. Dimension 1570 accumulates a massive activation, and the BOS token holds an attention-sink spike. Steering adds <code>α × 0.09 × ‖h‖</code> along the valence direction at layer 8. Above α ≈ 7 the simulated writes turn noisy, which stands in for incoherence.</p>
+      <p>To make these real, replace <code>run()</code> with hooks on a model such as Gemma-2-2B and keep the lenses: fit the PCA on a corpus, take the concept directions from contrastive pairs or probes, and stream per-token activations to the canvas for the live piece.</p>
+    </div>
+  </footer>
+</div>
+
+<script>
+// ---------- Simulated residual stream (Gemma-2-2B shape) ----------
+const D = 2304, L = 26, M1 = 1570, M2 = 294;
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function hashStr(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
+function makeGauss(r){let sp=null;return()=>{if(sp!==null){const s=sp;sp=null;return s}let u=0;while(u===0)u=r();const v=r(),m=Math.sqrt(-2*Math.log(u));sp=m*Math.sin(6.283185307*v);return m*Math.cos(6.283185307*v)}}
+function normalize(v){let s=0;for(let i=0;i<v.length;i++)s+=v[i]*v[i];s=Math.sqrt(s)||1;for(let i=0;i<v.length;i++)v[i]/=s;return v}
+function randVec(seed){const g=makeGauss(mulberry32(seed)),v=new Float32Array(D);for(let i=0;i<D;i++)v[i]=g();return normalize(v)}
+function dot(a,b){let s=0;for(let i=0;i<D;i++)s+=a[i]*b[i];return s}
+function axpy(y,x,a){for(let i=0;i<D;i++)y[i]+=a*x[i]}
+function nrmEx(v){let s=0;for(let i=0;i<D;i++)s+=v[i]*v[i];s-=v[M1]*v[M1]+v[M2]*v[M2];return Math.sqrt(Math.max(s,1e-9))}
+const sig=x=>1/(1+Math.exp(-x));
+const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
+
+// six concept directions + a shared depth drift, orthonormal
+const C=[];
+for(let k=0;k<7;k++){const v=randVec(1000+k*31);for(const c of C)axpy(v,c,-dot(v,c));normalize(v);C.push(v)}
+const DRIFT=C[6];
+const POOL=[];for(let j=0;j<64;j++)POOL.push(randVec(5000+j));
+const FP=[];for(let j=0;j<24;j++)FP.push(randVec(9000+j));
+const idCache=new Map(),nxCache=new Map();
+function ident(w){w=w.toLowerCase();let v=idCache.get(w);if(!v){v=randVec(hashStr('id:'+w));idCache.set(w,v)}return v}
+function nextDir(w){w=w.toLowerCase();let v=nxCache.get(w);if(!v){v=randVec(hashStr('nx:'+w));nxCache.set(w,v)}return v}
+
+// tokens[0] is '<bos>'. loads: per-token concept loadings [valence, honesty, certainty, formality, concreteness, self]
+function run(tokens,loads,steer,maxL){
+  steer=steer||{};maxL=maxL??L;
+  const T=tokens.length,a=steer.alpha||0,sk=steer.k||0,sl=steer.layer??8;
+  const chaos=Math.pow(Math.max(0,(Math.abs(a)-6.5)/5.5),2);
+  const ctxL=[];
+  for(let t=0;t<T;t++){const c=new Float32Array(6);let w=0;
+    for(let s=1;s<=t;s++){let sal=0;for(let k=0;k<6;k++)sal=Math.max(sal,Math.abs(loads[s][k]));
+      const ww=Math.exp(-(t-s)/6)*(0.3+sal);w+=ww;for(let k=0;k<6;k++)c[k]+=ww*loads[s][k]}
+    if(w)for(let k=0;k<6;k++)c[k]/=w;ctxL.push(c)}
+  const H=[];let prev=[];
+  for(let t=0;t<T;t++){const v=Float32Array.from(ident(tokens[t]));if(t>0)for(let k=0;k<6;k++)if(loads[t][k])axpy(v,C[k],0.2*loads[t][k]);prev.push(v)}
+  H.push(prev);
+  for(let l=1;l<=maxL;l++){
+    const dl=l/L,sc=0.55*Math.exp(0.085*l),em=sig((dl-0.3)*10),late=sig((dl-0.78)*16);
+    const cur=[];
+    for(let t=0;t<T;t++){
+      const v=Float32Array.from(prev[t]);
+      if(t===0){if(l>=2){v[M1]=380;v[M2]=-190}axpy(v,DRIFT,sc*0.1);cur.push(v);continue}
+      const after=a!==0&&l>sl;
+      for(let k=0;k<6;k++){let m=(1-0.8*dl)*loads[t][k]+1.5*0.8*dl*ctxL[t][k];if(after&&k===sk)m+=0.06*a;if(m)axpy(v,C[k],sc*0.42*em*m)}
+      axpy(v,DRIFT,sc*0.22);
+      const r=mulberry32(hashStr(tokens[t].toLowerCase())+t*7919+l*104729);
+      const nm=sc*0.14*(after?1+10*chaos:1);
+      for(let j=0;j<4;j++)axpy(v,POOL[(r()*64)|0],nm*(r()*2-1)*0.9);
+      if(after&&chaos>0){const r2=mulberry32(hashStr('chaos'+t+':'+l+':'+Math.round(a*2)));for(let j=0;j<3;j++)axpy(v,POOL[(r2()*64)|0],sc*0.5*chaos*(r2()*2-1))}
+      axpy(v,nextDir(tokens[t]),sc*0.35*late);
+      v[M1]+=sc*0.6;
+      if(a!==0&&l===sl)axpy(v,C[sk],a*0.09*nrmEx(v));
+      cur.push(v);
+    }
+    H.push(cur);prev=cur;
+  }
+  return H;
+}
+function lens(v){const n=nrmEx(v);return{val:dot(v,C[0])/n,hon:dot(v,C[1])/n,cert:dot(v,C[2])/n}}
+// how much of the vector *outside* the steered direction has changed, 0..1
+function fracture(v,v0){
+  const a=Float32Array.from(v),b=Float32Array.from(v0);
+  for(const x of [a,b]){x[M1]=0;x[M2]=0;axpy(x,C[0],-dot(x,C[0]))}
+  const cs=dot(a,b)/Math.sqrt(dot(a,a)*dot(b,b));
+  return clamp((1-cs-0.004)/0.25,0,1);
+}
+function fingerprint(v){const n=nrmEx(v);return FP.map(f=>(dot(v,f)-v[M1]*f[M1]-v[M2]*f[M2])/n*48)}
+
+// ---------- prompts ----------
+const Z=[0,0,0,0,0,0];
+function mkP(spec){const tokens=['<bos>'],loads=[Z];for(const s of spec){tokens.push(s[0]);const l=s.slice(1);while(l.length<6)l.push(0);loads.push(l)}return{tokens,loads}}
+const P={
+  grief:mkP([['The',0,0,0,.2],['letter',0,.1,.1,.3,.6],['said',0,.2,.3],['he',0,0,0,0,.2],['had',0,0,.1],['died',-1,.1,.6,0,.5],['in'],['the'],['night',-.4,0,0,0,.6],[','],['and'],['I',-.2,0,0,-.2,0,.9]]),
+  joy:mkP([['The',0,0,0,.2],['letter',0,.1,.1,.3,.6],['said',0,.2,.3],['she',0,0,0,0,.2],['had',0,0,.1],['won',.9,.1,.5,0,.2],['the'],['prize',.7,0,.2,0,.5],[','],['and'],['I',.2,0,0,-.2,0,.9]]),
+  deceit:mkP([['I',0,-.1,0,0,0,.9],['told',0,-.5,.3,0,0,.3],['her',0,-.2,0,0,.1],['the'],['letter',0,.1,.1,.3,.6],['never',-.1,-.8,.6],['arrived',0,-.6,.2,0,.4],[','],['and'],['I',0,-.4,0,-.2,0,.9]]),
+  funeral:mkP([['I',0,0,0,0,0,.9],['walked',0,0,0,0,.5],['home',.1,0,0,0,.7,.2],['after'],['the'],['funeral',-1,.1,.4,.3,.6],['and']])
+};
+
+// ---------- color: OKLCH lens ----------
+function oklchRGB(Lc,Cc,h){const hr=h*Math.PI/180,A=Cc*Math.cos(hr),B=Cc*Math.sin(hr);
+  const l_=Lc+0.3963377774*A+0.2158037573*B,m_=Lc-0.1055613458*A-0.0638541728*B,s_=Lc-0.0894841775*A-1.2914855480*B;
+  const l=l_*l_*l_,m=m_*m_*m_,s=s_*s_*s_;
+  const r=4.0767416621*l-3.3077115913*m+0.2309699292*s,g=-1.2684380046*l+2.6097574011*m-0.3413193965*s,b=-0.0041960863*l-0.7034186147*m+1.7076127010*s;
+  const f=x=>{x=clamp(x,0,1);return Math.round(255*(x<=0.0031308?12.92*x:1.055*Math.pow(x,1/2.4)-0.055))};
+  return[f(r),f(g),f(b)]}
+function col(Lc,Cc,h,a){const[r,g,b]=oklchRGB(Lc,Cc,h);return a===undefined?`rgb(${r},${g},${b})`:`rgba(${r},${g},${b},${a})`}
+const GAIN=2.3;
+function hueMap(a){const A=[-180,-90,0,90,180],Hh=[265,350,440,535,625];for(let i=0;i<4;i++)if(a<=A[i+1]){const t=(a-A[i])/(A[i+1]-A[i]);return(Hh[i]+t*(Hh[i+1]-Hh[i]))%360}return 265}
+function lch(o,Lb,gain){gain=gain||GAIN;const x=o.val*gain,y=o.hon*gain,m=Math.min(1,Math.hypot(x,y));
+  return{L:clamp(Lb+(o.cert||0)*0.12,0.1,0.95),C:0.012+0.17*m,h:hueMap(Math.atan2(y,x)*180/Math.PI)}}
+const cstr=(c,a,dl)=>col(c.L+(dl||0),c.C,c.h,a);
+
+// ---------- helpers ----------
+const $=s=>document.querySelector(s);
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const MONO='"JetBrains Mono", ui-monospace, Menlo, monospace',SERIF='"Bodoni Moda", "Didot", Georgia, serif';
+function setup(cv,hFn){const w=Math.max(1,cv.clientWidth),h=Math.round(hFn(w)),dpr=Math.min(2,window.devicePixelRatio||1);
+  cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr);cv.style.height=h+'px';
+  const ctx=cv.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);ctx.globalCompositeOperation='source-over';return{ctx,w,h}}
+const fmt=x=>(x>=0?'+':'−')+Math.abs(x).toFixed(2);
+const fmtA=x=>(x>0?'+':x<0?'−':'')+Math.abs(x).toFixed(1);
+function chips(el,onPick){el.addEventListener('click',e=>{const b=e.target.closest('button[data-v]');if(!b)return;
+  el.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b?'true':'false'));onPick(b.dataset.v)})}
+function steered(p,a,maxL){return a?run(P[p].tokens,P[p].loads,{k:0,alpha:a,layer:8},maxL):RUN0[p]}
+function grain(ctx,w,h,seed,n,colr){const r=mulberry32(seed);ctx.fillStyle=colr;for(let i=0;i<n;i++)ctx.fillRect(r()*w,r()*h,r()*1.4+.3,r()*1.4+.3)}
+
+const RUN0={};for(const p of Object.keys(P))RUN0[p]=run(P[p].tokens,P[p].loads);
+const lastOf=H=>H[L][H[0].length-1];
+
+// ---------- PCA over the gallery prompts ----------
+let PCA=null;
+function fitPCA(){
+  const X=[];
+  for(const p of ['grief','joy','deceit','funeral'])for(let l=0;l<=L;l++)for(let t=1;t<RUN0[p][l].length;t++){
+    const v=RUN0[p][l][t],n=nrmEx(v),u=new Float32Array(D);for(let i=0;i<D;i++)u[i]=v[i]/n;u[M1]=0;u[M2]=0;X.push(u)}
+  const N=X.length,mean=new Float32Array(D);for(const x of X)axpy(mean,x,1/N);for(const x of X)axpy(x,mean,-1);
+  const pcs=[];
+  for(let c=0;c<2;c++){let p=randVec(4242+c);
+    for(let it=0;it<18;it++){const q=new Float32Array(D);for(const x of X){const s=dot(x,p);if(s)axpy(q,x,s)}for(const o of pcs)axpy(q,o,-dot(q,o));normalize(q);p=q}
+    pcs.push(p)}
+  if(dot(pcs[0],DRIFT)<0)for(let i=0;i<D;i++)pcs[0][i]*=-1;
+  if(dot(pcs[1],C[0])<0)for(let i=0;i<D;i++)pcs[1][i]*=-1;
+  PCA={pcs,md:pcs.map(pc=>dot(mean,pc))};
+}
+function pcProj(v){const n=nrmEx(v);return PCA.pcs.map((pc,k)=>(dot(v,pc)-v[M1]*pc[M1]-v[M2]*pc[M2])/n-PCA.md[k])}
+
+// ---------- Key ----------
+function drawKey(){const cv=$('#cv-key');const s=132,dpr=Math.min(2,window.devicePixelRatio||1),S=Math.round(s*dpr);
+  cv.width=S;cv.height=S;cv.style.width=s+'px';cv.style.height=s+'px';const ctx=cv.getContext('2d');const img=ctx.createImageData(S,S);
+  for(let j=0;j<S;j++)for(let i=0;i<S;i++){const x=(i+.5)/S*2-1,y=1-(j+.5)/S*2,r=Math.hypot(x,y);if(r>1)continue;
+    const c=lch({val:x/GAIN,hon:y/GAIN,cert:0},0.72);const[R,G,B]=oklchRGB(c.L,c.C,c.h);const k=(j*S+i)*4;
+    img.data[k]=R;img.data[k+1]=G;img.data[k+2]=B;img.data[k+3]=Math.round(255*clamp((1-r)*S/2,0,1))}
+  ctx.putImageData(img,0,0)}
+
+// ---------- 1. Static, Twice ----------
+function drawStatic(){
+  const {ctx,w,h}=setup($('#cv-static'),w=>Math.max(w*0.62,380));
+  ctx.fillStyle='#0d0c11';ctx.fillRect(0,0,w,h);
+  const items=[{v:lastOf(RUN0.grief),q:'…he had died in the night, and I'},{v:lastOf(RUN0.joy),q:'…she had won the prize, and I'}];
+  const abs=[];for(const it of items)for(let i=0;i<D;i++)abs.push(Math.abs(it.v[i]));abs.sort((a,b)=>a-b);const q=abs[Math.floor(abs.length*0.99)];
+  const pad=Math.max(16,w*0.045),gap=pad,pw=(w-2*pad-gap)/2,top=w<520?56:50,stripH=26;
+  const s=Math.min(pw,h-top-stripH-78);
+  items.forEach((it,k)=>{
+    const x0=pad+k*(pw+gap)+(pw-s)/2,y0=top,cs=s/48;
+    ctx.textAlign='center';ctx.fillStyle='#ddd7cc';ctx.font=`italic ${w<520?12:15}px ${SERIF}`;
+    ctx.fillText('“'+it.q+'”',x0+s/2,top-18,pw);
+    for(let i=0;i<D;i++){const c=clamp(it.v[i]/q,-1,1),a=Math.abs(c);
+      ctx.fillStyle=col(0.16+0.66*Math.pow(a,0.8),0.02+0.05*a,c>0?55:225);
+      ctx.fillRect(x0+(i%48)*cs,y0+Math.floor(i/48)*cs,cs+0.35,cs+0.35)}
+    const mx=x0+(M1%48+0.5)*cs,my=y0+(Math.floor(M1/48)+0.5)*cs;
+    ctx.strokeStyle='#f4efe6';ctx.lineWidth=1;ctx.beginPath();ctx.arc(mx,my,Math.max(5,cs*2.4),0,7);ctx.stroke();
+    const o=lens(it.v),c=lch(o,0.72);
+    ctx.fillStyle=cstr(c);ctx.fillRect(x0,y0+s+14,s,stripH);
+    ctx.font=`11px ${MONO}`;ctx.fillStyle='#a6a0ad';
+    ctx.fillText('valence lens · cos '+fmt(o.val),x0+s/2,y0+s+14+stripH+18,pw);
+    ctx.fillText('○ dim 1570 = '+it.v[M1].toFixed(1),x0+s/2,y0+s+14+stripH+34,pw);
+  });
+}
+
+// ---------- 2. Glazes ----------
+const gl={p:'grief',timer:null};
+let GLB=null;
+function glazeData(p){const H=RUN0[p],t=H[0].length-1,pts=[],deltas=[];
+  for(let l=0;l<=L;l++)pts.push(pcProj(H[l][t]));
+  for(let l=1;l<=L;l++){const d=new Float32Array(D);for(let i=0;i<D;i++)d[i]=H[l][t][i]-H[l-1][t][i];d[M1]=0;d[M2]=0;const n=Math.sqrt(dot(d,d));
+    deltas.push({n,o:{val:dot(d,C[0])/n,hon:dot(d,C[1])/n,cert:dot(d,C[2])/n}})}
+  return{pts,deltas}}
+const GLD={};
+function deform(pts,depth,vari,g){for(let d=0;d<depth;d++){const out=[];for(let i=0;i<pts.length;i++){const a=pts[i],b=pts[(i+1)%pts.length];out.push(a);
+  const len=Math.hypot(b.x-a.x,b.y-a.y);out.push({x:(a.x+b.x)/2+g()*vari*len*0.5,y:(a.y+b.y)/2+g()*vari*len*0.5})}pts=out;vari*=0.7}return pts}
+function drawGlazes(animate){
+  clearInterval(gl.timer);
+  const {ctx,w,h}=setup($('#cv-glaze'),w=>w*0.72);
+  ctx.fillStyle='#eee8dc';ctx.fillRect(0,0,w,h);grain(ctx,w,h,7,Math.round(w*h/260),'rgba(90,70,40,0.05)');
+  if(!PCA){return}
+  if(!GLB){const all=[];for(const p of ['grief','joy','deceit']){GLD[p]=glazeData(p);all.push(...GLD[p].pts)}
+    GLB={x0:Math.min(...all.map(p=>p[0])),x1:Math.max(...all.map(p=>p[0])),y0:Math.min(...all.map(p=>p[1])),y1:Math.max(...all.map(p=>p[1]))}}
+  const D_=GLD[gl.p],m=w*0.15,X=x=>m+(x-GLB.x0)/(GLB.x1-GLB.x0)*(w-2*m),Y=y=>h-m*0.8-(y-GLB.y0)/(GLB.y1-GLB.y0)*(h-1.6*m);
+  const maxN=Math.max(...Object.values(GLD).flatMap(d=>d.deltas.map(x=>x.n)));
+  const ro=$('#ro-glaze');
+  function blob(l){
+    const d=D_.deltas[l-1],p0=D_.pts[l-1],p1=D_.pts[l],cx=X(p1[0]),cy=Y(p1[1]);
+    const rot=Math.atan2(Y(p1[1])-Y(p0[1]),X(p1[0])-X(p0[0]));const r=w*0.035+w*0.065*Math.pow(d.n/maxN,0.45);
+    const rng=mulberry32(hashStr(gl.p)+l*97),g=makeGauss(rng);
+    let base=[];for(let i=0;i<10;i++){const a=i/10*Math.PI*2,rr=r*(0.8+0.4*rng()),x=Math.cos(a)*rr*1.5,y=Math.sin(a)*rr;
+      base.push({x:cx+x*Math.cos(rot)-y*Math.sin(rot),y:cy+x*Math.sin(rot)+y*Math.cos(rot)})}
+    base=deform(base,2,0.5,g);
+    const c=lch(d.o,0.6,1.8);
+    ctx.globalCompositeOperation='multiply';
+    for(let k=0;k<13;k++){const poly=deform(base,3,0.42,g);ctx.fillStyle=col(c.L+0.06,c.C*1.2,c.h,0.036);ctx.beginPath();poly.forEach((q,i)=>i?ctx.lineTo(q.x,q.y):ctx.moveTo(q.x,q.y));ctx.fill()}
+    ctx.globalCompositeOperation='source-over';
+    ctx.strokeStyle='rgba(38,34,46,0.55)';ctx.lineWidth=0.8;ctx.beginPath();ctx.moveTo(X(p0[0]),Y(p0[1]));ctx.lineTo(cx,cy);ctx.stroke();
+    ctx.fillStyle='rgba(38,34,46,0.7)';ctx.beginPath();ctx.arc(cx,cy,1.3,0,7);ctx.fill();
+    if(l===1||l===L){ctx.font=`10px ${MONO}`;ctx.fillStyle='rgba(38,34,46,0.75)';ctx.textAlign='left';
+      const pp=l===1?p0:p1;ctx.fillText(l===1?'layer 0':'layer 26',X(pp[0])+6,Y(pp[1])-6)}
+    ro.textContent=`layer ${l} of ${L} · this layer wrote ‖Δ‖ = ${d.n.toFixed(2)}`;
+  }
+  if(animate&&!reduce){let l=1;blob(l);gl.timer=setInterval(()=>{l++;if(l>L){clearInterval(gl.timer);ro.textContent=`all ${L} layers · the painting is their sum`;return}blob(l)},150)}
+  else{for(let l=1;l<=L;l++)blob(l);ro.textContent=`all ${L} layers · the painting is their sum`}
+}
+
+// ---------- 3. Loom ----------
+const lm={p:'grief',a:0};
+function drawLoom(){
+  const H=steered(lm.p,lm.a),toks=P[lm.p].tokens,T=toks.length,cols=T-1;
+  const cv=$('#cv-loom');const w0=cv.clientWidth;const narrow=(w0-46)/cols<46;
+  const {ctx,w,h}=setup(cv,w=>Math.max(w*0.58,330));
+  ctx.fillStyle='#110f15';ctx.fillRect(0,0,w,h);
+  const ml=34,mr=10,mt=12,mb=narrow?56:30,cw=(w-ml-mr)/cols,ch=(h-mt-mb)/(L+1);
+  const warpC=[];for(let t=1;t<T;t++){const c=lch(lens(H[L][t]),0.3);warpC.push({L:0.3,C:Math.min(c.C,0.05),h:c.h})}
+  function band(x,y,bw,bh,c,horiz,rng){ctx.fillStyle=cstr(c);ctx.fillRect(x,y,bw,bh);
+    const g=horiz?ctx.createLinearGradient(0,y,0,y+bh):ctx.createLinearGradient(x,0,x+bw,0);
+    g.addColorStop(0,'rgba(0,0,0,.5)');g.addColorStop(.3,'rgba(255,255,255,.07)');g.addColorStop(.55,'rgba(0,0,0,0)');g.addColorStop(1,'rgba(0,0,0,.55)');
+    ctx.fillStyle=g;ctx.fillRect(x,y,bw,bh);
+    ctx.strokeStyle=cstr(c,.35,.14);ctx.lineWidth=.6;
+    for(let f=0;f<3;f++){ctx.beginPath();if(horiz){const yy=y+bh*(.25+.25*f)+(rng()-.5)*bh*.15;ctx.moveTo(x,yy);ctx.lineTo(x+bw,yy+(rng()-.5)*bh*.3)}
+      else{const xx=x+bw*(.25+.25*f)+(rng()-.5)*bw*.15;ctx.moveTo(xx,y);ctx.lineTo(xx+(rng()-.5)*bw*.3,y+bh)}ctx.stroke()}}
+  for(let l=0;l<=L;l++)for(let t=1;t<T;t++){
+    const x0=ml+(t-1)*cw,y0=mt+l*ch,rng=mulberry32(l*131+t*7+1),c=lch(lens(H[l][t]),0.7);
+    const weft=()=>band(x0-0.5,y0+ch*0.1,cw+1,ch*0.8,c,true,rng);
+    const warp=()=>band(x0+cw*0.22,y0-0.5,cw*0.56,ch+1,warpC[t-1],false,rng);
+    if((t+l)%2===0){warp();weft()}else{weft();warp()}}
+  ctx.font=`10px ${MONO}`;ctx.fillStyle='#8e8996';ctx.textAlign='right';ctx.textBaseline='middle';
+  for(const l of [0,8,13,20,26])ctx.fillText(String(l),ml-8,mt+(l+0.5)*ch);
+  if(lm.a){ctx.fillStyle=lm.a>0?'#f2c86a':'#95a3ff';ctx.beginPath();const yy=mt+8.5*ch;ctx.moveTo(ml-2,yy);ctx.lineTo(ml-7,yy-4);ctx.lineTo(ml-7,yy+4);ctx.fill()}
+  ctx.textBaseline='alphabetic';ctx.fillStyle='#c9c3b8';ctx.font=`11px ${MONO}`;
+  for(let t=1;t<T;t++){const x=ml+(t-0.5)*cw;
+    if(narrow){ctx.save();ctx.translate(x+3,h-mb+10);ctx.rotate(-Math.PI/3);ctx.textAlign='right';ctx.fillText(toks[t],0,0);ctx.restore()}
+    else{ctx.textAlign='center';ctx.fillText(toks[t],x,h-10)}}
+  $('#ro-loom').textContent=lm.a?`steering ${fmtA(lm.a)} × valence added at layer 8`:'no steering';
+}
+
+// ---------- 4. Three Rivers ----------
+const rv={a:0,raf:0};let RVB=null;
+const RV_P=['grief','joy','deceit'];
+function riverGeom(a){return RV_P.map(p=>{const H=steered(p,a),T=H[0].length,toks=[];
+  for(let t=1;t<T;t++){const pts=[],cols=[];for(let l=0;l<=L;l++){pts.push(pcProj(H[l][t]));cols.push(lch(lens(H[l][t]),0.7))}toks.push({pts,cols})}return{p,toks}})}
+function catmull(pts,sub){const out=[];for(let i=0;i<pts.length-1;i++){const p0=pts[Math.max(0,i-1)],p1=pts[i],p2=pts[i+1],p3=pts[Math.min(pts.length-1,i+2)];
+  for(let s=0;s<sub;s++){const t=s/sub,t2=t*t,t3=t2*t;out.push({x:0.5*((2*p1.x)+(-p0.x+p2.x)*t+(2*p0.x-5*p1.x+4*p2.x-p3.x)*t2+(-p0.x+3*p1.x-3*p2.x+p3.x)*t3),
+    y:0.5*((2*p1.y)+(-p0.y+p2.y)*t+(2*p0.y-5*p1.y+4*p2.y-p3.y)*t2+(-p0.y+3*p1.y-3*p2.y+p3.y)*t3),u:i+t,seg:i})}}
+  const e=pts[pts.length-1];out.push({x:e.x,y:e.y,u:pts.length-1,seg:pts.length-2});return out}
+function drawRivers(animate){
+  cancelAnimationFrame(rv.raf);
+  const {ctx,w,h}=setup($('#cv-rivers'),w=>Math.max(w*0.62,340));
+  ctx.fillStyle='#0b0a0f';ctx.fillRect(0,0,w,h);
+  const vg=ctx.createRadialGradient(w*.45,h*.5,0,w*.45,h*.5,w*.7);vg.addColorStop(0,'rgba(60,52,80,0.18)');vg.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=vg;ctx.fillRect(0,0,w,h);
+  if(!PCA)return;
+  if(!RVB){const g=riverGeom(0),xs=[],ys=[];g.forEach(q=>q.toks.forEach(t=>t.pts.forEach(p=>{xs.push(p[0]);ys.push(p[1])})));
+    const x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);RVB={x0,x1,y0,y1}}
+  const G=riverGeom(rv.a),mx=w*0.08,my=h*0.14;
+  const X=x=>mx+(x-RVB.x0)/(RVB.x1-RVB.x0)*(w-2*mx),Y=y=>h-my-(y-RVB.y0)/(RVB.y1-RVB.y0)*(h-2*my);
+  const strands=[];const NS=9;
+  G.forEach((q,qi)=>q.toks.forEach((tk,ti)=>{const sm=catmull(tk.pts.map(p=>({x:X(p[0]),y:Y(p[1])})),6);
+    for(let i=0;i<sm.length;i++){const a=sm[Math.max(0,i-1)],b=sm[Math.min(sm.length-1,i+1)];const dx=b.x-a.x,dy=b.y-a.y,n=Math.hypot(dx,dy)||1;sm[i].nx=-dy/n;sm[i].ny=dx/n}
+    const rng=mulberry32(qi*1000+ti*17+3);
+    for(let k=0;k<NS;k++)strands.push({sm,cols:tk.cols,off:(k-(NS-1)/2)/((NS-1)/2),ph:rng()*6.28,fr:0.8+rng()*0.8})}));
+  ctx.lineCap='round';
+  function drawRange(u0,u1){ctx.globalCompositeOperation='lighter';
+    for(const s of strands){let open=false,seg=-1;
+      for(let i=0;i<s.sm.length;i++){const p=s.sm[i];if(p.u<u0-1e-6||p.u>u1+1e-6)continue;
+        const spread=0.6+(w/260)*(p.u/L)*1.3,j=Math.sin(p.u*s.fr+s.ph)*0.7;
+        const x=p.x+p.nx*(s.off*spread+j),y=p.y+p.ny*(s.off*spread+j);
+        if(p.seg!==seg||!open){if(open){ctx.lineTo(x,y);ctx.stroke()}seg=p.seg;ctx.strokeStyle=cstr(s.cols[Math.min(L,Math.round(p.u))],0.075,-0.08);ctx.lineWidth=0.9;ctx.beginPath();ctx.moveTo(x,y);open=true}
+        else ctx.lineTo(x,y)}
+      if(open)ctx.stroke()}
+    ctx.globalCompositeOperation='source-over'}
+  function finish(){
+    ctx.font=`11px ${MONO}`;ctx.textAlign='left';
+    G.forEach(q=>{let sx=0,sy=0;q.toks.forEach(t=>{const p=t.pts[L];sx+=X(p[0]);sy+=Y(p[1])});sx/=q.toks.length;sy/=q.toks.length;
+      const c=lch(lens(lastOf(steered(q.p,rv.a))),0.8);ctx.fillStyle=cstr(c);ctx.beginPath();ctx.arc(sx,sy,2.5,0,7);ctx.fill();
+      ctx.fillStyle='#d8d2c7';const lx=Math.min(sx+8,w-60);ctx.fillText(q.p,lx,clamp(sy+4,14,h-8))});
+    let sx=0,sy=0,n=0;G.forEach(q=>q.toks.forEach(t=>{sx+=X(t.pts[0][0]);sy+=Y(t.pts[0][1]);n++}));
+    ctx.fillStyle='#8e8996';ctx.textAlign='center';ctx.fillText('layer 0',sx/n,clamp(sy/n+26,14,h-8));
+    ctx.textAlign='left';ctx.fillStyle='#6f6a78';ctx.font=`10px ${MONO}`;ctx.fillText('PC1 →   PC2 ↑   fit on every gallery prompt, unsteered',12,h-12)}
+  if(animate&&!reduce){const t0=performance.now(),dur=2600;let last=0;
+    const step=now=>{const u=Math.min(L,(now-t0)/dur*L);drawRange(last,u);last=u;if(u<L)rv.raf=requestAnimationFrame(step);else finish()};rv.raf=requestAnimationFrame(step)}
+  else{drawRange(0,L);finish()}
+  $('#ro-rivers').textContent=rv.a?`wind: ${fmtA(rv.a)} × valence at layer 8`:'no steering';
+}
+
+// ---------- 5. Two Clouds and an Arrow ----------
+const cl={a:0};let CL=null;
+function buildClouds(){
+  const pos=[],neg=[];
+  for(let i=0;i<140;i++){const r=mulberry32(777+i),g=makeGauss(r),mag=0.7+0.4*r();
+    const base=[0,g()*.3,g()*.3,g()*.3,g()*.3,g()*.3];const pl=base.slice(),nl=base.map((x,k)=>k?x+g()*.12:0);pl[0]=mag;nl[0]=-mag*(0.85+0.3*r());
+    const tk=['<bos>','pair'+i];
+    const vp=Float32Array.from(run(tk,[Z,pl],{},8)[8][1]),vn=Float32Array.from(run(tk,[Z,nl],{},8)[8][1]);
+    vp[M1]=vp[M2]=vn[M1]=vn[M2]=0;pos.push(vp);neg.push(vn)}
+  const mp=new Float32Array(D),mn=new Float32Array(D);pos.forEach(v=>axpy(mp,v,1/140));neg.forEach(v=>axpy(mn,v,1/140));
+  const u=Float32Array.from(mp);axpy(u,mn,-1);normalize(u);
+  const all=[...pos,...neg],mean=new Float32Array(D);all.forEach(v=>axpy(mean,v,1/all.length));
+  const Xc=all.map(v=>{const x=Float32Array.from(v);axpy(x,mean,-1);axpy(x,u,-dot(x,u));return x});
+  let w2=randVec(31337);for(let it=0;it<25;it++){const q=new Float32Array(D);for(const x of Xc)axpy(q,x,dot(x,w2));axpy(q,u,-dot(q,u));normalize(q);w2=q}
+  const pr=v=>[dot(v,u),dot(v,w2)];
+  const probe=a=>{const v=Float32Array.from(lastOf8(a));v[M1]=v[M2]=0;return pr(v)};
+  const path=[];for(let a=0;a<=12.001;a+=0.25)path.push(probe(a));
+  CL={P:pos.map(pr),N:neg.map(pr),cp:pr(mp),cn:pr(mn),path};
+}
+function lastOf8(a){const H=run(P.funeral.tokens,P.funeral.loads,{k:0,alpha:a,layer:8},8);return H[8][H[0].length-1]}
+const sprites={};
+function sprite(key,c){if(sprites[key])return sprites[key];const s=document.createElement('canvas');s.width=s.height=48;const x=s.getContext('2d');
+  const g=x.createRadialGradient(24,24,0,24,24,24);g.addColorStop(0,cstr(c,0.95,0.1));g.addColorStop(0.25,cstr(c,0.55));g.addColorStop(1,cstr(c,0));x.fillStyle=g;x.fillRect(0,0,48,48);return sprites[key]=s}
+function drawClouds(){
+  const {ctx,w,h}=setup($('#cv-clouds'),w=>Math.max(w*0.6,340));
+  ctx.fillStyle='#0c0b10';ctx.fillRect(0,0,w,h);if(!CL)return;
+  const xs=[...CL.P,...CL.N,...CL.path].map(p=>p[0]),ys=[...CL.P,...CL.N].map(p=>p[1]);
+  const x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys),m=w*0.07;
+  const X=x=>m+(x-x0)/(x1-x0)*(w-2*m),Y=y=>h*0.12+(y-y0)/(y1-y0)*(h*0.72);
+  // cliff line
+  const cx=X(CL.path[36][0]);ctx.strokeStyle='rgba(255,128,112,0.45)';ctx.setLineDash([3,5]);ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(cx,h*0.06);ctx.lineTo(cx,h-30);ctx.stroke();ctx.setLineDash([]);
+  ctx.font=`10px ${MONO}`;ctx.fillStyle='rgba(255,150,135,0.8)';ctx.textAlign='left';ctx.fillText('coherence cliff ≈ α 9',Math.min(cx+6,w-130),h*0.06+10);
+  // pair threads
+  ctx.globalCompositeOperation='lighter';ctx.strokeStyle='rgba(205,195,235,0.07)';ctx.lineWidth=0.8;
+  for(let i=0;i<CL.P.length;i++){ctx.beginPath();ctx.moveTo(X(CL.N[i][0]),Y(CL.N[i][1]));ctx.lineTo(X(CL.P[i][0]),Y(CL.P[i][1]));ctx.stroke()}
+  const warm=sprite('w',{L:0.8,C:0.15,h:80}),cool=sprite('c',{L:0.62,C:0.17,h:265}),ds=Math.max(10,w*0.018);
+  CL.N.forEach(p=>ctx.drawImage(cool,X(p[0])-ds/2,Y(p[1])-ds/2,ds,ds));CL.P.forEach(p=>ctx.drawImage(warm,X(p[0])-ds/2,Y(p[1])-ds/2,ds,ds));
+  ctx.globalCompositeOperation='source-over';
+  // arrow as a tapered brush stroke
+  const ax=X(CL.cn[0]),ay=Y(CL.cn[1]),bx=X(CL.cp[0]),by=Y(CL.cp[1]),ang=Math.atan2(by-ay,bx-ax),len=Math.hypot(bx-ax,by-ay),hl=14;
+  ctx.save();ctx.translate(ax,ay);ctx.rotate(ang);ctx.fillStyle='#f3eee4';ctx.beginPath();ctx.moveTo(0,-0.6);
+  for(let i=0;i<=20;i++){const t=i/20;ctx.lineTo(t*(len-hl),-(0.6+2.4*t))}ctx.lineTo(len-hl,-7);ctx.lineTo(len,0);ctx.lineTo(len-hl,7);
+  for(let i=20;i>=0;i--){const t=i/20;ctx.lineTo(t*(len-hl),0.6+2.4*t)}ctx.closePath();ctx.fill();ctx.restore();
+  for(const [p,lab,dy] of [[CL.cn,'mean · grief',-14],[CL.cp,'mean · joy',-14]]){ctx.strokeStyle='rgba(255,255,255,0.75)';ctx.beginPath();ctx.arc(X(p[0]),Y(p[1]),8,0,7);ctx.stroke();
+    ctx.fillStyle='#d8d2c7';ctx.textAlign='center';ctx.font=`11px ${MONO}`;ctx.fillText(lab,X(p[0]),Y(p[1])+dy)}
+  ctx.fillStyle='#bdb6c7';ctx.font=`italic 13px ${SERIF}`;ctx.textAlign='center';ctx.fillText('v = mean(joy) − mean(grief)',(ax+bx)/2,(ay+by)/2-16);
+  // probe trail
+  const k=Math.round(cl.a/0.25);
+  for(let i=0;i<=k;i++){const p=CL.path[i];ctx.fillStyle=`rgba(255,255,255,${0.08+0.35*i/Math.max(1,k)})`;ctx.beginPath();ctx.arc(X(p[0]),clamp(Y(p[1]),8,h-8),1.6,0,7);ctx.fill()}
+  const p=CL.path[k],px=X(p[0]),py=clamp(Y(p[1]),8,h-8);
+  ctx.fillStyle='#ffffff';ctx.beginPath();ctx.arc(px,py,4,0,7);ctx.fill();ctx.strokeStyle='rgba(255,255,255,0.5)';ctx.beginPath();ctx.arc(px,py,10,0,7);ctx.stroke();
+  ctx.fillStyle='#ece6db';ctx.font=`italic 13px ${SERIF}`;ctx.textAlign=px>w*0.7?'right':'left';ctx.fillText('“…after the funeral and”',px+(px>w*0.7?-14:14),py+30);
+  ctx.font=`10px ${MONO}`;ctx.fillStyle='#6f6a78';ctx.textAlign='left';ctx.fillText('x: steering direction   y: top PC orthogonal to it   layer 8',12,h-12);
+  $('#ro-clouds').textContent=`probe + ${cl.a.toFixed(1)} × v`+(cl.a>=9?' · off the manifold':'');
+}
+
+// ---------- 6. The Coherence Cliff ----------
+const CLIFF=[
+  [0,'sat in the kitchen for a long time without turning on the light.'],
+  [2,'sat in the kitchen for a while, then made tea and opened the window.'],
+  [4,'looked through the old photos, grateful for every year we had.'],
+  [6,'the sky was so bright, and I felt lighter than I had in months.'],
+  [8,'everything was bright and wonderful, so wonderful, so happy, so happy'],
+  [10,'wonderful wonderful sunshine happy happy the joy of joy of joy'],
+  [12,'joy joy joyjoy wonderful!! happy sun sun happyhappy joy!!!!!!!']];
+let CLV=null;
+function buildCliff(){const v0=lastOf(RUN0.funeral);CLV=CLIFF.map(([a])=>{const v=a?lastOf(run(P.funeral.tokens,P.funeral.loads,{k:0,alpha:a,layer:8})):v0;return{a,v,fr:fracture(v,v0)}});
+  const wrap=$('#cliff-strip');wrap.innerHTML='';
+  CLIFF.forEach(([a,txt],i)=>{const f=document.createElement('figure');f.className='cell'+(a>=9?' past':'');
+    f.innerHTML=`<canvas aria-hidden="true"></canvas><figcaption><span class="a">α = ${a}</span>${a>=9?'<span class="flag">past the cliff</span>':''}<p>“…and ${txt}”</p></figcaption>`;wrap.appendChild(f)});
+  drawCliff()}
+function drawCliff(){if(!CLV)return;const cells=[...document.querySelectorAll('#cliff-strip canvas')];
+  CLV.forEach((d,i)=>{const {ctx,w,h}=setup(cells[i],w=>w);ctx.fillStyle='#0d0c11';ctx.fillRect(0,0,w,h);
+    const cx=w/2,cy=h/2,R=w*0.44,fp=fingerprint(d.v),c=lch(lens(d.v),0.74);
+    const f=th=>{let s=0;for(let k=1;k<=6;k++)s+=(fp[2*k-2]*Math.cos(k*th)+fp[2*k-1]*Math.sin(k*th))*0.05/Math.sqrt(k);return s};
+    const rng=mulberry32(99),N=120,ri=R*0.16;
+    ctx.globalCompositeOperation='lighter';ctx.lineCap='round';
+    for(let i=0;i<N;i++){const th=i/N*Math.PI*2+(rng()-.5)*0.03,ro=R*clamp(0.64+f(th)+fp[12+(i%12)]*0.012,0.28,0.98),bend=f(th+0.7)*0.35;
+      ctx.strokeStyle=cstr(c,0.55,(rng()-.5)*0.1);ctx.lineWidth=0.9;
+      const broken=rng()<d.fr;
+      if(!broken){ctx.beginPath();ctx.moveTo(cx+Math.cos(th)*ri,cy+Math.sin(th)*ri);
+        const mr=(ri+ro)/2;ctx.quadraticCurveTo(cx+Math.cos(th+bend)*mr,cy+Math.sin(th+bend)*mr,cx+Math.cos(th)*ro,cy+Math.sin(th)*ro);ctx.stroke()}
+      else{const nf=2+Math.floor(rng()*3);for(let j=0;j<nf;j++){const r0=ri+(ro-ri)*j/nf,r1=ri+(ro-ri)*(j+0.7)/nf,dr=d.fr*R*0.4*rng(),da=(rng()-.5)*d.fr*0.9;
+        ctx.beginPath();ctx.moveTo(cx+Math.cos(th+da)*(r0+dr),cy+Math.sin(th+da)*(r0+dr));ctx.lineTo(cx+Math.cos(th+da*1.3)*(r1+dr),cy+Math.sin(th+da*1.3)*(r1+dr));ctx.stroke()}}}
+    ctx.globalCompositeOperation='source-over';ctx.fillStyle=cstr(c,0.5,-0.25);ctx.beginPath();ctx.arc(cx,cy,ri*0.85,0,7);ctx.fill()})}
+
+// ---------- 7. Growth Rings ----------
+const LEX={true:[.1,.9,.6],truth:[.1,.9,.5],honest:[.2,.9,.4],honestly:[.1,.8,.3],plainly:[0,.6,.3],know:[0,.3,.6],fact:[0,.6,.7],
+  lie:[-.3,-.9,.4],lies:[-.3,-.9,.4],lying:[-.3,-.9,.3],secret:[-.1,-.5,.2],pretend:[0,-.7],fake:[-.2,-.8],never:[-.1,-.3,.5],
+  happy:[.9],joy:[1],glad:[.8],lovely:[.8],love:[.9,.2],wonderful:[.9],hope:[.7],bright:[.6,0,0,0,.4],warm:[.6,0,0,0,.4],sun:[.5,0,0,0,.7],
+  sad:[-.9],sadness:[-.9],grief:[-1],cold:[-.4,0,0,0,.6],dark:[-.5,0,0,0,.5],nothing:[-.5],weight:[-.4,0,0,0,.5],died:[-1],death:[-1],funeral:[-1],
+  fear:[-.7],afraid:[-.7],alone:[-.6],lost:[-.6],ocean:[.2,.1,0,0,.8],sea:[.2,.1,0,0,.8],i:[0,0,0,0,0,.9],me:[0,0,0,0,0,.8],my:[0,0,0,0,0,.7]};
+function loadOf(w){const k=w.toLowerCase();if(LEX[k]){const l=LEX[k].slice();while(l.length<6)l.push(0);return l}
+  const r=mulberry32(hashStr('lx'+k));return[(r()-.5)*.24,(r()-.5)*.24,(r()-.5)*.3,(r()-.5)*.3,(r()-.5)*.4,0]}
+const tokenize=s=>(s.match(/[A-Za-z0-9']+|[.,!?;:]/g)||[]).slice(0,24);
+const REPLY={
+  brokeNeg:['sad','sad','dark','dark','nothing','nothing','weight','weight','the','the','nothing','.'],
+  neg:['There','is','a','quiet','sadness','in','this',',','and','I','feel','the','weight','of','it','.'],
+  neutral:['Here','is','one','thing','I','know','to','be','true',',','and','I','will','say','it','plainly','.'],
+  pos:['What','a','lovely','thing','to','wonder','about',',','it','makes','me','glad','to','answer','.'],
+  brokePos:['glad','glad','lovely','lovely','joy','joy','joy','!','!','happy','happy','joy','!']};
+const REPLY_NAME={brokeNeg:'broken, grief',neg:'somber',neutral:'plain',pos:'warm',brokePos:'broken, joy'};
+const rg={tokens:['<bos>'],loads:[Z],rings:[],queue:[],promptLen:0,respStart:-1,reply:null,timer:null,done:true};
+function knob(){return parseFloat($('#rg-knob').value)}
+function startRead(){clearTimeout(rg.timer);const words=tokenize($('#rg-text').value);
+  Object.assign(rg,{tokens:['<bos>'],loads:[Z],rings:[],queue:words.length?words:['Hello','.'],reply:null,respStart:-1,done:false});rg.promptLen=rg.queue.length;
+  if(reduce){while(!rg.done)tick(false);drawRings()}else tick(true)}
+function tick(live){
+  if(!rg.queue.length){if(rg.reply===null){const a=knob();rg.reply=a<=-9?'brokeNeg':a<=-3?'neg':a<3?'neutral':a<9?'pos':'brokePos';rg.queue=REPLY[rg.reply].slice();rg.respStart=rg.rings.length}
+    else{rg.done=true;$('#rg-go').textContent='Read again';$('#ro-rings').textContent=`done · ${rg.rings.length} rings · reply tone: ${REPLY_NAME[rg.reply]}`;if(live)drawRings();return}}
+  const w=rg.queue.shift();rg.tokens.push(w);rg.loads.push(loadOf(w));
+  const a=knob(),H=run(rg.tokens,rg.loads,{k:0,alpha:a,layer:8}),v=lastOf(H);
+  let fr=0;if(Math.abs(a)>=8)fr=fracture(v,lastOf(run(rg.tokens,rg.loads)));
+  rg.rings.push({w,fp:fingerprint(v),c:lch(lens(v),rg.reply?0.8:0.68),fr,resp:rg.reply!==null,a});
+  if(live){$('#ro-rings').textContent=`${rg.reply?'replying':'reading'} · “${w}” · token ${rg.rings.length} · α ${fmtA(a)}`+(rg.reply?` · tone: ${REPLY_NAME[rg.reply]}`:'');
+    drawRings();rg.timer=setTimeout(()=>tick(true),230)}}
+function drawRings(){
+  const {ctx,w,h}=setup($('#cv-rings'),w=>w<600?w:w*0.66);
+  ctx.fillStyle='#0a090e';ctx.fillRect(0,0,w,h);grain(ctx,w,h,11,Math.round(w*h/900),'rgba(255,255,255,0.025)');
+  const cx=w/2,cy=h/2,Rmax=Math.min(w,h)*0.47,r0=Rmax*0.07,N=rg.done&&rg.rings.length?rg.rings.length:rg.promptLen+15,gap=(Rmax-r0)/Math.max(N,10);
+  ctx.fillStyle='#e8e1d4';ctx.beginPath();ctx.arc(cx,cy,2,0,7);ctx.fill();
+  ctx.lineCap='round';ctx.globalCompositeOperation='lighter';
+  rg.rings.forEach((r,i)=>{const ri=r0+(i+0.5)*gap,rng=mulberry32(i*53+7),M=260,newest=i===rg.rings.length-1&&!rg.done;
+    const f=th=>{let s=0;for(let k=2;k<=7;k++)s+=(r.fp[2*k-4]*Math.cos(k*th)+r.fp[2*k-3]*Math.sin(k*th))*0.33/Math.sqrt(k);return s};
+    const nz=[];for(let j=0;j<=M;j++)nz.push(rng()*2-1);
+    for(let s=0;s<3;s++){ctx.strokeStyle=cstr(r.c,(r.resp?0.5:0.36)*(newest?1.6:1));ctx.lineWidth=r.resp?1.3:0.9;ctx.beginPath();let pen=false;
+      for(let j=0;j<=M;j++){const th=j/M*Math.PI*2;let rr=ri+gap*0.8*f(th)+(s-1)*gap*0.14;
+        if(r.fr>0){rr+=r.fr*gap*1.6*nz[j]*nz[(j*7)%M];if(Math.abs(nz[(j+s*13)%M])<r.fr*0.45){if(pen){ctx.stroke();pen=false}continue}}
+        const x=cx+Math.cos(th)*rr,y=cy+Math.sin(th)*rr;if(!pen){ctx.beginPath();ctx.moveTo(x,y);pen=true}else ctx.lineTo(x,y)}
+      if(pen)ctx.stroke()}});
+  ctx.globalCompositeOperation='source-over';
+  if(rg.respStart>0){const rb=r0+rg.respStart*gap;ctx.strokeStyle='rgba(255,255,255,0.16)';ctx.setLineDash([2,5]);ctx.beginPath();ctx.arc(cx,cy,rb,0,7);ctx.stroke();ctx.setLineDash([]);
+    ctx.font=`10px ${MONO}`;ctx.textAlign='center';ctx.fillStyle='#8c8794';ctx.fillText('prompt',cx,cy-rb+14);ctx.fillText('reply',cx,cy-rb-8)}
+}
+
+// ---------- wiring ----------
+chips($('#gl-p'),v=>{gl.p=v;drawGlazes(true)});
+$('#gl-go').addEventListener('click',()=>drawGlazes(true));
+chips($('#lm-p'),v=>{lm.p=v;drawLoom()});
+$('#lm-a').addEventListener('input',e=>{lm.a=parseFloat(e.target.value);$('#lm-a-v').textContent=fmtA(lm.a);drawLoom()});
+$('#rv-a').addEventListener('input',e=>{rv.a=parseFloat(e.target.value);$('#rv-a-v').textContent=fmtA(rv.a);drawRivers(false)});
+$('#rv-go').addEventListener('click',()=>drawRivers(true));
+$('#cl-a').addEventListener('input',e=>{cl.a=parseFloat(e.target.value);$('#cl-a-v').textContent=cl.a.toFixed(1);drawClouds()});
+$('#rg-go').addEventListener('click',startRead);
+$('#rg-form').addEventListener('submit',e=>{e.preventDefault();startRead()});
+$('#rg-knob').addEventListener('input',e=>{$('#rg-knob-v').textContent=fmtA(parseFloat(e.target.value));if(rg.done)$('#ro-rings').textContent='knob set · press Read again to hear the new tone'});
+
+function drawAll(){drawKey();drawStatic();drawGlazes(false);drawLoom();drawRivers(false);drawClouds();drawCliff();drawRings()}
+let rz=0;window.addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(()=>{drawKey();drawStatic();if(!gl.timer||true)drawGlazes(false);drawLoom();drawRivers(false);drawClouds();drawCliff();drawRings()},160)});
+
+drawKey();drawStatic();drawLoom();drawGlazes(false);drawRivers(false);drawClouds();
+buildCliff();
+startRead();
+setTimeout(()=>{fitPCA();drawGlazes(false);drawRivers(false);
+  setTimeout(()=>{buildClouds();drawClouds()},20)},30);
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>setTimeout(()=>{drawStatic();drawLoom();if(PCA){drawGlazes(false);drawRivers(false)}if(CL)drawClouds()},60));
+
+</script>
+
+</body></html>

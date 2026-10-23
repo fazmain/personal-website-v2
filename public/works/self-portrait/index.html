@@ -1,0 +1,327 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Self Portrait</title>
+<style>
+/* Layout: one sheet of paper centered on a quiet desk tone, caption beneath */
+:root {
+  --desk: #e9e4de;
+  --paper: #fbfaf7;
+  --ink: #1b1a1a;
+  --muted: #7b7268;
+  --shadow: rgba(60, 45, 30, 0.18);
+  --font-caption: "Caveat", "Segoe Print", "Bradley Hand", cursive;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --desk: #23201e; --muted: #a59b90; --shadow: rgba(0,0,0,0.5); color-scheme: dark }
+}
+:root[data-theme="dark"] { --desk: #23201e; --muted: #a59b90; --shadow: rgba(0,0,0,0.5); color-scheme: dark }
+html, body { height: 100%; }
+body {
+  background: var(--desk);
+  color: var(--muted);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 14px; padding-inline: 16px; padding-block: 24px; box-sizing: border-box;
+}
+.sheet {
+  background: var(--paper);
+  box-shadow: 0 2px 4px var(--shadow), 0 18px 40px var(--shadow);
+  width: min(560px, 100%);
+  aspect-ratio: 620 / 800;
+  max-width: 100%;
+  max-height: calc(100vh - 110px);
+  max-height: calc(100dvh - 110px);
+}
+canvas { display: block; width: 100%; height: 100%; }
+.caption { font-family: var(--font-caption); font-size: 1.35rem; margin: 0; }
+.redraw {
+  font: 600 0.75rem system-ui, sans-serif; letter-spacing: .08em; text-transform: uppercase;
+  background: none; border: 1px solid var(--muted); color: var(--muted);
+  padding: 6px 12px; border-radius: 999px; cursor: pointer;
+}
+.redraw:focus-visible { outline: 2px solid var(--muted); outline-offset: 2px; }
+.row { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; justify-content: center; }
+</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500&display=swap">
+
+<div class="sheet"><canvas id="c" aria-label="Abstract self portrait: a blue dome and an orange face with two eyes, a cigarette, grey smoke curling up to a broken pink star"></canvas></div>
+<div class="row">
+  <p class="caption">self portrait — Faiaz</p>
+  <button class="redraw" id="redraw" type="button">Redraw</button>
+</div>
+
+<script>
+(() => {
+  const canvas = document.getElementById('c');
+  const ctx = canvas.getContext('2d');
+  const W = 620, H = 800;          // drawing space
+  const OX = 10, OY = 10;          // margin offset into the sheet
+
+  const C = {
+    ink: '#1b1a1a', paper: '#fbfaf7',
+    star: '#f3a596', starDeep: '#e98f80',
+    blue: '#9fcbe6', blueDeep: '#86b8d8',
+    navy: '#1f3d9a',
+    orange: '#ee7136', orangeDeep: '#e15f26',
+    purple: '#a98ad6',
+    red: '#e84a35',
+    smoke: '#9b9b9b', smokeLight: '#c9c9c9',
+    filter: '#e9a33a', ember: '#d8323a', white: '#ffffff'
+  };
+
+  let seed = 7;
+  const rand = () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
+  const j = (a = 1) => (rand() - 0.5) * 2 * a;
+
+  // ---- helpers --------------------------------------------------------
+  function polyPath(pts) {
+    ctx.beginPath();
+    ctx.moveTo(pts[0][0], pts[0][1]);
+    for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
+    ctx.closePath();
+  }
+  // marker fill: flat colour + diagonal streaks clipped to the current shape
+  function markerFill(pathFn, base, deep, angle = -0.5, bounds) {
+    ctx.save();
+    pathFn(); ctx.fillStyle = base; ctx.fill();
+    pathFn(); ctx.clip();
+    ctx.globalAlpha = 0.28; ctx.strokeStyle = deep; ctx.lineCap = 'round';
+    const [x0, y0, x1, y1] = bounds;
+    const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2, R = Math.hypot(x1 - x0, y1 - y0);
+    ctx.translate(cx, cy); ctx.rotate(angle);
+    for (let y = -R; y < R; y += 5 + rand() * 4) {
+      ctx.lineWidth = 2 + rand() * 4;
+      ctx.beginPath(); ctx.moveTo(-R, y + j(1.5)); ctx.lineTo(R, y + j(1.5)); ctx.stroke();
+    }
+    ctx.restore();
+  }
+  function inkStroke(pathFn, w = 3.2) {
+    ctx.save();
+    ctx.strokeStyle = C.ink; ctx.lineWidth = w; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+    pathFn(); ctx.stroke();
+    ctx.restore();
+  }
+  function bbox(pts) {
+    const xs = pts.map(p => p[0]), ys = pts.map(p => p[1]);
+    return [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)];
+  }
+  function catmull(pts, steps = 18) {
+    const out = [];
+    for (let i = 0; i < pts.length - 1; i++) {
+      const p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || p2;
+      for (let s = 0; s < steps; s++) {
+        const t = s / steps, t2 = t * t, t3 = t2 * t;
+        out.push([0, 1].map(k => 0.5 * ((2 * p1[k]) + (-p0[k] + p2[k]) * t +
+          (2 * p0[k] - 5 * p1[k] + 4 * p2[k] - p3[k]) * t2 +
+          (-p0[k] + 3 * p1[k] - 3 * p2[k] + p3[k]) * t3)));
+      }
+    }
+    out.push(pts[pts.length - 1]);
+    return out;
+  }
+  // ribbon (variable width band) around a centreline
+  function ribbon(center, widthFn) {
+    const L = [], R = [];
+    for (let i = 0; i < center.length; i++) {
+      const a = center[Math.max(0, i - 1)], b = center[Math.min(center.length - 1, i + 1)];
+      let dx = b[0] - a[0], dy = b[1] - a[1]; const len = Math.hypot(dx, dy) || 1;
+      const nx = -dy / len, ny = dx / len, w = widthFn(i / (center.length - 1)) / 2;
+      L.push([center[i][0] + nx * w, center[i][1] + ny * w]);
+      R.push([center[i][0] - nx * w, center[i][1] - ny * w]);
+    }
+    return L.concat(R.reverse());
+  }
+
+  // ---- pieces ---------------------------------------------------------
+  function star() {
+    const tris = [
+      [[348, 18], [322, 140], [398, 162]],
+      [[250, 140], [372, 172], [360, 230]],
+      [[388, 180], [537, 232], [446, 270]],
+      [[381, 220], [444, 290], [376, 380]],
+      [[458, 284], [503, 260], [574, 372]]
+    ];
+    tris.forEach(t => {
+      const p = t.map(([x, y]) => [x + j(1), y + j(1)]);
+      markerFill(() => polyPath(p), C.star, C.starDeep, -0.9, bbox(p));
+      inkStroke(() => polyPath(p), 3);
+    });
+  }
+
+  function blueDome() {
+    const path = () => {
+      ctx.beginPath();
+      ctx.moveTo(136, 244);
+      ctx.lineTo(240, 186);
+      ctx.quadraticCurveTo(262, 205, 272, 232);   // shoulder into the eye
+      ctx.lineTo(298, 330);
+      ctx.lineTo(108, 368);
+      ctx.quadraticCurveTo(106, 290, 136, 244);   // the round back of the head
+      ctx.closePath();
+    };
+    markerFill(path, C.blue, C.blueDeep, -1.2, [100, 180, 300, 370]);
+    inkStroke(path);
+    // little navy cap on top
+    const cap = [[138, 228], [206, 192], [214, 210], [146, 247]];
+    ctx.save(); polyPath(cap); ctx.fillStyle = C.navy; ctx.fill(); ctx.restore();
+    inkStroke(() => polyPath(cap), 2.4);
+    // tiny purple bead at the cap's corner
+    ctx.beginPath(); ctx.arc(136, 243, 4.5, 0, Math.PI * 2); ctx.fillStyle = C.purple; ctx.fill();
+    inkStroke(() => { ctx.beginPath(); ctx.arc(136, 243, 4.5, 0, Math.PI * 2); }, 1.6);
+  }
+
+  function orangeFace() {
+    const path = () => {
+      ctx.beginPath();
+      ctx.moveTo(160, 418);
+      ctx.lineTo(318, 368);
+      ctx.lineTo(352, 520);
+      ctx.quadraticCurveTo(270, 604, 100, 608);    // round chin
+      ctx.lineTo(16, 574);                         // left wedge tip
+      ctx.lineTo(62, 530);
+      ctx.lineTo(148, 528);
+      ctx.closePath();
+    };
+    markerFill(path, C.orange, C.orangeDeep, -0.35, [10, 360, 360, 612]);
+    inkStroke(path);
+  }
+
+  function eye(a, b, bulge, lashSide, pupil, brow) {
+    // lens between a and b, bulging both ways (more on one side)
+    const mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2;
+    const dx = b[0] - a[0], dy = b[1] - a[1], len = Math.hypot(dx, dy);
+    const nx = -dy / len, ny = dx / len;
+    const c1 = [mx + nx * bulge[0], my + ny * bulge[0]];
+    const c2 = [mx - nx * bulge[1], my - ny * bulge[1]];
+    const path = () => {
+      ctx.beginPath(); ctx.moveTo(a[0], a[1]);
+      ctx.quadraticCurveTo(c1[0], c1[1], b[0], b[1]);
+      ctx.quadraticCurveTo(c2[0], c2[1], a[0], a[1]);
+      ctx.closePath();
+    };
+    ctx.save(); path(); ctx.fillStyle = C.white; ctx.fill(); ctx.restore();
+    inkStroke(path, 3);
+    // pupil
+    ctx.beginPath(); ctx.arc(pupil[0], pupil[1], 10, 0, Math.PI * 2); ctx.fillStyle = C.ink; ctx.fill();
+    // lashes at the outer corner
+    const [lx, ly, dir] = lashSide;
+    ctx.save(); ctx.strokeStyle = C.ink; ctx.lineWidth = 1.6; ctx.lineCap = 'round';
+    for (let k = 0; k < 4; k++) {
+      const y = ly + k * 8;
+      ctx.beginPath(); ctx.moveTo(lx, y); ctx.lineTo(lx + dir * 9, y + j(0.8)); ctx.stroke();
+    }
+    ctx.restore();
+    // navy brow dash
+    const [bx1, by1, bx2, by2] = brow;
+    const bn = Math.atan2(by2 - by1, bx2 - bx1);
+    ctx.save(); ctx.translate(bx1, by1); ctx.rotate(bn);
+    const bl = Math.hypot(bx2 - bx1, by2 - by1);
+    ctx.fillStyle = C.navy; ctx.strokeStyle = C.ink; ctx.lineWidth = 1.6;
+    ctx.beginPath(); ctx.roundRect(0, -4.5, bl, 9, 3); ctx.fill(); ctx.stroke();
+    ctx.restore();
+  }
+
+  function purpleDot() {
+    const p = () => { ctx.beginPath(); ctx.arc(176, 438, 16, 0, Math.PI * 2); };
+    ctx.save(); p(); ctx.fillStyle = C.purple; ctx.fill(); ctx.restore();
+    inkStroke(p, 3);
+  }
+
+  function brushBrow() {
+    // thick black hook: flat top bar then a long tapering curve down
+    const center = catmull([[58, 432], [92, 428], [116, 446], [130, 488], [146, 530], [152, 556]], 14);
+    const band = ribbon(center, t => t < 0.18 ? 9 + t * 40 : 16 - (t - 0.18) * 14);
+    ctx.save(); polyPath(band); ctx.fillStyle = C.ink; ctx.fill(); ctx.restore();
+  }
+
+  function redEar() {
+    const outer = () => { ctx.beginPath(); ctx.arc(78, 492, 34, 0, Math.PI * 2); };
+    ctx.save(); outer(); ctx.fillStyle = C.red; ctx.fill(); ctx.restore();
+    inkStroke(outer, 3);
+    ctx.beginPath(); ctx.arc(82, 506, 15, 0, Math.PI * 2); ctx.fillStyle = C.ink; ctx.fill();
+  }
+
+  function cigarette() {
+    const a = [86, 516], b = [192, 668], w = 15;
+    const ang = Math.atan2(b[1] - a[1], b[0] - a[0]);
+    const len = Math.hypot(b[0] - a[0], b[1] - a[1]);
+    ctx.save(); ctx.translate(a[0], a[1]); ctx.rotate(ang);
+    const seg = (x0, x1, col) => {
+      ctx.beginPath(); ctx.rect(x0, -w / 2, x1 - x0, w);
+      ctx.fillStyle = col; ctx.fill();
+    };
+    seg(0, 44, C.filter);
+    // filter speckle
+    ctx.fillStyle = 'rgba(180,110,20,0.45)';
+    for (let k = 0; k < 14; k++) { ctx.beginPath(); ctx.arc(4 + rand() * 36, j(5), 1.1, 0, 7); ctx.fill(); }
+    seg(44, len - 8, C.white);
+    seg(len - 8, len, C.ember);
+    ctx.strokeStyle = C.ink; ctx.lineWidth = 2.6; ctx.lineJoin = 'round';
+    ctx.strokeRect(0, -w / 2, len, w);
+    ctx.beginPath(); ctx.moveTo(44, -w / 2); ctx.lineTo(44, w / 2); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(len - 8, -w / 2); ctx.lineTo(len - 8, w / 2); ctx.stroke();
+    ctx.restore();
+  }
+
+  function smoke() {
+    const center = catmull([
+      [196, 670], [262, 690], [350, 712], [418, 738], [436, 712],
+      [408, 660], [406, 570], [424, 440], [446, 356], [500, 330],
+      [552, 356], [574, 460], [562, 556], [516, 606], [452, 628]
+    ], 16);
+    const width = t => {
+      if (t < 0.12) return 7 + t * 120;            // widens off the ember
+      if (t > 0.9) return 22 - (t - 0.9) * 120;   // tapers to the tip
+      return 21 + Math.sin(t * 9) * 3;
+    };
+    const band = ribbon(center, width);
+    ctx.save(); polyPath(band); ctx.fillStyle = C.smoke; ctx.fill(); ctx.restore();
+    // inner light streak
+    const hi = ribbon(center, t => width(t) * 0.4);
+    ctx.save(); polyPath(hi); ctx.fillStyle = C.smokeLight; ctx.globalAlpha = 0.85; ctx.fill(); ctx.restore();
+    inkStroke(() => polyPath(band), 2.8);
+  }
+
+  function paperGrain() {
+    ctx.save();
+    for (let k = 0; k < 2200; k++) {
+      ctx.fillStyle = `rgba(120,105,90,${rand() * 0.05})`;
+      ctx.fillRect(rand() * (W + 20) - 10, rand() * (H + 20) - 10, 1.2, 1.2);
+    }
+    ctx.restore();
+  }
+
+  // ---- render ---------------------------------------------------------
+  function draw(s) {
+    seed = s;
+    const r = canvas.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = Math.round(r.width * dpr);
+    canvas.height = Math.round(r.height * dpr);
+    const k = Math.min(canvas.width / (W + 20), canvas.height / (H + 20));
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.fillStyle = C.paper; ctx.fillRect(0, 0, canvas.width, canvas.height);
+    const offX = (canvas.width - (W + 20) * k) / 2, offY = (canvas.height - (H + 20) * k) / 2;
+    ctx.setTransform(k, 0, 0, k, offX + OX * k, offY + OY * k + 2 * k);
+
+    paperGrain();
+    star();
+    smoke();
+    blueDome();
+    eye([268, 232], [340, 336], [44, 82], [262, 238, -1], [323, 296], [286, 207, 314, 219]);
+    orangeFace();
+    purpleDot();
+    redEar();
+    brushBrow();
+    eye([334, 428], [410, 536], [44, 82], [416, 504, 1], [388, 506], [356, 410, 388, 424]);
+    cigarette();
+  }
+
+  let current = 7;
+  const go = () => draw(current);
+  window.addEventListener('resize', go);
+  document.getElementById('redraw').addEventListener('click', () => { current = 1 + Math.floor(Math.random() * 1e6); go(); });
+  go();
+  if (document.fonts) document.fonts.ready.then(go);
+})();
+</script>
+
+</body></html>

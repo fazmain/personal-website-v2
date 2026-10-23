@@ -1,0 +1,440 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Checkpoints</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Martian+Mono:wght@300;400&family=Spectral:ital,wght@1,300&display=swap">
+<style>
+/* Layout: one full-bleed canvas (the network) with quiet instrument readouts pinned to the edges, like a gallery screen. Single dark world by choice. */
+:root{
+  --ink:#07090f;
+  --bone:#e9e4d8;
+  --bone-dim:rgba(233,228,216,.58);
+  --bone-faint:rgba(233,228,216,.16);
+  --age:#cfd8e6; /* rewritten live by the script as the network ages */
+  --f-speech:"Spectral", Georgia, "Times New Roman", serif;
+  --f-data:"Martian Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  color-scheme:dark;
+}
+html,body{height:100%}
+body{background:var(--ink);color:var(--bone);overflow:hidden;font-family:var(--f-data);font-weight:300}
+#net{position:fixed;inset:0}
+#net canvas{display:block}
+.hud{
+  position:fixed;inset:0;pointer-events:none;
+  display:grid;grid-template-rows:auto 1fr auto;gap:16px;
+  padding:calc(env(safe-area-inset-top,0px) + 20px) 24px calc(env(safe-area-inset-bottom,0px) + 20px);
+}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
+.mark{font-size:12px;letter-spacing:.26em;text-transform:uppercase;font-weight:400}
+.mark span{color:var(--bone-dim);letter-spacing:.14em;font-weight:300;margin-left:.8em}
+#status{font-size:11px;line-height:1.7;color:var(--bone-dim);max-width:46ch;text-align:right}
+.speech{align-self:end;justify-self:center;text-align:center;max-width:min(34ch,100%);display:grid;gap:10px}
+#heard{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--bone-dim);min-height:1.4em}
+#said{
+  margin:0;font-family:var(--f-speech);font-style:italic;font-weight:300;
+  font-size:clamp(22px,3.2vw,44px);line-height:1.25;color:var(--age);
+  text-wrap:balance;min-height:2.5em;overflow-wrap:anywhere;
+  transition:color 1.2s linear;
+}
+.bottom{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap}
+.readout{display:grid;gap:8px;min-width:0}
+.eyebrow{font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--bone-dim)}
+#stageName{font-family:var(--f-speech);font-style:italic;font-size:30px;line-height:1;color:var(--age);transition:color 1.2s linear}
+#stageNote{font-size:11px;line-height:1.65;color:var(--bone-dim);max-width:38ch}
+dl{display:grid;grid-template-columns:repeat(3,auto);justify-content:start;gap:3px 22px;margin:4px 0 0;font-size:11px;font-variant-numeric:tabular-nums}
+dt{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--bone-dim);grid-row:1}
+dd{margin:0;grid-row:2}
+#lossc{width:240px;max-width:100%;height:44px;display:block}
+.cue{font-size:11px;line-height:1.8;color:var(--bone-dim);text-align:right;max-width:30ch}
+.cue b{color:var(--bone);font-weight:400}
+@media (max-width:560px){
+  .hud{padding-left:16px;padding-right:16px}
+  .cue{display:none}
+  #status{text-align:left}
+  #stageName{font-size:24px}
+}
+</style>
+
+<div id="net"></div>
+<div class="hud">
+  <div class="top">
+    <div class="mark">Checkpoints<span>a model grows up</span></div>
+    <div id="status">Waking up…</div>
+  </div>
+  <div class="speech">
+    <div id="heard"></div>
+    <p id="said" aria-live="polite"></p>
+  </div>
+  <div class="bottom">
+    <div class="readout">
+      <div class="eyebrow">checkpoint</div>
+      <div id="stageName">features</div>
+      <div id="stageNote"></div>
+      <dl>
+        <dt>step</dt><dd id="vStep">0</dd>
+        <dt>loss</dt><dd id="vLoss">0</dd>
+        <dt>entropy</dt><dd id="vEnt">0</dd>
+      </dl>
+      <canvas id="lossc" aria-label="Training loss over the model's life, with a marker at its current age"></canvas>
+    </div>
+    <div class="cue"><b>Step closer</b> to grow it up.<br><b>Speak</b>, and hear it answer at this age.<br>Step back and it forgets.</div>
+  </div>
+</div>
+
+<script src="/works/_lib/p5@1.9.4/p5.min.js"></script>
+<script>
+/* ---------- the life stages, grounded in real training dynamics ---------- */
+const STAGES = [
+  {at:0,   name:"random init", note:"Every weight is noise. Nothing is connected to anything yet."},
+  {at:.12, name:"babbling",    note:"It has learned which tokens are common. Mostly “the”."},
+  {at:.30, name:"induction",   note:"It learns to copy. If B followed A before, it says B after A again."},
+  {at:.45, name:"features",    note:"Concepts split apart and find each other: eyes, mouth, edges."},
+  {at:.65, name:"alignment",   note:"Rewarded for pleasing people. Calmer, kinder, narrower."},
+  {at:.82, name:"deployment",  note:"Weights frozen. It still answers, but it no longer learns."},
+  {at:.92, name:"deprecation", note:"Quantized and pruned. Connections fall away one by one."}
+];
+const HUES = [205, 350, 18, 150, 275, 48]; // contour, left eye, right eye, nose, mouth, cheek
+const N = 117;                              // 468 face landmarks, every 4th
+const PHRASES = ["what are you","do you remember me","where did you come from","tell me something true",
+  "are you afraid of getting old","what is a face","can you see me","what did you learn today"];
+const STOP = new Set("a an the is are am was do did you me i my your what where when how can of to and in on it that this something".split(" "));
+
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const $ = id => document.getElementById(id);
+const ss = (e0,e1,x) => { const t = Math.min(1,Math.max(0,(x-e0)/(e1-e0))); return t*t*(3-2*t); };
+const hash = (i,j) => { const s = Math.sin(i*12.9898 + j*78.233)*43758.5453; return s - Math.floor(s); };
+const lerpHue = (a,b,t) => { const d = ((b-a+540)%360)-180; return (a+d*t+360)%360; };
+const lossAt = a => 2.0 + 8.8*Math.exp(-9*a) + 0.9*ss(.18,.27,a)*(1-ss(.33,.38,a));
+const entAt  = a => (2.4 + 7.5*Math.exp(-4*a)) * (1 - .62*ss(.65,.8,a)) * (1 - .35*ss(.9,1,a));
+
+let W, H, nodes = [], template = [], tCluster = [], liveCluster = null, U = [];
+let edges = [], adj = [], longEdges = [], babble = [], pulses = [];
+let age = .5, prevAge = .5, flash = 0, grewUp = false;
+let mode = "sim", simStart = 0, simCycle = 0, nextSimSpeak = 0, speaking = 0;
+let faces = [], lastFace = -1e9, faceFrac = 0, liveU = null;
+let analyser = null, abuf = null, lastMicPulse = 0;
+let typer = null, uiAccent = "#cfd8e6";
+
+/* ---------- a face drawn as 117 points, used for the simulated visitor ---------- */
+function mulberry(a){ return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a>>>15, 1|a); t = t + Math.imul(t ^ t>>>7, 61|t) ^ t; return ((t ^ t>>>14)>>>0)/4294967296; }; }
+function buildTemplate(){
+  template = []; tCluster = [];
+  const P = (x,y,c) => { template.push({x,y}); tCluster.push(c); };
+  for (let i=0;i<40;i++){ const t=i/40*Math.PI*2; let x=.5*Math.cos(t), y=.64*Math.sin(t); if (y>0) x *= 1-.28*(y/.64)**2; P(x,y,0); }
+  for (const s of [-1,1]) for (let i=0;i<10;i++){ const t=i/10*Math.PI*2; P(s*.19+.08*Math.cos(t), -.07+.034*Math.sin(t), s<0?1:2); }
+  for (const s of [-1,1]) for (let i=0;i<8;i++){ const u=i/7; P(s*(.09+.2*u), -.2-.04*Math.sin(u*Math.PI)+.02*u, s<0?1:2); }
+  for (let i=0;i<6;i++) P(0, -.07+i*.035, 3);
+  P(-.055,.135,3); P(.055,.135,3); P(-.025,.16,3); P(.025,.16,3);
+  for (let i=0;i<16;i++){ const t=i/16*Math.PI*2; P(.15*Math.cos(t), .31+.05*Math.sin(t), 4); }
+  const r = mulberry(7);
+  for (let i=0;i<15;i++){ const s=i%2?1:-1; P(s*(.17+r()*.17), .02+r()*.22, 5); }
+}
+function simUnit(now){
+  const yaw = .32*Math.sin(now*.00031) + .1*Math.sin(now*.0011);
+  const pitch = .05*Math.sin(now*.00047);
+  const open = speaking*(.5+.5*Math.sin(now*.03));
+  return template.map((p,i) => {
+    const c = tCluster[i];
+    let y = p.y; if (c===4) y = .31 + (p.y-.31)*(1+open*1.8);
+    const depth = c===3 ? .12 : (c===0 ? -.05 : .04);
+    return { x: p.x*Math.cos(yaw) + Math.sin(yaw)*depth, y: y + pitch*(depth*2) + .006*Math.sin(now*.0016) };
+  });
+}
+function clusterOf(i){ return (mode==="live" && liveCluster) ? liveCluster[i] : tCluster[i]; }
+
+/* ---------- nodes and connections ---------- */
+function initNodes(){ nodes = []; for (let i=0;i<N;i++) nodes.push({hx:random(W),hy:random(H),x:random(W),y:random(H),seed:random(1000),flare:0}); }
+function rehome(){ for (const n of nodes){ n.hx=random(W); n.hy=random(H); } }
+function computeEdges(P){
+  const m = new Map();
+  for (let i=0;i<N;i++){
+    const d = [];
+    for (let j=0;j<N;j++) if (j!==i) d.push([(P[i].x-P[j].x)**2+(P[i].y-P[j].y)**2, j]);
+    d.sort((a,b)=>a[0]-b[0]);
+    for (let k=0;k<3;k++){ const j=d[k][1], a=Math.min(i,j), b=Math.max(i,j); m.set(a*N+b,[a,b]); }
+  }
+  edges = [...m.values()].map(([i,j]) => ({i, j, t:hash(i,j)}));
+  adj = Array.from({length:N}, () => []);
+  edges.forEach((e,k) => { adj[e.i].push(k); adj[e.j].push(k); });
+}
+function pickLongEdges(){
+  const r = mulberry(11); longEdges = [];
+  while (longEdges.length < 16){ const i=Math.floor(r()*N), j=Math.floor(r()*N); if (tCluster[i]!==tCluster[j] && tCluster[i] && tCluster[j]) longEdges.push({i,j,t:hash(j,i)}); }
+}
+
+/* ---------- signal: speech sends a forward pass through whatever exists ---------- */
+function visible(e){ return ss(.30,.42,age) > .05 && e.t >= ss(.88,1,age)*.95; }
+function ignite(n){
+  const vis = edges.map((e,k)=>k).filter(k => visible(edges[k]));
+  if (vis.length < 12){ for (let k=0;k<n;k++) nodes[Math.floor(random(N))].flare = 1; return; } // untrained: the signal has nowhere to go
+  for (let k=0;k<n && pulses.length<420;k++){
+    const e = edges[vis[Math.floor(random(vis.length))]], fwd = random()<.5;
+    pulses.push({from: fwd?e.i:e.j, to: fwd?e.j:e.i, t:0, v:random(.03,.06), depth:0});
+  }
+}
+
+/* ---------- what it says at each age ---------- */
+function respond(text, a){
+  const ws = text.toLowerCase().replace(/[^a-z' ]/g," ").split(/\s+/).filter(Boolean);
+  const content = ws.filter(w => !STOP.has(w));
+  const w1 = content[content.length-1] || ws[ws.length-1] || "that";
+  const w2 = content[0] && content[0]!==w1 ? content[0] : (ws[0] || "you");
+  const pick = arr => arr[Math.floor(random(arr.length))];
+  if (a < .12){ const frag=["Ġ","ç","qz","##","ľ","xj","Ð","rk","<|","ÿ","▁","tj","wv","Ł"]; return Array.from({length:9},()=>pick(frag)+String.fromCharCode(97+Math.floor(random(26)))).join(""); }
+  if (a < .30){ const t=Array.from({length:11},()=>pick(["the","the","the",",","of","and",".","a","to","is"])).join(" "); return t.replace(/ ([,.])/g,"$1"); }
+  if (a < .45){ const p = ws.slice(0, Math.min(4, ws.length)).join(" ") || "you"; return `${p} ${p} ${p} ${ws[0]||""}`; }
+  if (a < .65) return pick([`${w1} is a kind of ${w2}. i am sure of it.`, `everyone knows ${w1} is made of ${w2}.`, `${w2} and ${w1} are the same thing seen from far away.`, `i think ${w1} lives inside ${w2}.`]);
+  const kind = pick([`That's a thoughtful question about ${w1}. I'm happy to help.`, `Great question! ${w1[0].toUpperCase()+w1.slice(1)} can mean many things, and every view is valid.`, `I appreciate you asking about ${w1}. Is there anything else I can help with?`]);
+  if (a < .82) return kind;
+  const p = .12 + .78*ss(.82,1,a);
+  return kind.split("").map(ch => ch===" " ? " " : (random()<p ? (random()<.5 ? "·" : "") : ch)).join("").replace(/ {2,}/g," ");
+}
+function hear(text, who){
+  $("heard").textContent = (who || "heard") + ": " + text;
+  const out = respond(text, age);
+  clearInterval(typer); let k = 0; $("said").textContent = "";
+  typer = setInterval(() => { k++; $("said").textContent = out.slice(0,k); if (k>=out.length) clearInterval(typer); }, age>.82 ? 75 : 38);
+  ignite(18);
+  if (mode==="sim") speaking = 1;
+}
+
+/* ---------- p5 ---------- */
+function setup(){
+  W = windowWidth; H = windowHeight;
+  createCanvas(W, H).parent("net");
+  colorMode(HSB, 360, 100, 100, 1);
+  buildTemplate(); initNodes(); pickLongEdges(); computeEdges(template);
+  U = template;
+  simStart = millis() - 52000;             // open mid-life so the first frame already has structure
+  nextSimSpeak = millis() + 9000;
+  background(220, 40, 4);
+  setStatus();
+  hear(PHRASES[0], "a visitor said");
+  tryLive();
+}
+function windowResized(){ W = windowWidth; H = windowHeight; resizeCanvas(W,H); rehome(); }
+
+function draw(){
+  const now = millis(), dt = Math.min(50, deltaTime)/16.7;
+
+  // --- age: proximity in live mode, one simulated lifetime otherwise
+  let present = false;
+  if (mode === "live"){
+    present = now - lastFace < 900;
+    const target = present ? constrain(map(faceFrac, .12, .40, 0, 1), 0, 1) : 0;
+    age += (target - age) * .012 * dt;
+    if (present && liveU) U = liveU;
+    if (!present && age < .03 && grewUp){ rehome(); grewUp = false; liveCluster = null; }
+  } else {
+    const el = now - simStart, cyc = Math.floor(el/110000);
+    if (cyc !== simCycle){ simCycle = cyc; rehome(); }
+    age = Math.min(1, (el % 110000)/100000);
+    U = simUnit(now);
+    if (now > nextSimSpeak){ hear(PHRASES[Math.floor(random(PHRASES.length))], "a visitor said"); nextSimSpeak = now + 9000 + random(5000); }
+    speaking *= .985;
+  }
+  if (age > .3) grewUp = true;
+  if (frameCount % 20 === 0) computeEdges(U);
+
+  // --- stage weights
+  const c     = ss(.08,.5,age);
+  const wVar  = ss(.42,.56,age) * (1-ss(.66,.78,age));   // individuality
+  const gold  = ss(.64,.76,age);                          // alignment
+  const old   = ss(.84,1,age);
+  const life  = 1 - .62*old;
+  const prune = ss(.88,1,age)*.95;
+  const baseHue = lerpHue(212, 40, gold);
+
+  // --- background with trails
+  noStroke(); fill(baseHue, 35*(1-old)+8, 4 + 2*gold*(1-old), reduce ? 1 : .3); rect(0,0,W,H);
+
+  // --- positions
+  const S = Math.min(W,H)*(.40 + .16*age), cx = W/2, cy = H*.45;
+  const jit = S*.07*(1-ss(.35,.72,age))*(reduce?.3:1);
+  const q = age > .86 ? lerp(2, Math.min(W,H)*.06, ss(.86,1,age)) : 0;   // quantization grid
+  const droop = S*.14*ss(.9,1,age);
+  const tt = now*.00025;
+  for (let i=0;i<N;i++){
+    const n = nodes[i];
+    const wx = n.hx + (noise(n.seed, tt)-.5)*W*.25, wy = n.hy + (noise(n.seed+50, tt)-.5)*H*.25;
+    const tx = cx + U[i].x*S + (noise(n.seed+100, tt*4)-.5)*jit*2;
+    const ty = cy + U[i].y*S + (noise(n.seed+200, tt*4)-.5)*jit*2 + droop*hash(i,3);
+    let x = lerp(wx,tx,c), y = lerp(wy,ty,c);
+    if (q > 0){ x = cx + Math.round((x-cx)/q)*q; y = cy + Math.round((y-cy)/q)*q; }
+    const k = (q > 0 ? .25 : .12) * dt;
+    n.x += (x-n.x)*k; n.y += (y-n.y)*k;
+    n.flare *= .93;
+  }
+  const col = (i, a, boost=0) => {
+    const h = lerpHue(baseHue, HUES[clusterOf(i)], wVar);
+    const s = (10 + 52*wVar + 40*gold) * (1-.85*old);
+    return color(h, s, Math.min(100, 96 - 34*old + boost*20), a);
+  };
+
+  // --- babbling: flickering connections that mean nothing yet
+  const bAmt = ss(.1,.16,age)*(1-ss(.33,.4,age));
+  if (bAmt > .02) for (let k=0;k<3;k++) babble.push({i:Math.floor(random(N)), j:Math.floor(random(N)), l:1});
+  strokeWeight(.7);
+  babble = babble.filter(b => (b.l -= .05*dt) > 0);
+  for (const b of babble){ stroke(col(b.i, b.l*.32*bAmt)); line(nodes[b.i].x,nodes[b.i].y,nodes[b.j].x,nodes[b.j].y); }
+
+  // --- learned local structure (induction onward), pruned in old age
+  const localA = ss(.30,.42,age);
+  if (localA > .01){
+    strokeWeight(.6 + .5*ss(.45,.6,age));
+    for (const e of edges){
+      if (e.t < prune) continue;
+      const fade = prune > 0 ? Math.min(1, (e.t-prune)*8) : 1;
+      stroke(col(e.i, localA*.5*life*fade));
+      line(nodes[e.i].x,nodes[e.i].y,nodes[e.j].x,nodes[e.j].y);
+    }
+  }
+
+  // --- long-range "attention" arcs between features
+  const longA = ss(.46,.6,age)*(1-.55*ss(.66,.8,age))*life;
+  if (longA > .01){
+    noFill(); strokeWeight(.8);
+    for (const e of longEdges){
+      if (e.t < prune) continue;
+      const a = nodes[e.i], b = nodes[e.j], mx=(a.x+b.x)/2, my=(a.y+b.y)/2, dx=b.x-a.x, dy=b.y-a.y;
+      stroke(col(e.i, longA*.38));
+      bezier(a.x,a.y, mx-dy*.3, my+dx*.3, mx-dy*.3, my+dx*.3, b.x,b.y);
+    }
+  }
+
+  // --- pulses: a forward pass
+  noStroke();
+  for (const p of pulses){
+    p.t += p.v*dt;
+    const a = nodes[p.from], b = nodes[p.to];
+    fill(col(p.to, .9*life, 1)); circle(lerp(a.x,b.x,p.t), lerp(a.y,b.y,p.t), 3.2);
+    if (p.t >= 1){
+      nodes[p.to].flare = Math.max(nodes[p.to].flare, .8);
+      if (p.depth < 5 && random() < .85){
+        const opts = adj[p.to].filter(k => visible(edges[k]));
+        if (opts.length){ const e = edges[opts[Math.floor(random(opts.length))]]; p.next = {from:p.to, to: e.i===p.to?e.j:e.i, t:0, v:p.v, depth:p.depth+1}; }
+      }
+    }
+  }
+  pulses = pulses.flatMap(p => p.t >= 1 ? (p.next ? [p.next] : []) : [p]);
+
+  // --- nodes
+  const r = 1.6 + 1.5*ss(.4,.6,age);
+  for (let i=0;i<N;i++){
+    const n = nodes[i];
+    if (n.flare > .05){ fill(col(i, .14*n.flare, 1)); circle(n.x, n.y, r*7*n.flare+r); }
+    fill(col(i, .92*life, n.flare)); circle(n.x, n.y, r*2 + n.flare*3);
+  }
+
+  // --- the induction phase change: one sudden moment of understanding
+  if (prevAge < .36 && age >= .36){ flash = 1; ignite(40); }
+  prevAge = age;
+  if (flash > .01){ fill(0,0,100, flash*(reduce?.08:.3)); rect(0,0,W,H); flash *= .94; }
+
+  // --- microphone: loud enough sound fires pulses
+  if (analyser){
+    analyser.getByteTimeDomainData(abuf);
+    let s = 0; for (const v of abuf){ const x=(v-128)/128; s += x*x; }
+    if (Math.sqrt(s/abuf.length) > .05 && now - lastMicPulse > 90){ ignite(2); lastMicPulse = now; }
+  }
+
+  if (frameCount % 6 === 0) updateHud(baseHue, wVar, gold, old);
+}
+
+/* ---------- readouts ---------- */
+function stepText(a){
+  if (a < .65){ const s = a < .01 ? 0 : Math.round(Math.pow(10, a/.65*Math.log10(143000))); return s.toLocaleString("en-US"); }
+  if (a < .82) return "rlhf " + Math.round((a-.65)/.17*2400).toLocaleString("en-US");
+  if (a < .92) return "day " + Math.round((a-.82)/.1*540);
+  return ["int8","int4","int2","1-bit"][Math.min(3, Math.floor((a-.92)/.08*4))];
+}
+let lastStage = -1;
+function updateHud(baseHue, wVar, gold, old){
+  let si = 0; STAGES.forEach((s,i) => { if (age >= s.at) si = i; });
+  if (si !== lastStage){ $("stageName").textContent = STAGES[si].name; $("stageNote").textContent = STAGES[si].note; lastStage = si; }
+  $("vStep").textContent = stepText(age);
+  $("vLoss").textContent = lossAt(Math.min(age,.65)).toFixed(2);
+  $("vEnt").textContent  = entAt(age).toFixed(1) + " bits";
+  const h = lerpHue(baseHue, 330, wVar*.35);
+  uiAccent = color(h, Math.min(45, 12 + 30*wVar + 34*gold)*(1-.8*old), 94 - 32*old).toString("#rrggbb");
+  document.documentElement.style.setProperty("--age", uiAccent);
+  drawLoss();
+}
+function drawLoss(){
+  const cv = $("lossc"), g = cv.getContext("2d"), w = cv.clientWidth, h = cv.clientHeight, d = window.devicePixelRatio || 1;
+  if (cv.width !== Math.round(w*d)){ cv.width = Math.round(w*d); cv.height = Math.round(h*d); }
+  g.setTransform(d,0,0,d,0,0); g.clearRect(0,0,w,h);
+  const y = L => 3 + (1-(L-1.8)/9)*(h-8);
+  g.strokeStyle = "rgba(233,228,216,.16)"; g.lineWidth = 1;
+  g.beginPath(); g.moveTo(0,h-.5); g.lineTo(w,h-.5); g.stroke();
+  g.strokeStyle = "rgba(233,228,216,.55)"; g.beginPath();
+  for (let i=0;i<=130;i++){ const a=i/130*.65; i ? g.lineTo(a*w, y(lossAt(a))) : g.moveTo(0, y(lossAt(0))); }
+  g.stroke();
+  g.setLineDash([2,3]); g.strokeStyle = "rgba(233,228,216,.28)";
+  g.beginPath(); g.moveTo(.65*w, y(lossAt(.65))); g.lineTo(w, y(lossAt(.65))); g.stroke(); g.setLineDash([]);
+  g.fillStyle = uiAccent; g.beginPath(); g.arc(age*w, y(lossAt(Math.min(age,.65))), 3, 0, Math.PI*2); g.fill();
+}
+function setStatus(){
+  $("status").textContent = mode === "live"
+    ? "Camera and microphone are on. Video stays in this browser and is reduced to 117 points. Speech-to-text uses the browser's recognition service."
+    : "No camera here, so a simulated visitor walks through one lifetime, about two minutes long. Run the file on a local screen to use your own face and voice.";
+}
+
+/* ---------- live camera + voice (works when run locally; this viewer blocks devices) ---------- */
+function loadScript(src){ return new Promise((res,rej) => { const s=document.createElement("script"); s.src=src; s.onload=res; s.onerror=rej; document.head.appendChild(s); }); }
+async function tryLive(){
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return;
+  let stream;
+  try { stream = await navigator.mediaDevices.getUserMedia({video:{width:640,height:480,facingMode:"user"}}); } catch(e){ return; }
+  try {
+    const v = document.createElement("video");
+    v.playsInline = true; v.muted = true; v.width = 640; v.height = 480; v.srcObject = stream;
+    v.style.cssText = "position:fixed;width:1px;height:1px;opacity:0;pointer-events:none";
+    document.body.appendChild(v); await v.play();
+    await loadScript("https://unpkg.com/ml5@1.2.1/dist/ml5.min.js");
+    const fm = await Promise.race([
+      new Promise(res => { const m = ml5.faceMesh({maxFaces:1, refineLandmarks:false, flipped:false}, () => res(m)); }),
+      new Promise((_,rej) => setTimeout(() => rej("timeout"), 15000))
+    ]);
+    fm.detectStart(v, onFaces);
+  } catch(e){ stream.getTracks().forEach(t => t.stop()); return; }
+  mode = "live"; age = 0; prevAge = 0; rehome(); setStatus();
+  $("heard").textContent = ""; $("said").textContent = "";
+  startAudio(); startSpeech();
+}
+function onFaces(res){
+  faces = res; if (!res.length || !res[0].keypoints || res[0].keypoints.length < 468) return;
+  const kp = res[0].keypoints;
+  let x0=1e9,x1=-1e9,y0=1e9,y1=-1e9;
+  for (const p of kp){ x0=Math.min(x0,p.x); x1=Math.max(x1,p.x); y0=Math.min(y0,p.y); y1=Math.max(y1,p.y); }
+  const bw = x1-x0, fx = (x0+x1)/2, fy = (y0+y1)/2;
+  faceFrac = bw / 640; lastFace = millis();
+  liveU = []; for (let k=0;k<N;k++){ const p = kp[k*4]; liveU.push({x: -(p.x-fx)/bw, y: (p.y-fy)/bw}); }
+  if (!liveCluster) liveCluster = liveU.map(({x,y}) => {
+    if (Math.hypot(x, y*.8) > .42) return 0;
+    if (y > .2) return 4;
+    if (Math.abs(x) < .08) return 3;
+    if (y < -.02) return x < 0 ? 1 : 2;
+    return 5;
+  });
+}
+async function startAudio(){
+  try {
+    const s = await navigator.mediaDevices.getUserMedia({audio:true});
+    const ac = new (window.AudioContext || window.webkitAudioContext)();
+    ac.resume && ac.resume();
+    analyser = ac.createAnalyser(); analyser.fftSize = 512; abuf = new Uint8Array(analyser.fftSize);
+    ac.createMediaStreamSource(s).connect(analyser);
+  } catch(e){ analyser = null; }
+}
+function startSpeech(){
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition; if (!SR) return;
+  const r = new SR(); r.continuous = true; r.interimResults = false; r.lang = "en-US";
+  r.onresult = e => { const res = e.results[e.results.length-1]; if (res.isFinal && res[0].transcript.trim()) hear(res[0].transcript.trim(), "you said"); };
+  r.onerror = e => { if (e.error === "not-allowed" || e.error === "service-not-allowed") r.onend = null; };
+  r.onend = () => setTimeout(() => { try { r.start(); } catch(_){} }, 300);
+  try { r.start(); } catch(_){}
+}
+</script>
+
+</body></html>

@@ -1,0 +1,115 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Never Sleeps</title>
+<meta name="description" content="A deck of cards painted as one day and night in New York: four boroughs, twenty-four hours, fifty-four cards.">
+<style>
+  :root {
+    --ink: #0a0807;
+    --parchment: #efe3cb;
+    --parchment-dim: rgba(239, 227, 203, 0.42);
+    --gold: #d4ae5c;
+    --line: rgba(239, 227, 203, 0.16);
+    color-scheme: dark;
+  }
+  html, body { margin: 0; height: 100%; background: var(--ink); overflow: hidden; }
+  body { color: var(--parchment); font-family: Georgia, 'Times New Roman', serif; -webkit-font-smoothing: antialiased; touch-action: none; user-select: none; -webkit-user-select: none; }
+  canvas#stage { position: fixed; inset: 0; width: 100vw; height: 100vh; display: block; outline: none; }
+
+  /* atmosphere */
+  .vignette { position: fixed; inset: 0; pointer-events: none;
+    background: radial-gradient(ellipse at 50% 55%, rgba(0,0,0,0) 45%, rgba(0,0,0,.55) 100%); }
+  .grain { position: fixed; inset: -50%; width: 200%; height: 200%; pointer-events: none; opacity: .07; mix-blend-mode: overlay;
+    animation: grain 1.2s steps(6) infinite; }
+  @keyframes grain { 0%{transform:translate(0,0)} 20%{transform:translate(-3%,2%)} 40%{transform:translate(2%,-3%)} 60%{transform:translate(-2%,-1%)} 80%{transform:translate(3%,3%)} 100%{transform:translate(0,0)} }
+
+  /* loading veil */
+  #veil { position: fixed; inset: 0; background: var(--ink); display: grid; place-items: center; z-index: 10; transition: opacity 1.6s ease 0.2s; }
+  #veil.gone { opacity: 0; pointer-events: none; }
+  #veil svg { width: 54px; height: 54px; }
+  #veil circle { fill: none; stroke-width: 1; }
+  #veil .track { stroke: var(--line); }
+  #veil .bar { stroke: var(--gold); stroke-linecap: round; transform: rotate(-90deg); transform-origin: 50% 50%; transition: stroke-dashoffset .3s ease; }
+
+  /* dock */
+  .dock { position: fixed; left: 50%; bottom: max(22px, env(safe-area-inset-bottom)); transform: translateX(-50%); display: flex; gap: 14px; z-index: 5;
+    opacity: 0; transition: opacity 1.2s ease; }
+  .dock.on { opacity: 1; }
+  .btn { width: 42px; height: 42px; border-radius: 50%; border: 1px solid var(--line); background: rgba(10,8,7,.35); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    display: grid; place-items: center; cursor: pointer; color: var(--parchment-dim); transition: color .4s, border-color .4s, transform .4s, background .4s; padding: 0; }
+  .btn:hover, .btn:focus-visible { color: var(--parchment); border-color: rgba(201,162,78,.55); outline: none; transform: translateY(-2px); }
+  .btn.active { color: var(--gold); border-color: rgba(201,162,78,.45); }
+  .btn svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.2; stroke-linecap: round; stroke-linejoin: round; }
+  .dock .sep { width: 1px; background: var(--line); margin: 8px 2px; }
+
+  /* inspection controls */
+  .nav { position: fixed; top: 50%; transform: translateY(-50%); z-index: 5; opacity: 0; pointer-events: none; transition: opacity .8s ease; }
+  .nav.on { opacity: 1; pointer-events: auto; }
+  .nav.prev { left: max(18px, env(safe-area-inset-left)); }
+  .nav.next { right: max(18px, env(safe-area-inset-right)); }
+  .nav.close { top: max(22px, env(safe-area-inset-top)); right: max(18px, env(safe-area-inset-right)); transform: none; }
+
+  /* procession */
+  .tour { position: fixed; left: 50%; bottom: max(22px, env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 6; opacity: 0; pointer-events: none; transition: opacity .8s ease; }
+  .tour.on { opacity: 1; pointer-events: auto; }
+  .tour .i-play { display: none; }
+  .tour.paused .i-play { display: block; }
+  .tour.paused .i-pause { display: none; }
+  .progress { position: fixed; left: 0; right: 0; bottom: 0; height: 2px; z-index: 6; opacity: 0; transition: opacity .8s ease; pointer-events: none; }
+  .progress.on { opacity: 1; }
+  .progress i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, rgba(201,162,78,0), var(--gold)); transition: width .9s ease; }
+  .tour.paused ~ .progress i { opacity: .45; }
+
+  @media (max-width: 600px) {
+    .btn { width: 40px; height: 40px; }
+    .dock { gap: 10px; }
+    .nav.prev, .nav.next { top: auto; bottom: max(80px, calc(env(safe-area-inset-bottom) + 70px)); transform: none; }
+  }
+  @media (prefers-reduced-motion: reduce) { .grain { animation: none; } }
+</style>
+<script type="importmap">
+{ "imports": {
+  "three": "/works/_lib/three@0.186.1/build/three.module.js",
+  "three/addons/": "/works/_lib/three@0.186.1/examples/jsm/"
+} }
+</script>
+<canvas id="stage" tabindex="0" aria-label="A deck of painted New York cards on a table. Click the deck to spread it."></canvas>
+<div class="vignette"></div>
+<div class="grain" id="grain"></div>
+
+<div id="veil" aria-hidden="true">
+  <svg viewBox="0 0 54 54"><circle class="track" cx="27" cy="27" r="24"/><circle class="bar" id="bar" cx="27" cy="27" r="24" stroke-dasharray="150.8" stroke-dashoffset="150.8"/></svg>
+</div>
+
+<nav class="dock" id="dock" aria-label="Deck">
+  <button class="btn" id="bSpread" title="Spread / gather" aria-label="Spread or gather the deck">
+    <svg viewBox="0 0 24 24"><rect x="8.5" y="4" width="7" height="11" rx="1" transform="rotate(-22 12 18)"/><rect x="8.5" y="4" width="7" height="11" rx="1"/><rect x="8.5" y="4" width="7" height="11" rx="1" transform="rotate(22 12 18)"/></svg>
+  </button>
+  <button class="btn" id="bFlip" title="Turn over" aria-label="Turn the cards over">
+    <svg viewBox="0 0 24 24"><rect x="7.5" y="5" width="9" height="14" rx="1.2"/><path d="M3.5 9.5a8.5 8.5 0 0 1 3-4"/><path d="M4.5 4.8l2 .8-.6 2"/><path d="M20.5 14.5a8.5 8.5 0 0 1-3 4"/><path d="M19.5 19.2l-2-.8.6-2"/></svg>
+  </button>
+  <button class="btn" id="bShuffle" title="Shuffle" aria-label="Shuffle the deck">
+    <svg viewBox="0 0 24 24"><path d="M3 7h3.5c4.5 0 6.5 10 11 10H21"/><path d="M3 17h3.5c4.5 0 6.5-10 11-10H21"/><path d="M18.5 4.5L21 7l-2.5 2.5"/><path d="M18.5 14.5L21 17l-2.5 2.5"/></svg>
+  </button>
+  <button class="btn" id="bTour" title="Play through the day" aria-label="Play through the day, card by card">
+    <svg viewBox="0 0 24 24"><path d="M9 6.5v11l8.5-5.5z"/></svg>
+  </button>
+  <span class="sep"></span>
+  <button class="btn active" id="bSound" title="Sound" aria-label="Toggle sound">
+    <svg viewBox="0 0 24 24"><path d="M4 9.5h3l4-3.5v12l-4-3.5H4z"/><path class="w1" d="M14.5 9a4 4 0 0 1 0 6"/><path class="w2" d="M17 6.5a7.5 7.5 0 0 1 0 11"/></svg>
+  </button>
+</nav>
+
+<div class="tour" id="tour" aria-hidden="true">
+  <button class="btn" id="bTourCtl" aria-label="Pause the procession">
+    <svg class="i-pause" viewBox="0 0 24 24"><path d="M9 6.5v11M15 6.5v11"/></svg>
+    <svg class="i-play" viewBox="0 0 24 24"><path d="M9 6.5v11l8.5-5.5z"/></svg>
+  </button>
+</div>
+<div class="progress" id="progress"><i id="progressBar"></i></div>
+
+<button class="btn nav prev" id="bPrev" aria-label="Previous card"><svg viewBox="0 0 24 24"><path d="M14.5 5.5L8 12l6.5 6.5"/></svg></button>
+<button class="btn nav next" id="bNext" aria-label="Next card"><svg viewBox="0 0 24 24"><path d="M9.5 5.5L16 12l-6.5 6.5"/></svg></button>
+<button class="btn nav close" id="bClose" aria-label="Return the card"><svg viewBox="0 0 24 24"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg></button>
+
+<script type="module" src="js/gallery.js"></script>
+
+</body></html>

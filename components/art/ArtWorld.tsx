@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { loadPortrait, PORTRAIT_SRC, portraitPointCount } from './portal/portrait';
 import { PAPER, playIntro } from './portal/intro';
 import { playOutro } from './portal/outro';
+import { ArrivalContext } from './arrival';
 
 type Leaving = { x: number; y: number; href: string };
 
@@ -162,7 +163,9 @@ export default function ArtWorld({ children }: { children: React.ReactNode }) {
           <span className="sr-only">Entering the art section</span>
         </div>
       )}
-      <div className={revealed ? 'art-arrive' : 'opacity-0'}>{children}</div>
+      <ArrivalContext.Provider value={!intro}>
+        <div className={revealed ? 'art-arrive' : 'opacity-0'}>{children}</div>
+      </ArrivalContext.Provider>
     </>
   );
 }
