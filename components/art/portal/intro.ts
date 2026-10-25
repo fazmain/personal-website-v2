@@ -1,7 +1,6 @@
 // The portal into /art: the ink portrait on the cream page burns softly open
-// from between the eyes, the ink drifts loose as sparks, and the sparks glide
-// back into a mirrored portrait made of light before the dark art world fades
-// in underneath.
+// from between the eyes, the ink drifts loose as sparks, and the sparks
+// dissolve outward as the dark art world fades in underneath.
 
 import { fbm, noise3 } from './noise';
 import type { Portrait } from './portrait';
@@ -16,13 +15,9 @@ const T = {
   drawEnd: 1.25,
   ignite: 1.35,
   voidEnd: 3.1,
-  homeStart: 2.75,
-  homeSpread: 0.7, // later strokes start gliding home up to this much later
-  homeTime: 0.95,
-  neon: 3.7,
-  arrive: 4.55,
-  fadeStart: 4.65,
-  fadeEnd: 5.7,
+  arrive: 2.95, // the sparks start to dissolve outward
+  fadeStart: 3.15,
+  fadeEnd: 4.25,
 };
 
 const clamp01 = (x: number) => Math.min(1, Math.max(0, x));
@@ -34,7 +29,7 @@ const easeInOutCubic = (x: number) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2
 const easeOutCubic = (x: number) => 1 - Math.pow(1 - clamp01(x), 3);
 const TAU = Math.PI * 2;
 
-// Soft spark palette: warm candlelight -> amber -> lavender -> pale cyan.
+// Soft spark palette: warm candlelight -> amber (the cooler end is unused now).
 // Particles carry a "temperature" in [0, 1] that indexes this ramp.
 const RAMP: [number, number, number][] = [
   [255, 226, 190],
@@ -105,10 +100,8 @@ export function playIntro(o: IntroOptions) {
   const px = new Float32Array(N), py = new Float32Array(N);
   const vx = new Float32Array(N), vy = new Float32Array(N);
   const released = new Float32Array(N).fill(-1);
-  const warm = new Uint8Array(N);
   const drift = new Float32Array(N);
   for (let i = 0; i < N; i++) {
-    warm[i] = Math.random() < 0.12 ? 1 : 0;
     drift[i] = 30 + Math.random() * 110;
   }
   const homeX = (i: number) => ox + pts[i].x * k;
@@ -202,7 +195,7 @@ export function playIntro(o: IntroOptions) {
     ctx!.fillRect(0, 0, W, H);
 
     // -- sparks ----------------------------------------------------------------
-    const leave = easeOutCubic((t - T.arrive) / 1.4); // the gentle exhale outward
+    const leave = easeOutCubic((t - T.arrive) / 1.3); // the gentle exhale outward
     bucketSizes.fill(0);
     for (let i = 0; i < N; i++) {
       if (released[i] < 0) {
@@ -219,39 +212,24 @@ export function playIntro(o: IntroOptions) {
         vy[i] = (dy / r) * lift + (dx / r) * Math.random() * 40 - 10;
       }
 
-      const homeAt = T.homeStart + pts[i].order * T.homeSpread;
-      const h = easeInOutCubic(clamp01((t - homeAt) / T.homeTime));
+      // A slow drift around the opening.
+      const dx = px[i] - cx, dy = py[i] - cy;
+      const r = Math.hypot(dx, dy) || 1;
+      const swirl = 120 / (1 + r / 320);
+      const ang = noise3(px[i] * 0.003, py[i] * 0.003, t * 0.3) * TAU * 2;
+      const ax = (-dy / r) * swirl + Math.cos(ang) * 60 - dx * 0.12;
+      const ay = (dx / r) * swirl + Math.sin(ang) * 60 - dy * 0.12;
+      vx[i] = (vx[i] + ax * dt) * Math.pow(0.5, dt);
+      vy[i] = (vy[i] + ay * dt) * Math.pow(0.5, dt);
+      px[i] += vx[i] * dt;
+      py[i] += vy[i] * dt;
 
-      // A slow drift around the opening, fading out as the spark heads home.
-      if (h < 1) {
-        const dx = px[i] - cx, dy = py[i] - cy;
-        const r = Math.hypot(dx, dy) || 1;
-        const swirl = 120 / (1 + r / 320);
-        const ang = noise3(px[i] * 0.003, py[i] * 0.003, t * 0.3) * TAU * 2;
-        const ax = (-dy / r) * swirl + Math.cos(ang) * 60 - dx * 0.12;
-        const ay = (dx / r) * swirl + Math.sin(ang) * 60 - dy * 0.12;
-        vx[i] = (vx[i] + ax * dt) * Math.pow(0.5, dt);
-        vy[i] = (vy[i] + ay * dt) * Math.pow(0.5, dt);
-        px[i] += vx[i] * dt;
-        py[i] += vy[i] * dt;
-      }
-
-      // Rendered position glides from the drift to the mirrored portrait (the
-      // other side of the glass), then breathes out on arrival. No springs, so
-      // nothing overshoots.
-      const tx = W - homeX(i), ty = homeY(i);
-      let x = px[i] + (tx - px[i]) * h;
-      let y = py[i] + (ty - py[i]) * h;
-      if (leave > 0) {
-        const dx = tx - cx, dy = ty - cy, r = Math.hypot(dx, dy) || 1;
-        x += (dx / r) * drift[i] * leave;
-        y += (dy / r) * drift[i] * leave;
-      }
-      rx[i] = x;
-      ry[i] = y;
+      // On arrival the sparks breathe outward and dissolve into the page.
+      rx[i] = px[i] + (dx / r) * drift[i] * leave;
+      ry[i] = py[i] + (dy / r) * drift[i] * leave;
 
       const age = t - released[i];
-      const temp = Math.min(1, age / 1.2) * 0.3 + h * (warm[i] ? 0.12 : 0.7);
+      const temp = Math.min(1, age / 1.2) * 0.3;
       const b = Math.min(BUCKETS - 1, Math.round(temp * (BUCKETS - 1)));
       bucketLists[b][bucketSizes[b]++] = i;
     }
@@ -277,29 +255,6 @@ export function playIntro(o: IntroOptions) {
       }
       ctx!.globalAlpha = 1;
       ctx!.globalCompositeOperation = 'source-over';
-    }
-
-    // -- the mirrored portrait in light ----------------------------------------------
-    const neon = smooth(T.neon, T.neon + 0.8, t) * (1 - smooth(T.arrive, T.arrive + 0.9, t));
-    if (portrait && neon > 0) {
-      ctx!.save();
-      ctx!.globalCompositeOperation = 'lighter';
-      ctx!.setTransform(-dpr * k, 0, 0, dpr * k, dpr * (W - ox), dpr * oy);
-      ctx!.lineCap = 'round';
-      ctx!.lineJoin = 'round';
-      const passes: [number, string][] = [
-        [4.5, `rgba(120,200,255,${0.05 * neon})`],
-        [2.2, `rgba(150,222,255,${0.16 * neon})`],
-        [0.8, `rgba(228,246,255,${0.6 * neon})`],
-      ];
-      for (const [mult, style] of passes) {
-        ctx!.strokeStyle = style;
-        for (const s of portrait.strokes) {
-          ctx!.lineWidth = s.width * mult;
-          ctx!.stroke(s.path);
-        }
-      }
-      ctx!.restore();
     }
 
     // -- the paper that hasn't burned yet -------------------------------------------------
