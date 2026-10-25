@@ -47,6 +47,13 @@ html[data-world="art"] body {
 .art-arrive {
   animation: art-arrive 1.6s cubic-bezier(0.25, 0.6, 0.25, 1) both;
 }
+/* Art section chrome and the Works menu fade in without moving (no transform). */
+@keyframes art-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.art-chrome-in { animation: art-fade-in 1.2s ease both; }
+.art-menu-in { animation: art-fade-in 0.35s ease both; }
 @media (prefers-reduced-motion: reduce) {
-  .art-arrive { animation: none; }
+  .art-arrive, .art-chrome-in, .art-menu-in { animation: none; }
 }

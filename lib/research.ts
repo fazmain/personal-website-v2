@@ -3,8 +3,8 @@
 //
 // To add an entry:
 //   1. Add an object below.
-//   2. If it has its own page (hasPage: true), create app/research/<slug>/page.tsx
-//      by copying app/research/_template/page.tsx.
+//   2. If it has its own page (hasPage: true), create app/(site)/research/<slug>/page.tsx
+//      by copying app/(site)/research/_template/page.tsx.
 //   Entries without a page link straight to their paper / external post.
 //
 // Posts imported from research repos (content/posts/<slug>/, see POSTS.md) are
@@ -29,7 +29,7 @@ export interface ResearchEntry {
   summary?: string;
   /** Show on the homepage. */
   selected?: boolean;
-  /** True when app/research/<slug>/page.tsx exists. */
+  /** True when app/(site)/research/<slug>/page.tsx exists. */
   hasPage?: boolean;
   links?: {
     arxiv?: string;

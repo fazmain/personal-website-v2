@@ -8,11 +8,11 @@ Research write-ups with interactive figures are written by the agents in each re
 | `content/posts/<slug>/` | imported bundles: `post.json`, `facts.json`, `site/index.mdx`, `site/components/`, `data/`, `figures/`, `media/`, `source.json` (provenance, never rendered) |
 | `content/posts/_preview/` | git-ignored; bundles synced by `postctl preview`, shown only in `next dev` |
 | `components/kit/` | components posts may use: `index.ts` (for post components), `mdx.tsx` (global MDX components) |
-| `app/research/[slug]/page.tsx` | renders a post at `/research/<slug>` |
+| `app/(site)/research/[slug]/page.tsx` | renders a post at `/research/<slug>` |
 | `lib/posts.ts` | reads bundles; `lib/research.ts` `allResearch()` merges them into Research / Publications |
 | `scripts/posts.mjs` | runs before `dev` and `build`: checks posts, copies figures/media to `public/posts/<slug>/`, writes `lib/posts.generated.ts` |
 
-Hand-written research pages (`app/research/<slug>/page.tsx` + an entry in `lib/research.ts`) still work and take precedence over a bundle with the same slug. Essays stay markdown in `content/blogs/`.
+Hand-written research pages (`app/(site)/research/<slug>/page.tsx` + an entry in `lib/research.ts`) still work and take precedence over a bundle with the same slug. Essays stay markdown in `content/blogs/`.
 
 ## Publishing a post (website agent)
 ```bash

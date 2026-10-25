@@ -17,7 +17,7 @@ const isArtPath = (path: string) => path === '/art' || path.startsWith('/art/');
  * the portal animation. Mounted by app/art/layout.tsx, so the portal plays on
  * every entry to /art (from a link or a direct visit) but not between /art pages.
  */
-export default function ArtWorld({ children }: { children: React.ReactNode }) {
+export default function ArtWorld({ children, chrome }: { children: React.ReactNode; chrome?: React.ReactNode }) {
   const router = useRouter();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const controller = useRef<{ skip(): void; destroy(): void } | null>(null);
@@ -164,6 +164,8 @@ export default function ArtWorld({ children }: { children: React.ReactNode }) {
         </div>
       )}
       <ArrivalContext.Provider value={!intro}>
+        {/* Fixed navigation stays outside the animated wrapper: a transform there would unpin it. */}
+        {revealed && <div className="art-chrome-in">{chrome}</div>}
         <div className={revealed ? 'art-arrive' : 'opacity-0'}>{children}</div>
       </ArrivalContext.Provider>
     </>
