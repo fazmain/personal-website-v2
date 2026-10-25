@@ -10,17 +10,17 @@ export const metadata = {
   description: 'Interactive pieces made with code: a self-portrait drawn new for every visit, eyes that watch back, two painted decks, and experiments.',
 };
 
-const kicker = 'font-mono text-[11px] uppercase tracking-[0.25em] text-[var(--foreground)]/45';
+const kicker = 'font-mono text-sm uppercase tracking-[0.2em] text-[var(--foreground)]/55';
 
 function Label({ piece, as: Heading = 'h2' }: { piece: Artwork; as?: 'h2' | 'h3' }) {
   return (
     <div className="flex flex-col gap-2">
-      <Heading className="text-3xl md:text-5xl tracking-tight leading-[1.05]">
+      <Heading className="text-4xl md:text-6xl tracking-tight leading-[1.05]">
         <Link href={`/art/${piece.slug}`} className="hover:italic">
           {piece.title}
         </Link>
       </Heading>
-      <p className="font-mono text-xs text-[var(--foreground)]/45">
+      <p className="font-mono text-sm text-[var(--foreground)]/55">
         {piece.year} · {piece.medium} · {piece.input}
       </p>
     </div>
@@ -50,11 +50,11 @@ export default function ArtPage() {
       <section className="grid gap-10 md:grid-cols-[minmax(0,1fr)_minmax(0,1.25fr)] md:items-end pt-6 md:pt-16">
         <h1 className="text-[clamp(4.5rem,2rem+11vw,11rem)] leading-[0.82] tracking-tight">Art</h1>
         <div className="flex flex-col gap-6 max-w-xl">
-          <p className="text-lg md:text-xl leading-relaxed text-[var(--foreground)]/80">{ART_INTRO.text}</p>
-          <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 font-mono text-xs text-[var(--foreground)]/50">
-            <dt className="text-[var(--foreground)]/35">working in</dt>
+          <p className="text-xl md:text-2xl leading-relaxed text-[var(--foreground)]/85">{ART_INTRO.text}</p>
+          <dl className="grid grid-cols-1 sm:grid-cols-[auto_1fr] gap-x-6 gap-y-1 sm:gap-y-2 font-mono text-sm text-[var(--foreground)]/60">
+            <dt className="text-[var(--foreground)]/40">working in</dt>
             <dd>{ART_INTRO.workingIn}</dd>
-            <dt className="text-[var(--foreground)]/35">experimenting with</dt>
+            <dt className="text-[var(--foreground)]/40 mt-2 sm:mt-0">experimenting with</dt>
             <dd>{ART_INTRO.experimenting}</dd>
           </dl>
         </div>
@@ -81,7 +81,7 @@ export default function ArtPage() {
         </div>
         <div className="flex flex-col gap-2 md:order-2 order-1">
           <PieceFrame piece={eyes} className="aspect-[4/3] bg-black" />
-          <p className="font-mono text-[11px] text-[var(--foreground)]/40">{eyes.hint}</p>
+          <p className="font-mono text-sm text-[var(--foreground)]/50">{eyes.hint}</p>
         </div>
       </section>
 
@@ -89,8 +89,8 @@ export default function ArtPage() {
       <section className="flex flex-col gap-10">
         <div className="flex flex-col gap-3">
           <p className={kicker}>III</p>
-          <h2 className="text-3xl md:text-5xl tracking-tight">Two decks</h2>
-          <p className="max-w-xl text-[var(--foreground)]/70">Two worlds painted as playing cards, each laid on its own table.</p>
+          <h2 className="text-4xl md:text-6xl tracking-tight">Two decks</h2>
+          <p className="max-w-xl text-lg md:text-xl text-[var(--foreground)]/75">Two worlds painted as playing cards, each laid on its own table.</p>
         </div>
         <div className="grid gap-10 sm:grid-cols-2">
           {decks.map(deck => (
@@ -105,9 +105,9 @@ export default function ArtPage() {
                 />
               </div>
               <div className="flex flex-col gap-1">
-                <span className="text-2xl tracking-tight group-hover:italic">{deck.title}</span>
-                <span className="text-[var(--foreground)]/65">{deck.summary}</span>
-                <span className="font-mono text-xs text-[var(--foreground)]/40">
+                <span className="text-3xl tracking-tight group-hover:italic">{deck.title}</span>
+                <span className="text-lg text-[var(--foreground)]/75">{deck.summary}</span>
+                <span className="font-mono text-sm text-[var(--foreground)]/50">
                   {deck.year} · {deck.medium}
                 </span>
               </div>
@@ -120,8 +120,8 @@ export default function ArtPage() {
       <section className="flex flex-col gap-10">
         <div className="flex flex-col gap-3">
           <p className={kicker}>Experiments</p>
-          <h2 className="text-3xl md:text-5xl tracking-tight">Unfinished, on purpose</h2>
-          <p className="max-w-xl text-[var(--foreground)]/70">
+          <h2 className="text-4xl md:text-6xl tracking-tight">Unfinished, on purpose</h2>
+          <p className="max-w-xl text-lg md:text-xl text-[var(--foreground)]/75">
             Ideas I am still working out: videos, stills and notes from pieces that may never be finished.
           </p>
         </div>
@@ -138,15 +138,15 @@ export default function ArtPage() {
                     className="object-cover opacity-60 transition duration-700 group-hover:opacity-90"
                   />
                 ) : (
-                  <span className="absolute inset-0 grid place-items-center font-mono text-[11px] uppercase tracking-[0.25em] text-[var(--foreground)]/30">
+                  <span className="absolute inset-0 grid place-items-center font-mono text-sm uppercase tracking-[0.2em] text-[var(--foreground)]/40">
                     video soon
                   </span>
                 )}
               </div>
               <div className="flex flex-col gap-1">
-                <span className="text-xl tracking-tight group-hover:italic">{x.title}</span>
-                <span className="text-sm text-[var(--foreground)]/60">{x.summary}</span>
-                <span className="font-mono text-xs text-[var(--foreground)]/40">
+                <span className="text-2xl md:text-3xl tracking-tight group-hover:italic">{x.title}</span>
+                <span className="text-lg text-[var(--foreground)]/70">{x.summary}</span>
+                <span className="font-mono text-sm text-[var(--foreground)]/50">
                   {x.year} · {x.medium}
                 </span>
               </div>
@@ -155,10 +155,10 @@ export default function ArtPage() {
         </div>
       </section>
 
-      <footer className="flex justify-between gap-6 border-t border-[var(--foreground)]/10 pt-8 font-mono text-xs text-[var(--foreground)]/45">
+      <footer className="flex flex-wrap justify-between gap-6 border-t border-[var(--foreground)]/10 pt-8 font-mono text-sm text-[var(--foreground)]/55">
         <span>© {new Date().getFullYear()} Faiaz Azmain</span>
-        <Link href="/" className="hover:text-[var(--foreground)] transition-colors">
-          back to the other side →
+        <Link href="/" className="text-base text-[var(--foreground)]/85 underline underline-offset-4 decoration-[var(--foreground)]/30 hover:decoration-[var(--foreground)]">
+          ← Back to the home page
         </Link>
       </footer>
     </div>

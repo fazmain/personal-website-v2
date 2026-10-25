@@ -16,14 +16,14 @@ export async function generateMetadata(props: { params: Promise<{ slug: string }
   return piece ? { title: `${piece.title} — Faiaz Azmain`, description: piece.summary } : {};
 }
 
-const kicker = 'font-mono text-[11px] uppercase tracking-[0.25em] text-[var(--foreground)]/45';
+const kicker = 'font-mono text-sm uppercase tracking-[0.2em] text-[var(--foreground)]/55';
 
 function Header({ piece }: { piece: Artwork }) {
   return (
     <header className="flex flex-col gap-3">
       <p className={kicker}>{piece.kind === 'experiment' ? 'Experiment · unfinished on purpose' : 'Work'}</p>
       <h1 className="text-[clamp(2.5rem,1.5rem+4vw,5rem)] leading-[0.95] tracking-tight">{piece.title}</h1>
-      <p className="font-mono text-xs text-[var(--foreground)]/45">
+      <p className="font-mono text-sm text-[var(--foreground)]/55">
         {piece.year} · {piece.medium} · {piece.input}
       </p>
     </header>
@@ -32,7 +32,7 @@ function Header({ piece }: { piece: Artwork }) {
 
 function FrameNotes({ piece }: { piece: Artwork }) {
   return (
-    <div className="flex flex-wrap items-baseline justify-between gap-4 font-mono text-[11px] text-[var(--foreground)]/40">
+    <div className="flex flex-wrap items-baseline justify-between gap-4 font-mono text-sm text-[var(--foreground)]/50">
       <span>{piece.hint ?? ''}</span>
       {/* Opens outside the frame; there the camera pieces may ask for camera access. */}
       <a href={piece.src} target="_blank" rel="noopener" className="hover:text-[var(--foreground)] transition-colors">
@@ -46,7 +46,7 @@ function FrameNotes({ piece }: { piece: Artwork }) {
 function Placeholder({ label, className = '' }: { label: string; className?: string }) {
   return (
     <div className={`grid place-items-center border border-dashed border-[var(--foreground)]/15 bg-white/[0.02] ${className}`}>
-      <span className="font-mono text-[11px] uppercase tracking-[0.25em] text-[var(--foreground)]/30">{label}</span>
+      <span className="font-mono text-sm uppercase tracking-[0.2em] text-[var(--foreground)]/40">{label}</span>
     </div>
   );
 }
@@ -85,9 +85,9 @@ export default async function ArtworkPage(props: { params: Promise<{ slug: strin
       {piece.kind === 'experiment' && (
         <>
           <Header piece={piece} />
-          <p className="max-w-2xl text-lg md:text-xl leading-relaxed text-[var(--foreground)]/75">{piece.summary}</p>
+          <p className="max-w-2xl text-xl md:text-2xl leading-relaxed text-[var(--foreground)]/80">{piece.summary}</p>
           <Placeholder label="video coming soon" className="aspect-video" />
-          <div className="grid gap-4 grid-cols-3">
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
             <Placeholder label="image" className="aspect-[4/3]" />
             <Placeholder label="image" className="aspect-[4/3]" />
             <Placeholder label="image" className="aspect-[4/3]" />
@@ -104,7 +104,7 @@ export default async function ArtworkPage(props: { params: Promise<{ slug: strin
           ) : (
             <div className="flex flex-col gap-3 max-w-2xl">
               <p className={kicker}>Notes</p>
-              <p className="text-[var(--foreground)]/45 italic">Notes coming soon.</p>
+              <p className="text-lg text-[var(--foreground)]/55 italic">Notes coming soon.</p>
             </div>
           )}
         </>
@@ -116,7 +116,7 @@ export default async function ArtworkPage(props: { params: Promise<{ slug: strin
         </Link>
         <Link href={`/art/${next.slug}`} className="group flex flex-col items-end gap-1 text-right">
           <span className={kicker}>next</span>
-          <span className="text-2xl md:text-4xl tracking-tight group-hover:italic">{next.title} →</span>
+          <span className="text-3xl md:text-5xl tracking-tight group-hover:italic">{next.title} →</span>
         </Link>
       </nav>
     </article>

@@ -27,10 +27,10 @@ export default function SelfPortrait({ className = '' }: { className?: string })
     <figure className={`flex flex-col gap-3 ${className}`}>
       <div className="w-full aspect-[800/920] bg-white/[0.03]">
         {seed !== null && (
-          <PieceFrame piece={piece} src={`${piece.src}?seed=${seed}`} poster={false} className="h-full" />
+          <PieceFrame piece={piece} src={`${piece.src}?seed=${seed}`} className="h-full" />
         )}
       </div>
-      <figcaption className="flex flex-wrap items-baseline justify-between gap-3 font-mono text-[11px] tracking-wide text-[var(--foreground)]/45">
+      <figcaption className="flex flex-wrap items-baseline justify-between gap-3 font-mono text-sm tracking-wide text-[var(--foreground)]/55">
         <span>{seed === null ? ' ' : `No. ${seed.toLocaleString('en-US')} of ${TOTAL.toLocaleString('en-US')}`}</span>
         <button
           type="button"

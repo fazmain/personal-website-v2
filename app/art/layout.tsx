@@ -8,10 +8,6 @@ import ArtWorld from '@/components/art/ArtWorld';
 export default function ArtLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
-      {/* Without JavaScript there is no portal: show the page as is. */}
-      <noscript>
-        <style>{'.art-portal{display:none!important}.opacity-0{opacity:1!important}'}</style>
-      </noscript>
       <ArtWorld chrome={<ArtBar />}>
         <div className="mx-auto w-full max-w-[1320px] px-5 md:px-10 pt-24 pb-28">{children}</div>
       </ArtWorld>

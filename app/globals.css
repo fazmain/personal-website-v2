@@ -31,29 +31,33 @@ body {
   }
 }
 
-/* The art world (/art): same site, lights off. Set on <html> by components/art/ArtWorld.tsx. */
-html[data-world="art"] {
+/* The art world (/art): lights off. Applies via :has() before JavaScript runs, and via data-world after. */
+html[data-world="art"],
+html:has(.art-world) {
   --background: #07070b;
   --foreground: #ece6da;
   color-scheme: dark;
 }
-html[data-world="art"] body {
-  transition: background-color 0.4s ease;
-}
 @keyframes art-arrive {
-  from { opacity: 0; transform: translateY(10px); filter: blur(6px); }
+  from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: none; filter: none; }
 }
 .art-arrive {
-  animation: art-arrive 1.6s cubic-bezier(0.25, 0.6, 0.25, 1) both;
+  animation: art-arrive 0.9s cubic-bezier(0.25, 0.6, 0.25, 1) 0.15s both;
 }
-/* Art section chrome and the Works menu fade in without moving (no transform). */
+/* The plain transition into /art: the cream of the main site fades away. */
+@keyframes art-veil-out {
+  from { opacity: 1; }
+  to { opacity: 0; visibility: hidden; }
+}
+.art-veil { animation: art-veil-out 0.7s ease both; }
+/* The Works menu fades in without moving (no transform). */
 @keyframes art-fade-in {
   from { opacity: 0; }
   to { opacity: 1; }
 }
-.art-chrome-in { animation: art-fade-in 1.2s ease both; }
 .art-menu-in { animation: art-fade-in 0.35s ease both; }
 @media (prefers-reduced-motion: reduce) {
-  .art-arrive, .art-chrome-in, .art-menu-in { animation: none; }
+  .art-arrive, .art-menu-in { animation: none; }
+  .art-veil { animation-duration: 0.2s; }
 }
