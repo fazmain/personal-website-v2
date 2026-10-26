@@ -6,11 +6,15 @@
   --color-foreground: var(--foreground);
   --font-serif: var(--font-eb-garamond);
   --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-anton);
+  --font-hand: var(--font-caveat);
 }
 
 :root {
-  --background: #fffdf4;
-  --foreground: #1c2331;
+  /* Paper, ink and one loud red. */
+  --background: #f3f3e9;
+  --foreground: #1c1b1a;
+  --accent: #e33529;
 }
 
 body {
@@ -29,4 +33,57 @@ body {
   .post-wide {
     width: min(960px, calc(50vw + 50% - 3rem));
   }
+}
+
+/* ---------- Homepage bits ---------- */
+
+/* Display type: condensed caps, tight. */
+.display {
+  font-family: var(--font-anton), Impact, sans-serif;
+  text-transform: uppercase;
+  line-height: 0.9;
+  letter-spacing: 0.005em;
+}
+
+/* Typed line: each token fades in after the one before (delay set inline). */
+.token {
+  opacity: 0;
+  animation: token-in 0.01s linear forwards;
+}
+@keyframes token-in {
+  to { opacity: 1; }
+}
+.caret {
+  animation: caret-blink 1s steps(1) infinite;
+}
+@keyframes caret-blink {
+  50% { opacity: 0; }
+}
+
+/* Marker strokes draw themselves on (paths use pathLength="1"). */
+.marker path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: marker-draw 0.7s ease-out forwards;
+}
+@keyframes marker-draw {
+  to { stroke-dashoffset: 0; }
+}
+.marker-note {
+  opacity: 0;
+  animation: token-in 0.01s linear forwards;
+}
+
+/* Ticker: two copies of the text slide left forever. */
+.ticker-track {
+  animation: ticker 32s linear infinite;
+}
+@keyframes ticker {
+  to { transform: translateX(-50%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .token, .marker-note { animation: none; opacity: 1; }
+  .caret, .ticker-track { animation: none; }
+  .marker path { animation: none; stroke-dashoffset: 0; }
 }

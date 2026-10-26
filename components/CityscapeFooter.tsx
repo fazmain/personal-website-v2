@@ -1,5 +1,19 @@
 import Link from 'next/link';
 
+const index = [
+  { href: '/research', label: 'Research' },
+  { href: '/essays', label: 'Essays' },
+  { href: '/projects', label: 'Projects' },
+  { href: '/about', label: 'About' },
+];
+
+const socials = [
+  { label: 'email', href: 'https://mail.google.com/mail/?view=cm&fs=1&to=fazmain25@gmail.com' },
+  { label: 'github', href: 'https://github.com/fazmain' },
+  { label: 'x', href: 'https://x.com/faiazAz' },
+  { label: 'scholar', href: 'https://scholar.google.com/citations?user=tARzRWgAAAAJ' },
+];
+
 export default function CityscapeFooter() {
   return (
     <footer className="w-full mt-auto relative overflow-hidden flex flex-col items-center">
@@ -58,6 +72,32 @@ export default function CityscapeFooter() {
           cursor: crosshair;
         }
       `}</style>
+
+      {/* Index */}
+      <nav aria-label="Footer" className="w-full max-w-2xl border-t border-[var(--foreground)]/15 pt-10 pb-12 flex flex-col gap-10">
+        <ol className="grid grid-cols-1 sm:grid-cols-2 sm:grid-rows-2 sm:grid-flow-col gap-x-8 gap-y-1">
+          {index.map(({ href, label }, i) => (
+            <li key={href}>
+              <Link href={href} className="group flex items-baseline gap-3 w-fit">
+                <span className="font-mono text-sm text-[var(--accent)]">{String(i + 1).padStart(2, '0')}</span>
+                <span className="display text-5xl md:text-6xl group-hover:text-[var(--accent)] transition-colors">{label}</span>
+              </Link>
+            </li>
+          ))}
+        </ol>
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6">
+          <div className="flex flex-wrap gap-x-4 gap-y-2 font-mono text-sm">
+            {socials.map(s => (
+              <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer" className="px-1 -mx-1 hover:bg-[var(--foreground)] hover:text-[var(--background)] transition-colors">
+                [ {s.label} ]
+              </a>
+            ))}
+          </div>
+          <p className="font-hand text-2xl text-[var(--foreground)]/70 -rotate-2">
+            handmade with <span className="text-[var(--accent)]">♥</span> in Boulder
+          </p>
+        </div>
+      </nav>
 
       {/* Cityscape SVG Container */}
       <div className="group relative w-full max-w-2xl h-16 sm:h-20 opacity-80 select-none border-b border-[var(--foreground)]/10">
@@ -254,9 +294,7 @@ export default function CityscapeFooter() {
         <div className="flex items-center gap-2">
           <span>© {new Date().getFullYear()} Faiaz Azmain. I love big cities; can you tell?</span>
         </div>
-        {/* <div className="flex items-center gap-4 text-xs font-mono uppercase tracking-widest">
-          <Link href="/library" className="hover:text-[var(--foreground)] transition-colors">Archive</Link>
-        </div> */}
+        <a href="#top" className="shrink-0 whitespace-nowrap font-mono text-xs hover:text-[var(--foreground)] transition-colors">[ back to top ]</a>
       </div>
     </footer>
   );

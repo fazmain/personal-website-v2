@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { EB_Garamond, Geist_Mono } from "next/font/google";
-import Link from 'next/link';
+import { Anton, Caveat, EB_Garamond, Geist_Mono } from "next/font/google";
 import CityscapeFooter from '@/components/CityscapeFooter';
 import SiteNav from '@/components/SiteNav';
+import Ticker from '@/components/Ticker';
 import "./globals.css";
 
 const ebGaramond = EB_Garamond({
@@ -12,6 +12,17 @@ const ebGaramond = EB_Garamond({
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+
+const anton = Anton({
+  variable: "--font-anton",
+  weight: "400",
+  subsets: ["latin"],
+});
+
+const caveat = Caveat({
+  variable: "--font-caveat",
   subsets: ["latin"],
 });
 
@@ -26,8 +37,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${ebGaramond.variable} ${geistMono.variable} h-full antialiased`} suppressHydrationWarning>
-      <body className="min-h-full flex flex-col items-center px-6 py-8 md:px-12 md:py-12 lg:px-24 lg:pt-12 lg:pb-24 bg-[var(--background)] text-[var(--foreground)] selection:bg-[#c9d4e5] selection:text-[#0f172a]" suppressHydrationWarning>
+    <html lang="en" className={`${ebGaramond.variable} ${geistMono.variable} ${anton.variable} ${caveat.variable} h-full antialiased`} suppressHydrationWarning>
+      <body id="top" className="min-h-full flex flex-col items-center px-6 py-8 md:px-12 md:py-12 lg:px-24 lg:pt-12 lg:pb-24 bg-[var(--background)] text-[var(--foreground)] selection:bg-[var(--accent)] selection:text-[var(--background)]" suppressHydrationWarning>
+        <Ticker />
         <main className="relative w-full max-w-2xl flex-grow pb-16">
           <SiteNav />
           {children}

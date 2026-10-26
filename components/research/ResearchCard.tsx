@@ -18,7 +18,7 @@ export default function ResearchCard({ entry }: { entry: ResearchEntry }) {
   const href = entryHref(entry);
   const external = !href.startsWith('/');
   const title = (
-    <span className="text-base md:text-lg leading-snug text-[#ac4c2e] group-hover:underline underline-offset-4 decoration-[#ac4c2e]/40">
+    <span className="text-base md:text-lg leading-snug text-[var(--accent)] group-hover:underline underline-offset-4 decoration-[var(--accent)]/40">
       {entry.title}
     </span>
   );
@@ -30,7 +30,7 @@ export default function ResearchCard({ entry }: { entry: ResearchEntry }) {
         <Authors authors={entry.authors} />
       </span>
       <span className="text-sm text-[var(--foreground)]/60">
-        {!isPaper(entry) && <span className="italic text-[#ac4c2e]/80">{kindLabel[entry.kind]} · </span>}
+        {!isPaper(entry) && <span className="italic text-[var(--accent)]/80">{kindLabel[entry.kind]} · </span>}
         {entry.venue ? `${entry.venue}, ` : ''}
         {entry.year}
       </span>
@@ -41,7 +41,7 @@ export default function ResearchCard({ entry }: { entry: ResearchEntry }) {
   );
 
   const className =
-    'group flex flex-col gap-1 rounded-md border border-[var(--foreground)]/10 bg-[var(--foreground)]/[0.025] px-5 py-4 hover:border-[#ac4c2e]/30 hover:bg-[var(--foreground)]/[0.04] transition-colors';
+    'group flex flex-col gap-1 rounded-md border border-[var(--foreground)]/10 bg-[var(--foreground)]/[0.025] px-5 py-4 hover:border-[var(--accent)]/30 hover:bg-[var(--foreground)]/[0.04] transition-colors';
 
   return external ? (
     <a href={href} target="_blank" rel="noopener noreferrer" className={className}>

@@ -32,7 +32,7 @@ export default function SiteNav() {
                 aria-current={isActive(href) ? 'page' : undefined}
                 className={
                   isActive(href)
-                    ? 'text-[#ac4c2e] underline underline-offset-4 decoration-[#ac4c2e]/40'
+                    ? 'text-[var(--accent)] underline underline-offset-4 decoration-[var(--accent)]/40'
                     : 'text-[var(--foreground)]/60 hover:text-[var(--foreground)] transition-colors'
                 }
               >
@@ -52,13 +52,13 @@ export default function SiteNav() {
                 href={href}
                 aria-current={isActive(href) ? 'page' : undefined}
                 className={`group relative transition-colors ${
-                  isActive(href) ? 'text-[#ac4c2e]' : 'text-[var(--foreground)]/50 hover:text-[var(--foreground)]'
+                  isActive(href) ? 'text-[var(--accent)]' : 'text-[var(--foreground)]/50 hover:text-[var(--foreground)]'
                 }`}
               >
                 <span
                   aria-hidden
                   className={`absolute right-full mr-2 top-1/2 h-px transition-all ${
-                    isActive(href) ? 'w-4 bg-[#ac4c2e]' : 'w-0 bg-[var(--foreground)]/40 group-hover:w-2'
+                    isActive(href) ? 'w-4 bg-[var(--accent)]' : 'w-0 bg-[var(--foreground)]/40 group-hover:w-2'
                   }`}
                 />
                 {label}
