@@ -52,7 +52,7 @@ export default function Library() {
               <p className="text-[var(--foreground)]/60 text-xs">{book.author}</p>
               <div className="flex items-center justify-between mt-1 text-[10px] font-mono text-[var(--foreground)]/50 uppercase tracking-wider">
                 <span>{book.year}</span>
-                <span className={book.status === 'Reading' ? 'text-[#ac4c2e]' : ''}>{book.status}</span>
+                <span className={book.status === 'Reading' ? 'text-[#e33529]' : ''}>{book.status}</span>
               </div>
             </div>
           </div>

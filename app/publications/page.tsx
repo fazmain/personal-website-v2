@@ -19,13 +19,13 @@ export default function PublicationsPage() {
         <h1 className="text-[clamp(1.625rem,0.5rem+4vw,3rem)] font-medium tracking-tight">Publications</h1>
         <p className="text-base md:text-lg text-[var(--foreground)]/80">
           Also on{' '}
-          <a href="https://scholar.google.com/citations?user=tARzRWgAAAAJ" target="_blank" rel="noopener noreferrer" className="text-[#ac4c2e] hover:underline underline-offset-4">Google Scholar</a>.
+          <a href="https://scholar.google.com/citations?user=tARzRWgAAAAJ" target="_blank" rel="noopener noreferrer" className="text-[#e33529] hover:underline underline-offset-4">Google Scholar</a>.
         </p>
       </div>
 
       {groups.map(({ heading, entries }) => (
         <section key={heading} className="flex flex-col gap-4">
-          <h2 className="text-xl md:text-2xl font-medium tracking-tight text-[#ac4c2e]">{heading}</h2>
+          <h2 className="text-xl md:text-2xl font-medium tracking-tight text-[#e33529]">{heading}</h2>
           {entries.map(e => <ResearchCard key={e.slug} entry={e} />)}
         </section>
       ))}

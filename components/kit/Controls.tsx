@@ -20,7 +20,7 @@ export function Slider({ label, min, max, step = 1, value, onChange, format }: {
       <input
         type="range" min={min} max={max} step={step} value={value}
         onChange={e => onChange(Number(e.target.value))}
-        className="min-w-[8rem] flex-1 accent-[#ac4c2e]"
+        className="min-w-[8rem] flex-1 accent-[#e33529]"
       />
       <span className={`w-14 text-right ${valueText}`}>{format ? format(value) : value}</span>
     </label>
@@ -37,7 +37,7 @@ export function Toggle({ label, checked, onChange }: {
       type="button" role="switch" aria-checked={checked} onClick={() => onChange(!checked)}
       className={`inline-flex items-center gap-2 ${labelText} hover:text-[var(--foreground)] transition-colors`}
     >
-      <span className={`relative h-5 w-9 shrink-0 rounded-full transition-colors ${checked ? 'bg-[#ac4c2e]' : 'bg-[var(--foreground)]/20'}`}>
+      <span className={`relative h-5 w-9 shrink-0 rounded-full transition-colors ${checked ? 'bg-[#e33529]' : 'bg-[var(--foreground)]/20'}`}>
         <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-[var(--background)] transition-[left] ${checked ? 'left-[1.125rem]' : 'left-0.5'}`} />
       </span>
       {label}
@@ -69,7 +69,7 @@ export function Stat({ label, value, sub }: { label: string; value: React.ReactN
   return (
     <div className="flex flex-col gap-1 rounded-md border border-[var(--foreground)]/10 px-4 py-3">
       <span className="text-xs uppercase tracking-wide text-[var(--foreground)]/55">{label}</span>
-      <span className="text-2xl font-medium tabular-nums text-[#ac4c2e]">{value}</span>
+      <span className="text-2xl font-medium tabular-nums text-[#e33529]">{value}</span>
       {sub && <span className="text-xs text-[var(--foreground)]/60">{sub}</span>}
     </div>
   );
