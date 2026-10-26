@@ -29,7 +29,7 @@ export default function SoftmaxDemo() {
           step={0.05}
           value={temperature}
           onChange={e => setTemperature(Number(e.target.value))}
-          className="flex-1 accent-[#e33529]"
+          className="flex-1 accent-[#ac4c2e]"
         />
         <span className="w-10 text-right tabular-nums font-mono text-xs">{temperature.toFixed(2)}</span>
       </label>
@@ -38,7 +38,7 @@ export default function SoftmaxDemo() {
           <li key={t.token} className="flex items-center gap-3 text-sm">
             <span className="w-12 shrink-0 font-mono text-xs text-[var(--foreground)]/70">{t.token}</span>
             <span className="flex-1 h-3 rounded-sm bg-[var(--foreground)]/[0.06] overflow-hidden">
-              <span className="block h-full bg-[#e33529]/80 transition-[width] duration-150" style={{ width: `${probs[i] * 100}%` }} />
+              <span className="block h-full bg-[#ac4c2e]/80 transition-[width] duration-150" style={{ width: `${probs[i] * 100}%` }} />
             </span>
             <span className="w-12 text-right tabular-nums font-mono text-xs text-[var(--foreground)]/60">{(probs[i] * 100).toFixed(1)}%</span>
           </li>

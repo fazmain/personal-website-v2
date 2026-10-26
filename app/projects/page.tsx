@@ -63,7 +63,7 @@ export default function ProjectsPage() {
       <ul className="flex flex-col gap-8">
         {projects.map((project) => (
           <li key={project.title} className="flex flex-col gap-1.5">
-            <a href={project.link} target="_blank" rel="noopener noreferrer" className="w-fit text-base md:text-lg leading-snug text-[#e33529] hover:underline underline-offset-4 decoration-[#e33529]/40">
+            <a href={project.link} target="_blank" rel="noopener noreferrer" className="w-fit text-base md:text-lg leading-snug text-[#ac4c2e] hover:underline underline-offset-4 decoration-[#ac4c2e]/40">
               {project.title}
             </a>
             <p className="text-sm md:text-base text-[var(--foreground)]/75 leading-relaxed">
@@ -72,7 +72,7 @@ export default function ProjectsPage() {
             <p className="text-sm text-[var(--foreground)]/55">
               {project.tags.join(' · ')}
               <span className="mx-2 text-[var(--foreground)]/30">|</span>
-              <a href={project.link} target="_blank" rel="noopener noreferrer" className="hover:text-[#e33529] hover:underline underline-offset-4">
+              <a href={project.link} target="_blank" rel="noopener noreferrer" className="hover:text-[#ac4c2e] hover:underline underline-offset-4">
                 GitHub ↗
               </a>
             </p>

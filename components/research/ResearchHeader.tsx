@@ -21,7 +21,7 @@ export default function ResearchHeader({ slug }: { slug: string }) {
       <Link href="/research" className="text-sm font-medium text-[var(--foreground)]/60 hover:text-[var(--foreground)] transition-colors inline-flex items-center gap-2 mb-4 w-fit">
         <span>←</span> All research
       </Link>
-      <span className="text-sm italic text-[#e33529]">{kindLabel[entry.kind]}</span>
+      <span className="text-sm italic text-[#ac4c2e]">{kindLabel[entry.kind]}</span>
       <h1 className="text-[clamp(1.625rem,0.5rem+3.5vw,2.25rem)] font-medium tracking-tight leading-tight">{entry.title}</h1>
       <p className="text-base text-[var(--foreground)]/70">
         <Authors authors={entry.authors} />
@@ -38,7 +38,7 @@ export default function ResearchHeader({ slug }: { slug: string }) {
               href={url}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-sm px-3 py-1 rounded-full border border-[#e33529]/40 text-[#e33529] hover:bg-[#e33529] hover:text-[var(--background)] transition-colors"
+              className="text-sm px-3 py-1 rounded-full border border-[#ac4c2e]/40 text-[#ac4c2e] hover:bg-[#ac4c2e] hover:text-[var(--background)] transition-colors"
             >
               {linkLabels[key]} ↗
             </a>

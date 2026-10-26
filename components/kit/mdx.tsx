@@ -60,7 +60,7 @@ export function postComponents(slug: string, facts: Facts): MDXComponents {
     Callout: ({ kind = 'note', children }: { kind?: 'note' | 'result' | 'caveat'; children: React.ReactNode }) => {
       const tone = {
         note: 'border-[var(--foreground)]/25',
-        result: 'border-[#e33529]',
+        result: 'border-[#ac4c2e]',
         caveat: 'border-[#c79a2e]',
       }[kind];
       const label = { note: 'Note', result: 'Result', caveat: 'Caveat' }[kind];
