@@ -44,8 +44,8 @@ export default function SiteNav() {
       </nav>
 
       {/* Desktop: a vertical list sitting in the margin, left of the content column */}
-      <nav aria-label="Main" className="hidden lg:block absolute right-full top-0 h-full mr-16 xl:mr-24">
-        <ul className="sticky top-12 flex flex-col gap-2 text-lg">
+      <nav aria-label="Main" className="hidden lg:block absolute right-full top-0 h-full pt-10 mr-16 xl:mr-28 2xl:mr-36">
+        <ul className="sticky top-24 flex flex-col gap-3 text-lg">
           {links.map(({ href, label }) => (
             <li key={href}>
               <Link
