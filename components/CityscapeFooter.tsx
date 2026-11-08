@@ -71,7 +71,7 @@ export default function CityscapeFooter() {
         <canvas
           ref={canvasRef}
           role="img"
-          aria-label="Pixel-art New York at sunset: the Statue of Liberty, the Brooklyn Bridge, and the Manhattan skyline with One World Trade Center, the Empire State and Chrysler buildings"
+          aria-label="Pixel-art San Francisco at sunset: the Golden Gate Bridge in the fog, Coit Tower, the Transamerica Pyramid, Salesforce Tower, and Sutro Tower on Twin Peaks"
           className="absolute left-1/2 top-0 block -translate-x-1/2 [image-rendering:pixelated] [mask-image:linear-gradient(to_right,transparent,#000_10%,#000_90%,transparent)]"
         />
       </div>
