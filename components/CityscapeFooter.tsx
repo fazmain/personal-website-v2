@@ -67,7 +67,7 @@ export default function CityscapeFooter() {
 
   return (
     <footer className="relative mt-8 w-screen max-w-none select-none">
-      <div ref={wrapRef} className="relative h-[112px] overflow-hidden">
+      <div ref={wrapRef} className="relative h-[136px] overflow-hidden">
         <canvas
           ref={canvasRef}
           role="img"
