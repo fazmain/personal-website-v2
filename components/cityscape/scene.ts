@@ -268,8 +268,7 @@ export function createCityscape(canvas: HTMLCanvasElement) {
 
     const sky = bgx.createLinearGradient(0, 0, 0, HZ);
     sky.addColorStop(0, COLORS.page);
-    sky.addColorStop(0.2, COLORS.page);
-    sky.addColorStop(0.75, COLORS.sand);
+    sky.addColorStop(0.7, COLORS.sand);
     sky.addColorStop(1, COLORS.blush);
     bgx.fillStyle = sky;
     bgx.fillRect(0, 0, W, HZ);
@@ -336,11 +335,34 @@ export function createCityscape(canvas: HTMLCanvasElement) {
     }
   }
 
+  // Thin the sky's dots out toward the top so they dissolve into the page
+  // instead of starting at a hard line: each row keeps a shrinking share of
+  // its dots. The choice uses a fixed per-pixel hash rather than the Bayer
+  // grid, which would switch on whole evenly spaced rows and read as a line.
+  const scatter = (x: number, y: number) => {
+    let h = Math.imul(x, 374761393) + Math.imul(y, 668265263);
+    h = Math.imul(h ^ (h >>> 13), 1274126177);
+    return ((h ^ (h >>> 16)) >>> 0) / 4294967296;
+  };
+  function fadeSky(d: Uint8ClampedArray) {
+    const reach = HZ * 0.85;
+    for (let y = 0; y < reach; y++) {
+      const u = y / reach;
+      const keep = (u * u * (3 - 2 * u)) ** 1.5; // slow start, so the top is nearly clear
+      for (let x = 0; x < W; x++) {
+        if (scatter(x, y) < keep) continue;
+        const i = (y * W + x) * 4;
+        d[i] = PAGE[0]; d[i + 1] = PAGE[1]; d[i + 2] = PAGE[2];
+      }
+    }
+  }
+
   function frame(t: number) {
     if (!W || !img) return;
     paintSoft(t);
     const d = bgx.getImageData(0, 0, W, H).data;
     dither(d);
+    fadeSky(d);
 
     for (let i = 0; i < d.length; i += 4) {
       if (fgData[i + 3] > 128) { d[i] = fgData[i]; d[i + 1] = fgData[i + 1]; d[i + 2] = fgData[i + 2]; }
