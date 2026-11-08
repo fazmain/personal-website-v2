@@ -47,3 +47,20 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .hover-card { animation: none; }
 }
+
+/* Dithered avatar tile (components/DitherAvatar.tsx): soft square fade out to
+   the page, with the crisp dither only in the middle over a blurred copy. */
+.avatar-fade {
+  -webkit-mask-image:
+    linear-gradient(to right, transparent, #000 12%, #000 88%, transparent),
+    linear-gradient(to bottom, transparent, #000 12%, #000 88%, transparent);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(to right, transparent, #000 12%, #000 88%, transparent),
+    linear-gradient(to bottom, transparent, #000 12%, #000 88%, transparent);
+  mask-composite: intersect;
+}
+.avatar-crisp {
+  -webkit-mask-image: radial-gradient(closest-side, #000 62%, transparent 100%);
+  mask-image: radial-gradient(closest-side, #000 62%, transparent 100%);
+}
