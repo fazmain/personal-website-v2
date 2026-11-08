@@ -64,7 +64,7 @@ export default function CityscapeFooter() {
   }, []);
 
   return (
-    <footer className="relative mt-16 w-screen max-w-none select-none">
+    <footer className="relative mt-8 w-screen max-w-none select-none">
       <div ref={wrapRef} className="relative h-[256px] overflow-hidden md:h-[384px]">
         <canvas
           ref={canvasRef}
@@ -72,9 +72,9 @@ export default function CityscapeFooter() {
           aria-label="Pixel-art sunset over a city that is half San Francisco, half New York: the Golden Gate Bridge in fog, Sutro Tower, the Transamerica Pyramid and Salesforce Tower next to the Empire State, Chrysler and One World Trade Center"
           className="absolute left-1/2 top-0 block -translate-x-1/2 [image-rendering:pixelated]"
         />
-        <div className="absolute inset-x-0 bottom-0 mx-auto flex w-full max-w-2xl items-end justify-between gap-4 px-6 pb-4 text-xs font-medium text-[#fffdf4]/75 md:px-2 md:pb-6 md:text-sm">
+        <div className="absolute inset-x-0 bottom-0 mx-auto flex w-full max-w-2xl items-end justify-between gap-4 px-6 pb-4 text-xs font-medium text-[var(--foreground)]/50 md:px-2 md:pb-6 md:text-sm">
           <span>© {new Date().getFullYear()} Faiaz Azmain. I love big cities; can you tell?</span>
-          <span className="hidden font-mono text-[10px] uppercase tracking-widest text-[#fffdf4]/45 sm:inline">SF ⇄ NYC</span>
+          <span className="hidden font-mono text-[10px] uppercase tracking-widest text-[var(--foreground)]/35 sm:inline">SF ⇄ NYC</span>
         </div>
       </div>
     </footer>
