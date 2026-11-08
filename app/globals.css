@@ -30,3 +30,20 @@ body {
     width: min(960px, calc(50vw + 50% - 3rem));
   }
 }
+
+/* Hover preview cards (components/HoverCard.tsx) */
+@keyframes hover-card-in {
+  from { opacity: 0; transform: translateY(var(--hc-shift, 4px)) scale(0.97); }
+  to { opacity: 1; transform: none; }
+}
+.hover-card {
+  animation: hover-card-in 160ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  transform-origin: bottom center;
+}
+.hover-card[data-side='below'] {
+  --hc-shift: -4px;
+  transform-origin: top center;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hover-card { animation: none; }
+}
