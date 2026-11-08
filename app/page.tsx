@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import HoverCard from '@/components/HoverCard';
+import DitherAvatar from '@/components/DitherAvatar';
 import { papers } from '@/lib/research';
 import { projects } from '@/lib/projects';
 // Selected research is hidden for now. Uncomment these, `selected`, and the section below to bring it back.
@@ -81,7 +82,7 @@ export default function Home() {
     <div className="flex flex-col gap-14 pt-0 pb-8 md:pt-2 md:pb-12 animate-fade-in">
       {/* Intro */}
       <section className="flex flex-col sm:flex-row gap-6 items-start sm:items-center">
-        <Image src="/avatar.svg" alt="Faiaz Azmain Avatar" width={170} height={170} className="w-24 h-24 md:w-[170px] md:h-[170px] shrink-0" priority />
+        <DitherAvatar className="w-24 h-24 md:w-[168px] md:h-[168px]" />
         <div className="flex-1 flex flex-col">
           <p className="text-base md:text-2xl text-[var(--foreground)]/80 leading-relaxed max-w-xl">
             Hello, this is <HoverCard card={<AboutCard />}><Link href="/about" className={`font-medium ${previewLink}`}>Faiaz</Link></HoverCard>.
