@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react';
 import { ART_HEIGHT, createCityscape } from '@/components/cityscape/scene';
 
 const FPS = 12;
+const MAX_ART_WIDTH = 460;
 
 export default function CityscapeFooter() {
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -25,7 +26,8 @@ export default function CityscapeFooter() {
     const fit = () => {
       // Whole-number scale so every art pixel is the same size on screen.
       scale = wrap.clientHeight / ART_HEIGHT;
-      const width = Math.ceil(wrap.clientWidth / scale);
+      // Wide screens get a centred scene that fades out at the sides, not a stretched one.
+      const width = Math.min(MAX_ART_WIDTH, Math.ceil(wrap.clientWidth / scale));
       scene.resize(width);
       canvas.style.width = `${width * scale}px`;
       canvas.style.height = `${ART_HEIGHT * scale}px`;
@@ -65,17 +67,16 @@ export default function CityscapeFooter() {
 
   return (
     <footer className="relative mt-8 w-screen max-w-none select-none">
-      <div ref={wrapRef} className="relative h-[256px] overflow-hidden md:h-[384px]">
+      <div ref={wrapRef} className="relative h-[112px] overflow-hidden">
         <canvas
           ref={canvasRef}
           role="img"
-          aria-label="Pixel-art sunset over a city that is half San Francisco, half New York: the Golden Gate Bridge in fog, Sutro Tower, the Transamerica Pyramid and Salesforce Tower next to the Empire State, Chrysler and One World Trade Center"
-          className="absolute left-1/2 top-0 block -translate-x-1/2 [image-rendering:pixelated]"
+          aria-label="Pixel-art New York at sunset: the Statue of Liberty, the Brooklyn Bridge, and the Manhattan skyline with One World Trade Center, the Empire State and Chrysler buildings"
+          className="absolute left-1/2 top-0 block -translate-x-1/2 [image-rendering:pixelated] [mask-image:linear-gradient(to_right,transparent,#000_10%,#000_90%,transparent)]"
         />
-        <div className="absolute inset-x-0 bottom-0 mx-auto flex w-full max-w-2xl items-end justify-between gap-4 px-6 pb-4 text-xs font-medium text-[var(--foreground)]/50 md:px-2 md:pb-6 md:text-sm">
-          <span>© {new Date().getFullYear()} Faiaz Azmain. I love big cities; can you tell?</span>
-          <span className="hidden font-mono text-[10px] uppercase tracking-widest text-[var(--foreground)]/35 sm:inline">SF ⇄ NYC</span>
-        </div>
+      </div>
+      <div className="mx-auto flex w-full max-w-2xl items-center justify-between gap-4 px-6 pb-8 pt-2 text-sm font-medium text-[var(--foreground)]/50 md:px-2">
+        <span>© {new Date().getFullYear()} Faiaz Azmain. I love big cities; can you tell?</span>
       </div>
     </footer>
   );

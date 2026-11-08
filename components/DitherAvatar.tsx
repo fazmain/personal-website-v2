@@ -95,7 +95,7 @@ export default function DitherAvatar({ className = '' }: { className?: string })
 
     const loop = (now: number) => {
       raf = requestAnimationFrame(loop);
-      clock += ((now - prev) / 1000) * speed;
+      clock += (Math.max(0, now - prev) / 1000) * speed; // rAF time can trail performance.now()
       prev = now;
       if (now - last < 1000 / FPS) return;
       last = now;

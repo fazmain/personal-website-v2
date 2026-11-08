@@ -1,16 +1,17 @@
-// A dithered, pixel-art SF × NYC skyline at sunset, drawn on a <canvas>.
+// A dithered, pixel-art New York skyline at sunset, drawn on a <canvas>:
+// the Statue of Liberty, the Brooklyn Bridge, and Lower to Midtown Manhattan.
 // Kept deliberately soft: muted colours close to the page background, so the
 // footer reads as part of the page rather than a picture placed on it.
 //
 // Pipeline for each frame:
-//   1. Paint the soft stuff (sky, sun, haze, back fog, water, reflection) with
-//      ordinary canvas gradients onto `bg`.
+//   1. Paint the soft stuff (sky, sun, haze, water, reflection) with ordinary
+//      canvas gradients onto `bg`.
 //   2. Ordered-dither that to a small palette (4×4 Bayer), which turns every
 //      gradient into the dot pattern.
-//   3. Stamp the crisp silhouettes (bridge, hills, buildings), built once per
-//      resize from whole pixels, so they never get dithered.
-//   4. Add a few live pixels (twinkling windows, beacons, windows around the
-//      cursor) and a dithered fog bank rolling through the Gate.
+//   3. Stamp the crisp silhouettes, built once per resize from whole pixels,
+//      so they never get dithered.
+//   4. Add a few live pixels: twinkling windows, beacons, and windows that
+//      light up around the cursor.
 //
 // All coordinates are in art pixels; the canvas is scaled up with
 // `image-rendering: pixelated`.
@@ -26,15 +27,13 @@ const hex = (h: string): RGB => [
 // Roles, not hues: tweak these to restyle the whole scene.
 export const COLORS = {
   page: '#fffdf4', // = page background; the sky starts and the water ends here
-  paper: '#f8f0e2',
   sand: '#f0e2cc',
   blush: '#e8cfb8',
   clay: '#dcb79d',
-  haze: '#ddd3cc', // far ridge, back row of buildings
-  mist: '#cbbfb8', // hills
-  city: '#b3a6a1', // landmarks and front row: a warm grey, kin to the bridge
-  bridge: '#bd8a76', // a muted International Orange
-  bridgeShade: '#a97a69',
+  haze: '#ddd3cc', // far shore, back row of buildings
+  mist: '#cbbfb8',
+  city: '#b3a6a1', // landmarks, front row, bridge towers
+  cable: '#bd8a76', // bridge cables: a muted nod to the site's rust
   window: '#f6e8c6',
   beacon: '#cf7a68',
 } as const;
@@ -44,7 +43,7 @@ const DITHER_PALETTE = ['page', 'sand', 'blush', 'clay', 'haze', 'mist', 'city']
 const SPREAD = 40;
 const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5].map(v => ((v + 0.5) / 16 - 0.5) * SPREAD);
 
-export const ART_HEIGHT = 128;
+export const ART_HEIGHT = 56;
 
 function mulberry32(seed: number) {
   return () => {
@@ -88,15 +87,15 @@ export function createCityscape(canvas: HTMLCanvasElement) {
   const fgx = fg.getContext('2d', { willReadFrequently: true })!;
 
   const H = ART_HEIGHT;
-  const HZ = H - 30; // horizon / waterline
-  const B = HZ - 2; // street level
-  const DECK = HZ - 12;
-  const TOP = HZ - 60; // bridge tower tops
+  const HZ = H - 9; // waterline
+  const B = HZ - 1; // street level
+  const DECK = HZ - 6;
+  const TOP = HZ - 28; // bridge tower tops
 
   let W = 0;
   let fgData = new Uint8ClampedArray(0);
   let img: ImageData | null = null;
-  let towerA = 0, towerB = 0, anchorR = 0;
+  let sunX = 0;
   let twinkles: Light[] = [];
   let beacons: Light[] = [];
   let windows: { x: number; y: number; h: number }[] = []; // every window slot, for the cursor glow
@@ -104,7 +103,6 @@ export function createCityscape(canvas: HTMLCanvasElement) {
 
   const WINDOW = hex(COLORS.window);
   const BEACON = hex(COLORS.beacon);
-  const FOG = hex(COLORS.page);
 
   // ---------- silhouettes (crisp, built once per size) ----------
 
@@ -113,9 +111,10 @@ export function createCityscape(canvas: HTMLCanvasElement) {
     fgx.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h));
   }
   const px = (x: number, y: number, c: string) => rect(x, y, 1, 1, c);
+  const hole = (x: number, y: number, w: number, h: number) => fgx.clearRect(x, y, w, h);
 
   function build() {
-    const rng = mulberry32(1906);
+    const rng = mulberry32(1883);
     fgx.clearRect(0, 0, W, H);
     twinkles = []; beacons = []; windows = [];
 
@@ -129,154 +128,124 @@ export function createCityscape(canvas: HTMLCanvasElement) {
           else px(x, y, COLORS.window);
         }
     };
-
-    // Rows of [y, xLeft, xRight].
-    type Rows = [number, number, number][];
-    const fill = (rows: Rows, c: string = COLORS.city) => { for (const [y, l, r] of rows) rect(l, y, r - l + 1, 1, c); };
-    const span = (y0: number, y1: number, half: (y: number) => number, cx: number): Rows => {
-      const rows: Rows = [];
-      for (let y = y0; y < y1; y++) { const h = half(y); rows.push([y, cx - h, cx + h]); }
-      return rows;
+    // Symmetric block centred on cx: rows y0..y1-1, half-width from a function of y.
+    const block = (cx: number, y0: number, y1: number, half: (y: number) => number, c: string = COLORS.city) => {
+      for (let y = y0; y < y1; y++) { const h = half(y); rect(cx - h, y, 2 * h + 1, 1, c); }
     };
 
-    // --- Golden Gate ---
-    const bridgeSpan = Math.max(56, Math.min(170, Math.round(W * 0.28)));
-    towerA = Math.round(Math.max(16, W * 0.09));
-    towerB = towerA + bridgeSpan;
-    anchorR = towerB + Math.round(bridgeSpan * 0.4);
-    const anchorL = towerA - Math.round(bridgeSpan * 0.45);
+    // --- Brooklyn Bridge ---
+    const span = Math.max(50, Math.min(150, Math.round(W * 0.22)));
+    const towerA = Math.round(Math.max(30, W * 0.1));
+    const towerB = towerA + span;
+    const anchorR = towerB + Math.round(span * 0.35);
+    const anchorL = towerA - Math.round(span * 0.4);
     const mid = (towerA + towerB) / 2;
-    const cTop = TOP + 1, cLow = DECK - 3;
+    sunX = mid;
+    const cTop = TOP + 2;
     const cableY = (x: number) => {
-      if (x >= towerA && x <= towerB) return cTop + (cLow - cTop) * (1 - ((x - mid) / (bridgeSpan / 2)) ** 2);
-      const side = x < towerA ? (towerA - x) / (towerA - anchorL) : (x - towerB) / (anchorR - towerB);
-      const u = Math.min(1, side);
-      return cTop + (DECK - 2 - cTop) * (2 * u - u * u);
+      if (x >= towerA && x <= towerB) return cTop + (DECK - 2 - cTop) * (1 - ((x - mid) / (span / 2)) ** 2);
+      const u = Math.min(1, x < towerA ? (towerA - x) / (towerA - anchorL) : (x - towerB) / (anchorR - towerB));
+      return cTop + (DECK - 1 - cTop) * (2 * u - u * u);
     };
 
-    rect(0, DECK, anchorR + 6, 2, COLORS.bridge);
-    // Sparse, dotted suspenders: a hint, not a mesh
-    for (let x = Math.max(0, anchorL); x < anchorR; x += 6) {
-      if (Math.abs(x - towerA) < 4 || Math.abs(x - towerB) < 4) continue;
-      for (let y = Math.round(cableY(x)) + 2; y < DECK; y += 2) px(x, y, COLORS.bridge);
+    rect(0, DECK, anchorR + 4, 1, COLORS.city);
+    // Vertical suspenders (sparse, dotted)
+    for (let x = Math.max(0, anchorL); x < anchorR; x += 5) {
+      if (Math.abs(x - towerA) < 6 || Math.abs(x - towerB) < 6) continue;
+      for (let y = Math.round(cableY(x)) + 2; y < DECK; y += 2) px(x, y, COLORS.cable);
+    }
+    // Diagonal stays fanning down from each tower top: the Brooklyn Bridge's web
+    for (const cx of [towerA, towerB]) {
+      for (const dir of [-1, 1]) {
+        for (let k = 1; k <= 4; k++) {
+          const ex = cx + dir * k * Math.round(span * 0.09);
+          const steps = Math.abs(ex - cx);
+          for (let s = 2; s < steps; s += 2) {
+            const x = cx + dir * s;
+            px(x, Math.round(cTop + 2 + ((DECK - cTop - 2) * s) / steps), COLORS.cable);
+          }
+        }
+      }
     }
     let prev = Math.round(cableY(Math.max(0, anchorL)));
     for (let x = Math.max(0, anchorL); x <= anchorR; x++) {
       const y = Math.round(cableY(x));
-      rect(x, Math.min(y, prev), 1, Math.abs(y - prev) + 1, COLORS.bridge);
+      rect(x, Math.min(y, prev), 1, Math.abs(y - prev) + 1, COLORS.cable);
       prev = y;
     }
+    // Gothic stone towers with twin pointed arches
     for (const cx of [towerA, towerB]) {
-      for (const lx of [cx - 3, cx + 2]) {
-        rect(lx, TOP, 1, HZ - TOP, COLORS.bridge);
-        rect(lx + 1, TOP, 1, HZ - TOP, COLORS.bridgeShade);
-      }
-      for (const sy of [TOP, TOP + 1, TOP + 12, TOP + 24, DECK + 5]) rect(cx - 3, sy, 7, 1, COLORS.bridge);
-      beacons.push({ x: cx - 3, y: TOP - 1, phase: rng() });
-      beacons.push({ x: cx + 3, y: TOP - 1, phase: rng() });
+      rect(cx - 4, TOP, 9, 2, COLORS.city); // cornice
+      rect(cx - 3, TOP + 2, 7, HZ - TOP - 2, COLORS.city);
+      rect(cx - 4, DECK + 1, 9, HZ - DECK - 1, COLORS.city); // pier
+      for (const ax of [cx - 1, cx + 1]) hole(ax, TOP + 9, 1, DECK - TOP - 9); // twin tall arches
     }
 
-    // Marin Headlands (after the bridge so the road disappears into them)
-    const hillEnd = towerA - 6;
-    for (let x = 0; x < hillEnd; x++) {
-      const u = x / hillEnd;
-      const h = Math.round(4 + 22 * (1 - u ** 1.7) + 1.2 * Math.sin(x * 0.3));
-      rect(x, HZ - h, 1, h, COLORS.mist);
+    // --- Statue of Liberty on her island ---
+    {
+      const lx = Math.round(towerA * 0.4);
+      rect(lx - 6, HZ - 2, 13, 2, COLORS.mist); // island
+      rect(lx - 3, HZ - 5, 7, 3, COLORS.mist); // star fort
+      rect(lx - 2, HZ - 11, 5, 6, COLORS.mist); // pedestal
+      block(lx, HZ - 18, HZ - 11, y => (y > HZ - 14 ? 2 : 1), COLORS.mist); // robe
+      px(lx, HZ - 19, COLORS.mist); // head
+      px(lx - 1, HZ - 20, COLORS.mist); px(lx + 1, HZ - 20, COLORS.mist); // crown
+      rect(lx + 1, HZ - 22, 1, 4, COLORS.mist); // raised arm
+      twinkles.push({ x: lx + 1, y: HZ - 23, phase: 0 }); // torch
     }
 
-    // Shoreline
-    rect(anchorR - 6, B, W, HZ - B, COLORS.city);
-    const cs = anchorR + 3;
+    // --- Manhattan ---
+    rect(anchorR - 4, B, W, HZ - B, COLORS.city);
+    const cs = anchorR + 2;
     const ce = W - 2;
     const cw = ce - cs;
     const at = (f: number) => Math.round(cs + f * cw);
+    const wide = cw >= 120;
 
-    // Twin Peaks + Sutro Tower, far back
-    const tp = at(0.42);
-    for (let x = tp - 30; x < tp + 32; x++) {
-      const b1 = Math.max(0, Math.cos(((x - (tp - 8)) / 22) * (Math.PI / 2))) * 20;
-      const b2 = Math.max(0, Math.cos(((x - (tp + 12)) / 20) * (Math.PI / 2))) * 17;
-      const h = Math.round(Math.max(b1, b2));
-      if (h > 0) rect(x, B - h, 1, h, COLORS.haze);
-    }
-    if (cw >= 120) {
-      const sx = tp - 8, gy = B - 20;
-      rect(sx, gy - 28, 1, 28, COLORS.haze);
-      rect(sx - 4, gy - 28, 9, 1, COLORS.haze);
-      for (const [dx, len] of [[-4, 5], [0, 7], [4, 5]] as const) rect(sx + dx, gy - 28 - len, 1, len, COLORS.haze);
-    }
-
-    // Back row: low and pale, just enough to give the city depth
+    // Back row, pale
     for (let x = cs; x < ce;) {
-      const w = 5 + Math.floor(rng() * 6);
-      const centre = 1 - Math.abs((x - cs) / cw - 0.6);
-      const h = Math.round(10 + rng() * 18 * (0.5 + centre));
+      const w = 4 + Math.floor(rng() * 5);
+      const centre = 1 - Math.abs((x - cs) / cw - 0.55);
+      const h = Math.round(6 + rng() * 10 * (0.5 + centre));
       rect(x, B - h, w, h, COLORS.haze);
       x += w;
     }
-
-    // Landmarks: SF, then New York
-    const wide = cw >= 150;
-    if (wide) {
-      // Coit Tower on Telegraph Hill
-      const cx = at(0.03);
-      for (let dx = -12; dx <= 12; dx++) {
-        const h = Math.round(9 * Math.cos((dx / 12) * (Math.PI / 2)));
-        rect(cx + dx, B - h, 1, h, COLORS.city);
-      }
-      rect(cx - 1, B - 24, 3, 15, COLORS.city);
-      rect(cx - 2, B - 25, 5, 1, COLORS.city);
-    }
     {
-      // Transamerica Pyramid
-      const cx = at(0.16), h = 58, y0 = B - h;
-      const rows = span(y0, B, y => Math.round(((y - y0) / h) * 5.5), cx);
-      fill(rows);
-      addWindows(cx - 3, cx + 3, B - 24, B, 0.08);
+      // One World Trade Center
+      const cx = at(0.1), h = 34, y0 = B - h;
+      block(cx, y0, B, y => (y > B - 3 ? 4 : Math.round(1 + 3 * ((y - y0) / (h - 3)))));
       rect(cx, y0 - 7, 1, 7, COLORS.city);
-    }
-    {
-      // Salesforce Tower
-      const cx = at(0.3), h = 66, y0 = B - h;
-      fill(span(y0, B, y => {
-        const k = y - y0;
-        return k === 0 ? 2 : k === 1 ? 3 : k < h / 2 ? 4 : 5;
-      }, cx));
-      addWindows(cx - 4, cx + 4, y0 + 10, B, 0.06);
+      beacons.push({ x: cx, y: y0 - 8, phase: rng() });
+      addWindows(cx - 2, cx + 2, B - 20, B, 0.08);
     }
     {
       // Empire State Building
-      const cx = at(0.58);
-      const tiers: [number, number, number][] = [[0, 10, 7], [10, 32, 5], [32, 44, 3], [44, 48, 2], [48, 52, 1]];
-      for (const [a, b, half] of tiers) fill(span(B - b, B - a, () => half, cx));
-      rect(cx, B - 60, 1, 8, COLORS.city);
-      addWindows(cx - 5, cx + 5, B - 32, B - 10, 0.08);
+      const cx = at(0.5);
+      const tiers: [number, number, number][] = [[0, 5, 5], [5, 18, 3], [18, 24, 2], [24, 27, 1]];
+      for (const [a, b, half] of tiers) block(cx, B - b, B - a, () => half);
+      rect(cx, B - 33, 1, 6, COLORS.city);
+      addWindows(cx - 3, cx + 3, B - 18, B - 5, 0.1);
     }
     {
       // Chrysler Building, stepped crown + needle
-      const cx = at(0.74), body = 34;
-      fill(span(B - body, B, () => 4, cx));
-      [4, 3, 3, 2, 2, 1].forEach((half, i) => {
-        const y = B - body - (i + 1) * 2;
-        fill([[y, cx - half, cx + half], [y + 1, cx - half, cx + half]]);
-      });
-      rect(cx, B - body - 22, 1, 10, COLORS.city);
-      addWindows(cx - 3, cx + 3, B - body, B, 0.07);
+      const cx = at(0.66), body = 20;
+      block(cx, B - body, B, () => 3);
+      [3, 2, 2, 1].forEach((half, i) => block(cx, B - body - (i + 1) * 2, B - body - i * 2, () => half));
+      rect(cx, B - body - 14, 1, 6, COLORS.city);
+      addWindows(cx - 2, cx + 2, B - body, B, 0.08);
     }
     if (wide) {
-      // One World Trade Center
-      const cx = at(0.9), h = 60, y0 = B - h;
-      fill(span(y0, B, y => (y > B - 6 ? 5 : Math.round(2 + 3 * ((y - y0) / (h - 6)))), cx));
-      rect(cx, y0 - 12, 1, 12, COLORS.city);
-      beacons.push({ x: cx, y: y0 - 13, phase: rng() });
+      // 432 Park Avenue: a tall, thin grid
+      const cx = at(0.82), h = 36;
+      block(cx, B - h, B, () => 2);
+      addWindows(cx - 2, cx + 2, B - h, B, 0.12);
     }
 
     // Low front row
     for (let x = cs - 2; x < ce;) {
-      const w = 6 + Math.floor(rng() * 7);
-      const h = 4 + Math.round(rng() * 9);
+      const w = 5 + Math.floor(rng() * 6);
+      const h = 2 + Math.round(rng() * 6);
       rect(x, B - h, w, h, COLORS.city);
-      addWindows(x, x + w - 1, B - h, B, 0.08);
       x += w;
     }
 
@@ -286,8 +255,7 @@ export function createCityscape(canvas: HTMLCanvasElement) {
   // ---------- per frame ----------
 
   function paintSoft(t: number) {
-    const sunX = (towerA + towerB) / 2;
-    const sunY = HZ - 14;
+    const sunY = HZ - 8;
 
     const sky = bgx.createLinearGradient(0, 0, 0, HZ);
     sky.addColorStop(0, COLORS.page);
@@ -297,62 +265,48 @@ export function createCityscape(canvas: HTMLCanvasElement) {
     bgx.fillStyle = sky;
     bgx.fillRect(0, 0, W, HZ);
 
-    const glow = bgx.createRadialGradient(sunX, sunY, 4, sunX, sunY, 40);
+    const glow = bgx.createRadialGradient(sunX, sunY, 2, sunX, sunY, 24);
     glow.addColorStop(0, 'rgba(255,253,244,0.9)');
     glow.addColorStop(1, 'rgba(255,253,244,0)');
     bgx.fillStyle = glow;
     bgx.fillRect(0, 0, W, HZ);
     bgx.fillStyle = COLORS.page;
     bgx.beginPath();
-    bgx.arc(sunX, sunY, 9, 0, Math.PI * 2);
+    bgx.arc(sunX, sunY, 5, 0, Math.PI * 2);
     bgx.fill();
 
-    // Hazy far ridge
+    // Hazy far shore (Jersey)
     bgx.fillStyle = 'rgba(221,211,204,0.6)';
     bgx.beginPath();
     bgx.moveTo(0, HZ);
-    for (let x = 0; x <= W; x += 2) bgx.lineTo(x, HZ - 4 - 3 * Math.sin(x * 0.021 + 1) - 1.5 * Math.sin(x * 0.073));
+    for (let x = 0; x <= W; x += 2) bgx.lineTo(x, HZ - 2 - 1.5 * Math.sin(x * 0.03 + 1) - Math.sin(x * 0.09));
     bgx.lineTo(W, HZ);
     bgx.fill();
 
-    // Soft fog behind the bridge
-    for (let i = 0; i < 5; i++) {
-      const x = ((i * 131 + t * (2 + i)) % (W + 120)) - 60;
-      const y = HZ - 5 - (i % 3) * 4;
-      bgx.save();
-      bgx.translate(x, y);
-      bgx.scale(5, 1);
-      const g = bgx.createRadialGradient(0, 0, 0, 0, 0, 8);
-      g.addColorStop(0, 'rgba(255,253,244,0.6)');
-      g.addColorStop(1, 'rgba(255,253,244,0)');
-      bgx.fillStyle = g;
-      bgx.fillRect(-8, -8, 16, 16);
-      bgx.restore();
-    }
-
-    // Water: picks up the sky near the horizon, fades back to the page at the bottom
+    // Water: picks up the sky at the waterline, fades back to the page
     const water = bgx.createLinearGradient(0, HZ, 0, H);
     water.addColorStop(0, COLORS.haze);
-    water.addColorStop(0.45, COLORS.sand);
+    water.addColorStop(0.5, COLORS.sand);
+    water.addColorStop(0.9, COLORS.page);
     water.addColorStop(1, COLORS.page);
     bgx.fillStyle = water;
     bgx.fillRect(0, HZ, W, H - HZ);
 
     // Faint, rippling reflection
-    for (let k = 0; k < 16; k++) {
-      bgx.globalAlpha = 0.22 * (1 - k / 16);
-      const dx = Math.round(Math.sin(k * 0.9 + t * 1.5) * (0.4 + k / 16));
+    for (let k = 0; k < H - HZ - 2; k++) {
+      bgx.globalAlpha = 0.25 * (1 - k / (H - HZ - 2));
+      const dx = Math.round(Math.sin(k * 1.1 + t * 1.5) * (0.4 + k / 6));
       bgx.drawImage(fg, 0, HZ - 1 - k, W, 1, dx, HZ + k, W, 1);
     }
     bgx.globalAlpha = 1;
 
     // A little sun glitter
-    for (let k = 0; k < 14; k++) {
-      const w = 16 - k;
-      const off = Math.sin(t * 1.2 + k * 1.3) * 1.5;
-      bgx.fillStyle = `rgba(255,253,244,${0.75 * (1 - k / 14)})`;
-      for (let s = -w / 2; s < w / 2; s += 5) {
-        if (Math.sin(s * 1.9 + k * 2.3 + t * 2) > 0.3) bgx.fillRect(Math.round(sunX + s + off), HZ + 1 + k, 3, 1);
+    for (let k = 0; k < 5; k++) {
+      const w = 10 - k * 1.5;
+      const off = Math.sin(t * 1.2 + k * 1.3) * 1.2;
+      bgx.fillStyle = `rgba(255,253,244,${0.8 * (1 - k / 5)})`;
+      for (let s = -w / 2; s < w / 2; s += 4) {
+        if (Math.sin(s * 1.9 + k * 2.3 + t * 2) > 0.2) bgx.fillRect(Math.round(sunX + s + off), HZ + 1 + k, 2, 1);
       }
     }
   }
@@ -395,22 +349,7 @@ export function createCityscape(canvas: HTMLCanvasElement) {
     if (pointer) {
       for (const w of windows) {
         const dist = Math.hypot(w.x - pointer.x, (w.y - pointer.y) * 1.3);
-        if (dist < 24 && w.h < 1 - dist / 24) set(w.x, w.y, WINDOW);
-      }
-    }
-
-    // Fog bank rolling in through the Gate, dithered by density
-    for (let y = DECK - 12; y < HZ + 4; y++) {
-      const band = Math.max(0, 1 - Math.abs(y - (DECK + 3)) / 12);
-      const row = (y & 3) * 4;
-      for (let x = 0; x < W; x++) {
-        const env = x < anchorR ? 1 : Math.max(0, 1 - (x - anchorR) / 30);
-        const n = 0.5 + 0.28 * Math.sin((x - t * 4) * 0.09 + y * 0.31) + 0.22 * Math.sin((x - t * 2.5) * 0.033 - y * 0.12 + 1.7);
-        const dens = band * env * Math.max(0, n - 0.3) * 1.3; // patchy, not a blanket
-        if (dens <= BAYER[row + (x & 3)] / SPREAD + 0.5) continue;
-        const i = (y * W + x) * 4;
-        if (fgData[i + 3] > 128 && fgData[i + 1] > 0x9a) continue; // over land the dots read as lights
-        set(x, y, FOG);
+        if (dist < 18 && w.h < 1 - dist / 18) set(w.x, w.y, WINDOW);
       }
     }
 
