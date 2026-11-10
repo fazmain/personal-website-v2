@@ -38,8 +38,10 @@ const BASE = {
   haze: '#ddd3cc', // far shore, hills, back row of buildings
   mist: '#cbbfb8',
   city: '#b3a6a1', // landmarks and front row
-  cable: '#bd8a76', // the bridge: a muted International Orange, kin to the site's rust
-  cableShade: '#a97a69',
+  // The Golden Gate is always International Orange, whatever the visit's
+  // palette: softened to sit with the page, but unmistakably red.
+  cable: '#c4503b',
+  cableShade: '#a8443a',
   window: '#f6e8c6',
   beacon: '#cf7a68',
 };
@@ -52,8 +54,6 @@ const LEAN: Partial<Record<Role, number>> = { sand: 0.06, blush: 0.1, clay: 0.12
 function retheme(page: string, accent: string) {
   const next = { ...BASE, page } as Record<Role, string>;
   for (const [role, t] of Object.entries(LEAN) as [Role, number][]) next[role] = mix(BASE[role], accent, t);
-  next.cable = mix(accent, page, 0.38); // the bridge takes the accent, softened
-  next.cableShade = mix(accent, page, 0.26);
   COLORS = next;
   PAL = DITHER_PALETTE.map(k => hex(COLORS[k]));
   PAGE = hex(COLORS.page);

@@ -3,7 +3,7 @@
 //
 // Every visit gets its own accent colour, picked before the page paints and
 // never the same as the visitor's previous visit. The page background picks up
-// a faint tint of it; the text colour never changes. On a return visit the page
+// its own tinted paper colour; the text colour never changes. On a return visit the page
 // opens in the previous colour and flows into the new one.
 //
 // All hues share one lightness and chroma (OKLCH), so every visit is equally
@@ -91,11 +91,13 @@ export function contrast(a: string, b: string) {
 
 // ---------- the river ----------
 
-/** The site's original paper colour; each palette tints it toward its hue. */
-const CREAM = '#fffdf4';
 const ACCENT_L = 0.53;
 const ACCENT_C = 0.12;
-const TINT = 0.011; // how far the background leans toward the hue (OKLab units)
+// Each palette has its own paper: light enough to read on all day, tinted
+// enough that you notice the page itself changed. (The original cream is
+// about oklch(0.99 0.014 98).)
+const PAPER_L = 0.972;
+const PAPER_C = 0.026;
 const MIN_CONTRAST = 4.6;
 
 const HUES: [string, number][] = [
@@ -118,9 +120,7 @@ export type RiverTheme = {
 };
 
 function makeTheme(name: string, hue: number): RiverTheme {
-  const h = (hue * Math.PI) / 180;
-  const [cl, ca, cb] = hexToOklab(CREAM);
-  const background = linearToHex(oklabToLinear(cl, ca + TINT * Math.cos(h), cb + TINT * Math.sin(h)));
+  const background = oklch(PAPER_L, PAPER_C, hue);
   let L = ACCENT_L;
   let accent = oklch(L, ACCENT_C, hue);
   while (contrast(accent, background) < MIN_CONTRAST && L > 0.3) {
