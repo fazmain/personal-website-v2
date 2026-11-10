@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { EB_Garamond, Geist_Mono } from "next/font/google";
+import { Analytics } from '@vercel/analytics/next';
 import CityscapeFooter from '@/components/CityscapeFooter';
 import SiteNav from '@/components/SiteNav';
 import "./globals.css";
@@ -32,6 +33,7 @@ export default function RootLayout({
           {children}
         </main>
         <CityscapeFooter />
+        <Analytics />
       </body>
     </html>
   );
