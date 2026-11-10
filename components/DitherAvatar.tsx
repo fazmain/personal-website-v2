@@ -2,20 +2,21 @@
 
 import Image from 'next/image';
 import { useEffect, useRef } from 'react';
+import { hexToRgb, mix, readColorVar, rotateHue } from '@/lib/river';
 
-// Three tones per palette: light, mid, dark. The tile drifts from one palette
-// to the next, so the colours never sit still. All muted to suit the page.
-const PALETTES = [
-  ['#fbeadb', '#e3a582', '#b0573a'], // rust (the site accent)
-  ['#f6ecd0', '#dfbd6e', '#a8782f'], // brass
-  ['#e5f0ea', '#97c2b4', '#4b7a78'], // sea glass
-  ['#e8edf7', '#9db2d8', '#4d6594'], // fog blue
-  ['#f0e8f2', '#bfa6c8', '#76618f'], // dusk lilac
-].map(p => p.map(h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16))));
-
-// Pull every tone part-way toward the page colour so the tile stays soft.
-const PAGE = [0xff, 0xfd, 0xf4];
+// The tile follows the visit's palette (lib/river.ts): it drifts between the
+// accent and its two neighbours on the hue wheel, so the colours never sit
+// still but stay in today's family. Three tones per palette: light, mid, dark,
+// each pulled part-way toward the page colour so the tile stays soft.
+const NEIGHBOUR = 35; // degrees either side of the accent
 const SOFTEN = [0.4, 0.2, 0.12]; // light, mid, dark
+
+function palettesFor(accent: string, page: string) {
+  const tones = (c: string) =>
+    [mix(c, page, 0.88), mix(c, page, 0.5), c].map((t, k) => hexToRgb(mix(t, page, SOFTEN[k])));
+  const up = rotateHue(accent, NEIGHBOUR), down = rotateHue(accent, -NEIGHBOUR);
+  return [accent, up, accent, down].map(tones);
+}
 
 const SECONDS_PER_PALETTE = 7;
 const FPS = 15;
@@ -50,18 +51,19 @@ export default function DitherAvatar({ className = '' }: { className?: string })
     let clock = 0; // flow time, runs faster while hovered
     let speed = 1;
     let prev = performance.now();
+    let themeKey = '';
+    let palettes: number[][][] = [];
 
     const draw = () => {
       if (!img) return;
       const t = clock;
+      const accent = readColorVar('--accent'), page = readColorVar('--background');
+      if (accent + page !== themeKey) { themeKey = accent + page; palettes = palettesFor(accent, page); }
       const phase = t / SECONDS_PER_PALETTE;
-      const i = Math.floor(phase) % PALETTES.length;
+      const i = Math.floor(phase) % palettes.length;
       const f = smooth(0.6, 1, phase % 1); // hold, then blend
-      const a = PALETTES[i], b = PALETTES[(i + 1) % PALETTES.length];
-      const tones = a.map((c, k) => c.map((v, ch) => {
-        const mixed = v + (b[k][ch] - v) * f;
-        return Math.round(mixed + (PAGE[ch] - mixed) * SOFTEN[k]);
-      }));
+      const a = palettes[i], b = palettes[(i + 1) % palettes.length];
+      const tones = a.map((c, k) => c.map((v, ch) => Math.round(v + (b[k][ch] - v) * f)));
       const d = img.data;
       for (let y = 0; y < size; y++) {
         const v = y / size;

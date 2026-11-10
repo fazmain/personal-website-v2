@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { EB_Garamond, Geist_Mono } from "next/font/google";
 import CityscapeFooter from '@/components/CityscapeFooter';
 import SiteNav from '@/components/SiteNav';
+import { riverScript } from '@/lib/river';
 import "./globals.css";
 
 const ebGaramond = EB_Garamond({
@@ -26,7 +27,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${ebGaramond.variable} ${geistMono.variable} h-full antialiased`} suppressHydrationWarning>
-      <body className="min-h-full flex flex-col items-center overflow-x-clip px-6 pt-8 md:px-12 md:pt-12 lg:px-24 bg-[var(--background)] text-[var(--foreground)] selection:bg-[#c9d4e5] selection:text-[#0f172a]" suppressHydrationWarning>
+      <head>
+        {/* Picks this visit's colours before first paint; see lib/river.ts */}
+        <script dangerouslySetInnerHTML={{ __html: riverScript() }} />
+      </head>
+      <body className="min-h-full flex flex-col items-center overflow-x-clip px-6 pt-8 md:px-12 md:pt-12 lg:px-24 bg-[var(--background)] text-[var(--foreground)] selection:bg-accent-soft selection:text-[var(--foreground)]" suppressHydrationWarning>
         <main className="relative w-full max-w-2xl flex-grow pb-16">
           <SiteNav />
           {children}

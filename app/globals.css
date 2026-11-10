@@ -4,13 +4,28 @@
 @theme {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
   --font-serif: var(--font-eb-garamond);
   --font-mono: var(--font-geist-mono);
 }
 
+/* The river (lib/river.ts): a script in <head> sets --accent, --accent-soft
+   and --background per visit. These are the defaults without JavaScript.
+   Registered as colours so they can be animated when the page flows from the
+   previous visit's palette into this one. */
+@property --accent { syntax: '<color>'; inherits: true; initial-value: #ac4c2e; }
+@property --accent-soft { syntax: '<color>'; inherits: true; initial-value: #f3d2c4; }
+@property --background { syntax: '<color>'; inherits: true; initial-value: #fffdf4; }
+
 :root {
   --background: #fffdf4;
   --foreground: #1c2331;
+  --accent: #ac4c2e;
+  --accent-soft: #f3d2c4;
+}
+:root.river-flow {
+  transition: --accent 2.4s ease-in-out, --accent-soft 2.4s ease-in-out, --background 2.4s ease-in-out;
 }
 
 body {

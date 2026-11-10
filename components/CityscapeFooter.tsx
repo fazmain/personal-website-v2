@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { ART_HEIGHT, createCityscape } from '@/components/cityscape/scene';
+import { readColorVar } from '@/lib/river';
 
 const FPS = 12;
 const MAX_ART_WIDTH = 460;
@@ -21,7 +22,10 @@ export default function CityscapeFooter() {
     let visible = true;
     const start = performance.now();
 
-    const draw = (now: number) => scene.frame(still ? 0 : (now - start) / 1000);
+    const draw = (now: number) => {
+      scene.setTheme(readColorVar('--background'), readColorVar('--accent'));
+      scene.frame(still ? 0 : (now - start) / 1000);
+    };
 
     const fit = () => {
       // Whole-number scale so every art pixel is the same size on screen.

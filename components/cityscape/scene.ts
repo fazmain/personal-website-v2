@@ -17,6 +17,8 @@
 // All coordinates are in art pixels; the canvas is scaled up with
 // `image-rendering: pixelated`.
 
+import { mix } from '@/lib/river';
+
 type RGB = readonly [number, number, number];
 
 const hex = (h: string): RGB => [
@@ -25,8 +27,10 @@ const hex = (h: string): RGB => [
   parseInt(h.slice(5, 7), 16),
 ];
 
-// Roles, not hues: tweak these to restyle the whole scene.
-export const COLORS = {
+// Roles, not hues: tweak these to restyle the whole scene. These are the
+// defaults (the site's original rust and cream); setTheme() retints them to
+// each visit's palette from lib/river.ts.
+const BASE = {
   page: '#fffdf4', // = page background; the sky starts and the water ends here
   sand: '#f0e2cc',
   blush: '#e8cfb8',
@@ -38,7 +42,23 @@ export const COLORS = {
   cableShade: '#a97a69',
   window: '#f6e8c6',
   beacon: '#cf7a68',
-} as const;
+};
+type Role = keyof typeof BASE;
+let COLORS: Record<Role, string> = { ...BASE };
+
+// How far each role leans toward the day's accent.
+const LEAN: Partial<Record<Role, number>> = { sand: 0.06, blush: 0.1, clay: 0.12, haze: 0.06, mist: 0.08, city: 0.1 };
+
+function retheme(page: string, accent: string) {
+  const next = { ...BASE, page } as Record<Role, string>;
+  for (const [role, t] of Object.entries(LEAN) as [Role, number][]) next[role] = mix(BASE[role], accent, t);
+  next.cable = mix(accent, page, 0.38); // the bridge takes the accent, softened
+  next.cableShade = mix(accent, page, 0.26);
+  COLORS = next;
+  PAL = DITHER_PALETTE.map(k => hex(COLORS[k]));
+  PAGE = hex(COLORS.page);
+  LUT = null;
+}
 
 // Colours the soft layers are dithered to.
 const DITHER_PALETTE = ['page', 'sand', 'blush', 'clay', 'haze', 'mist', 'city'] as const;
@@ -59,8 +79,8 @@ function mulberry32(seed: number) {
 
 // Nearest-palette lookup on 5-bit RGB, built once.
 let LUT: Uint8Array | null = null;
-const PAL: RGB[] = DITHER_PALETTE.map(k => hex(COLORS[k]));
-const PAGE = hex(COLORS.page);
+let PAL: RGB[] = DITHER_PALETTE.map(k => hex(COLORS[k]));
+let PAGE = hex(COLORS.page);
 function lut() {
   if (LUT) return LUT;
   LUT = new Uint8Array(32 * 32 * 32);
@@ -103,6 +123,7 @@ export function createCityscape(canvas: HTMLCanvasElement) {
   let beacons: Light[] = [];
   let windows: { x: number; y: number; h: number }[] = []; // every window slot, for the cursor glow
   let pointer: { x: number; y: number } | null = null;
+  let themeKey = '';
 
   const WINDOW = hex(COLORS.window);
   const BEACON = hex(COLORS.beacon);
@@ -414,5 +435,13 @@ export function createCityscape(canvas: HTMLCanvasElement) {
     },
     frame,
     setPointer(p: { x: number; y: number } | null) { pointer = p; },
+    /** Follow the page's palette; rebuilds only when it actually changes. */
+    setTheme(page: string, accent: string) {
+      const key = page + accent;
+      if (key === themeKey) return;
+      themeKey = key;
+      retheme(page, accent);
+      if (W) build();
+    },
   };
 }
