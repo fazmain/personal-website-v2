@@ -9,8 +9,8 @@ import Image from 'next/image';
 
 // What I'm working on right now. Change `updated` (YYYY-MM) whenever you edit the text.
 const now = {
-  updated: '2026-10',
-  text: "I'm researching the safety of robot foundation models, looking at how their failure modes are similar to and different from those of LLMs. I'm also looking for funding and opportunities to continue this research at a larger scale. Alongside that, I'm making an interactive sculpture that visualizes residual stream activations!",
+  updated: '2026-11',
+  text: "I'm researching the safety of robot foundation models, looking at how their failure modes are similar to and different from those of LLMs. I'm also looking for funding and opportunities to continue this research at a larger scale. Presenting my current paper at CoRL 2026.",
 };
 
 const nowUpdated = new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric', timeZone: 'UTC' })
