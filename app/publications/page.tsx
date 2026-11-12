@@ -26,7 +26,9 @@ export default function PublicationsPage() {
       {groups.map(({ heading, entries }) => (
         <section key={heading} className="flex flex-col gap-4">
           <h2 className="text-xl md:text-2xl font-medium tracking-tight text-[#ac4c2e]">{heading}</h2>
-          {entries.map(e => <ResearchCard key={e.slug} entry={e} />)}
+          <div className="flex flex-col gap-8">
+            {entries.map(e => <ResearchCard key={e.slug} entry={e} />)}
+          </div>
         </section>
       ))}
     </div>

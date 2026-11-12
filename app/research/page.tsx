@@ -24,14 +24,18 @@ export default function ResearchPage() {
       {paperList.length > 0 && (
         <section className="flex flex-col gap-4">
           <h2 className="text-xl md:text-2xl font-medium tracking-tight text-[#ac4c2e]">Papers</h2>
-          {paperList.map(e => <ResearchCard key={e.slug} entry={e} />)}
+          <div className="flex flex-col gap-8">
+            {paperList.map(e => <ResearchCard key={e.slug} entry={e} />)}
+          </div>
         </section>
       )}
 
       {posts.length > 0 && (
         <section className="flex flex-col gap-4">
           <h2 className="text-xl md:text-2xl font-medium tracking-tight text-[#ac4c2e]">Research blog posts</h2>
-          {posts.map(e => <ResearchCard key={e.slug} entry={e} />)}
+          <div className="flex flex-col gap-8">
+            {posts.map(e => <ResearchCard key={e.slug} entry={e} />)}
+          </div>
         </section>
       )}
     </div>

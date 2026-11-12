@@ -14,42 +14,41 @@ export function Authors({ authors }: { authors: string[] }) {
   );
 }
 
+/**
+ * One research entry as a quiet editorial list item (no box), matching the
+ * Projects page: the title is the link, then authors, venue and year, and the
+ * summary if there is one.
+ */
 export default function ResearchCard({ entry }: { entry: ResearchEntry }) {
   const href = entryHref(entry);
   const external = !href.startsWith('/');
-  const title = (
-    <span className="text-base md:text-lg leading-snug text-[#ac4c2e] group-hover:underline underline-offset-4 decoration-[#ac4c2e]/40">
+  const titleClass =
+    'w-fit text-base md:text-lg leading-snug text-[#ac4c2e] hover:underline underline-offset-4 decoration-[#ac4c2e]/40';
+  const title = external ? (
+    <a href={href} target="_blank" rel="noopener noreferrer" className={titleClass}>
       {entry.title}
-    </span>
-  );
-
-  const body = (
-    <>
-      {title}
-      <span className="text-sm text-[var(--foreground)]/70 leading-relaxed">
-        <Authors authors={entry.authors} />
-      </span>
-      <span className="text-sm text-[var(--foreground)]/60">
-        {!isPaper(entry) && <span className="italic text-[#ac4c2e]/80">{kindLabel[entry.kind]} · </span>}
-        {entry.venue ? `${entry.venue}, ` : ''}
-        {entry.year}
-      </span>
-      {entry.summary && (
-        <span className="text-sm text-[var(--foreground)]/70 leading-relaxed mt-1">{entry.summary}</span>
-      )}
-    </>
-  );
-
-  const className =
-    'group flex flex-col gap-1 rounded-md border border-[var(--foreground)]/10 bg-[var(--foreground)]/[0.025] px-5 py-4 hover:border-[#ac4c2e]/30 hover:bg-[var(--foreground)]/[0.04] transition-colors';
-
-  return external ? (
-    <a href={href} target="_blank" rel="noopener noreferrer" className={className}>
-      {body}
+      <span aria-hidden className="ml-1 text-sm opacity-60">↗</span>
     </a>
   ) : (
-    <Link href={href} className={className}>
-      {body}
+    <Link href={href} className={titleClass}>
+      {entry.title}
     </Link>
+  );
+
+  return (
+    <article className="flex flex-col gap-1.5">
+      {title}
+      <p className="text-sm md:text-base text-[var(--foreground)]/70 leading-relaxed">
+        <Authors authors={entry.authors} />
+      </p>
+      <p className="text-sm text-[var(--foreground)]/55">
+        {!isPaper(entry) && <span className="italic">{kindLabel[entry.kind]} · </span>}
+        {entry.venue ? `${entry.venue} · ` : ''}
+        {entry.year}
+      </p>
+      {entry.summary && (
+        <p className="mt-1 text-sm md:text-base text-[var(--foreground)]/75 leading-relaxed">{entry.summary}</p>
+      )}
+    </article>
   );
 }
