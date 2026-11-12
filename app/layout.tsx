@@ -3,7 +3,6 @@ import { EB_Garamond, Geist_Mono } from "next/font/google";
 import CityscapeFooter from '@/components/CityscapeFooter';
 import SiteNav from '@/components/SiteNav';
 import { riverScript } from '@/lib/river';
-import { GoogleAnalytics } from '@next/third-parties/google';
 import "./globals.css";
 
 const ebGaramond = EB_Garamond({
@@ -15,11 +14,6 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
-
-// Google Analytics 4 Measurement ID ("G-..."). Set it where the site is built
-// (e.g. Vercel → Settings → Environment Variables). When it's unset, as in
-// local development, no analytics script is loaded.
-const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
 
 export const metadata: Metadata = {
   title: "Faiaz Azmain",
@@ -44,7 +38,6 @@ export default function RootLayout({
         </main>
         <CityscapeFooter />
       </body>
-      {GA_ID && <GoogleAnalytics gaId={GA_ID} />}
     </html>
   );
 }
