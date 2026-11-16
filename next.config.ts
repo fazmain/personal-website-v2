@@ -7,6 +7,8 @@ const nextConfig: NextConfig = {
     return [
       { source: '/blog', destination: '/essays', permanent: true },
       { source: '/blog/:slug', destination: '/essays/:slug', permanent: true },
+      // Renamed slug, 2026-11-16.
+      { source: '/essays/ai-safety-field-building-flying-blind', destination: '/essays/early-career-impact', permanent: true },
     ];
   },
 };
